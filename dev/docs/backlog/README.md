@@ -12,7 +12,7 @@
 | INF-004 | E0 | Контракт openapi.yaml для всех ручек MVP + генерация типов + contract-check | R | — | done | 2026-09-02 |
 | BE-001 | E0 | Миграция 001: stores, users, receipts, receipt_items, user_features, domovoy_states, challenges, reward_ledger | R | INF-001 | todo | |
 | BE-002 | E0 | Миграция 002: leagues, league_members, referrals, fraud_checks, achievements, mechanic_decisions, simulation_runs, eval_runs | R | BE-001 | todo | |
-| BE-003 | E0 | `game_rules.py` со всеми константами из domain-rules.md + тест на соответствие документу | R | INF-001 | todo | |
+| BE-003 | E0 | Дополнить `game_rules.py` всеми константами из domain-rules.md + тест на соответствие документу | R | INF-001 | todo | |
 | BE-004 | E0 | `tests/factories.py`: make_store, make_user, make_receipt, make_challenge | R | BE-002 | todo | |
 | AI-001 | E1 | Генератор синтетики: профили, магазины, чеки 8–12 недель, категории, промо, баллы | T | BE-004 | todo | |
 | AI-002 | E1 | Фрод-паттерны в синтетике: кассир, дробление, ферма рефералов, самореферал (3 %) | T | AI-001, BE-002 | todo | |
@@ -48,6 +48,12 @@
 | AI-007 | E11 | Промпт-тюнинг и проверка, что LLM-тексты содержат числа из features (fallback rate < 20 %) | T | AI-004, AI-005 | todo | |
 | DOC-001 | E12 | Демо-сценарий по §17 PRD с конкретными user_id и ожидаемыми цифрами | A | FE-006 | todo | |
 | INF-005 | E12 | `make demo`: поднять всё, засеять, прогнать eval и simulation одной командой | R | AI-005, AI-006 | todo | |
+| INF-006 | E13 | Dockerfile backend/frontend, nginx.conf, docker-compose.prod.yml, .env.prod.example | R | INF-001, INF-002 | todo | |
+| INF-009 | E13 | Миграции как одноразовый сервис перед backend, rollback.sh, правило откатов | R | INF-006 | todo | |
+| INF-007 | E13 | setup-vm.sh: docker, ufw, пользователь деплоя, pg_dump по cron | R | INF-006 | blocked: нужна VM | |
+| INF-008 | E13 | CD workflow: сборка образов в ghcr, деплой на VM по SSH после зелёного CI | R | INF-007, INF-009 | blocked: нужны secrets | |
+| INF-011 | E13 | Демо-данные на VM: синтетика, DEMO_NOW, eval и simulation | R | INF-008, AI-003 | blocked: нужна VM | |
+| INF-010 | E13 | Домен и TLS, если будет домен | R | INF-008 | blocked: нужен домен | |
 | DOC-002 | E12 | Одностраничник пилота и README для жюри | A | DOC-001 | todo | |
 
 ## Эпики
@@ -67,3 +73,4 @@
 | E10 PM view | [E10-pm-view.md](E10-pm-view.md) | Объяснимость |
 | E11 Eval & Simulation | [E11-eval-simulation.md](E11-eval-simulation.md) | Числа для жюри |
 | E12 Demo | [E12-demo.md](E12-demo.md) | Сдача |
+| E13 Deploy | [E13-deploy.md](E13-deploy.md) | Yandex Cloud VM, образы, CD |

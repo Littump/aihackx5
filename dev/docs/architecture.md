@@ -99,6 +99,10 @@ LLM получает готовые числа и features, возвращает
 
 `dev/contracts/openapi.yaml` пишется до кода. Backend проверяется на соответствие (`make contract-check`), frontend генерирует типы (`make contract-types`). Изменение API без правки контракта — дефект.
 
+## Время и деньги
+
+«Сейчас» существует только в `app/core/clock.py`: `now()`, `today()`, `week_start()`, `week_end()` в `game_rules.TIMEZONE`. Ruff запрещает `datetime.now()` и naive datetime в остальном коде, тесты замораживают время фикстурой `freeze_time`, демо — переменной `DEMO_NOW`. Деньги внутри — `Decimal`, наружу в DTO — `float`; баллы и XP — `int`.
+
 ## Чего в архитектуре нет намеренно
 
 - Auth: демо переключает пользователя по `user_id`. В контракте это обычный path-параметр.

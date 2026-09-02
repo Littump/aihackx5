@@ -27,13 +27,14 @@
 **AC:** как BE-001, плюс уникальности `referrals.referee_user_id`, `achievements(user_id, code)`.
 
 ## BE-003 game_rules.py
-**Файлы:** `app/game_rules.py`, `tests/unit/test_game_rules.py`.
-**Описание:** все константы из `domain-rules.md` с теми же именами. Категории, XP, пороги уровней (функция `level_for_xp`), economics, лига, рефералы, веса сигналов антифрода (dict `RECEIPT_SIGNALS`, `REFERRAL_SIGNALS` с `weight` и `strong`), ачивки, параметры симуляции по умолчанию.
+**Файлы:** `app/game_rules.py` (уже содержит `TIMEZONE`), `tests/unit/test_game_rules.py`.
+**Описание:** дополнить модуль всеми константами из `domain-rules.md` с теми же именами. Категории, XP, пороги уровней (функция `level_for_xp`), economics, лига, рефералы, веса сигналов антифрода (dict `RECEIPT_SIGNALS`, `REFERRAL_SIGNALS` с `weight` и `strong`), ачивки, параметры симуляции по умолчанию.
 **AC:**
 - каждая константа из документа есть в модуле;
 - `level_for_xp(0)=1, (100)=2, (299)=2, (300)=3, (4500)=10`;
 - сумма весов strong-сигналов чека ≥ 0.8 (иначе block недостижим) — тест;
-- в модуле нет ничего, кроме констант и `level_for_xp`.
+- в модуле нет ничего, кроме констант и `level_for_xp`;
+- `TIMEZONE` остаётся на месте — от него зависит `app/core/clock.py`.
 
 ## BE-004 Фабрики
 **Файлы:** `tests/factories.py`.

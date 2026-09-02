@@ -1,10 +1,8 @@
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from app.core.models import AppModel
 
 
-class HealthResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class HealthResponse(AppModel):
     status: Literal["ok"]
     database: Literal["ok", "error"]

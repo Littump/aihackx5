@@ -9,7 +9,7 @@ argument-hint: <METHOD /api/v1/path>
 ## Порядок (строго в этой последовательности)
 
 1. **Контракт.** Добавить путь в `dev/contracts/openapi.yaml`: метод, параметры, `requestBody`, `responses` с `$ref` на схемы в `components/schemas`. Имена полей `snake_case`. Ошибки — через общую схему `Error`. Если есть сомнения в форме ответа — посмотреть соседние ручки того же ресурса и PRD-экран, который её потребляет.
-2. **DTO.** В `app/features/<feature>/dto.py` — pydantic-модели один-в-один со схемами контракта, с `model_config = ConfigDict(from_attributes=True)`. Имена классов совпадают с именами схем (`HomeResponse`, `ChallengeDetail`).
+2. **DTO.** В `app/features/<feature>/dto.py` — модели один-в-один со схемами контракта, наследуют `AppModel` из `app/core/models.py`. Деньги — `float`, баллы и XP — `int`, даты — `datetime` (aware). Имена классов совпадают с именами схем (`HomeResponse`, `ChallengeDetail`).
 3. **Models.** В `models.py` — модель строки таблицы (`XRow`, поля = колонки) и доменная модель результата service, если она отличается от строки. Никаких `dict` и `dataclass`.
 4. **Database.** Если нужны новые запросы — функции в `database.py` того же feature: `async def get_x(conn, *, user_id: int) -> XRow | None`, именованные параметры `%(user_id)s`, курсор с `row_factory=class_row(XRow)`, явный список колонок в `SELECT`. Только свои таблицы.
 5. **Service.** Функция в `service.py`: принимает `conn` и простые аргументы или модели, возвращает модель из `models.py`. Всю логику — сюда. Числа — из `game_rules.py`. Ошибки — `raise AppError(...)`.
@@ -39,16 +39,16 @@ async def get_league(user_id: int, conn: Conn) -> LeagueResponse:
 ## Шаблон models
 
 ```python
-from pydantic import BaseModel
+from app.core.models import AppModel
 
 
-class LeagueMemberRow(BaseModel):
+class LeagueMemberRow(AppModel):
     league_id: int
     user_id: int
     score: int
 
 
-class LeagueView(BaseModel):
+class LeagueView(AppModel):
     division: int
     my_rank: int
     members: list[LeagueMemberRow]
@@ -75,12 +75,10 @@ async def get_league_member(conn: AsyncConnection, *, user_id: int) -> LeagueMem
 ## Шаблон dto
 
 ```python
-from pydantic import BaseModel, ConfigDict
+from app.core.models import AppModel
 
 
-class LeagueResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
+class LeagueResponse(AppModel):
     division: int
     my_rank: int
 ```

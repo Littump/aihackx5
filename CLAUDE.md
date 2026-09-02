@@ -23,6 +23,8 @@
 | `dev/docs/dev-pipeline.md` | Как берём задачу и доводим до done |
 | `dev/docs/backlog/` | Эпики и задачи с acceptance criteria |
 | `dev/docs/team.md` | Кто что делает |
+| `dev/docs/decisions.md` | Почему архитектура такая; не переспаривать без новой информации |
+| `dev/docs/deploy.md` | Деплой на Yandex Cloud VM и CD |
 | `.claude/rules/` | Правила для кода: backend, frontend, testing, style |
 | `.claude/skills/` | Рецепты: run-task, add-endpoint, add-model, add-logic, add-screen, update-api-contract |
 | `.claude/agents/` | Субагенты: backend-dev, frontend-dev, qa-tester, reviewer |
@@ -46,6 +48,7 @@
 - Каждая ручка имеет e2e-тест через реальный Postgres. Каждая функция сервиса с логикой имеет unit-тест.
 - Каждое изменение API начинается с `dev/contracts/openapi.yaml`, затем backend, затем `make contract-types` для фронта.
 - Числа игровых правил живут только в `dev/backend/app/game_rules.py` и зеркалятся в `dev/docs/domain-rules.md`. Магические константы в сервисах запрещены.
+- Время только через `app/core/clock.py`; `datetime.now()` и naive datetime не проходят ruff. Деньги: `Decimal` в моделях, `float` в DTO.
 - LLM-вызовы только через `app/llm/`, всегда с детерминированным fallback, чтобы тесты и демо работали без ключа.
 - Никаких ФИО, адресов и абсолютных чужих трат в ответах API рейтинга.
 

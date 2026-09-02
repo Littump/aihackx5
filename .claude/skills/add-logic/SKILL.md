@@ -13,7 +13,8 @@ argument-hint: <feature и что считаем>
 3. **Сигнатура.** Чистые функции принимают скаляры или модели из `models.py`, а не `conn`: `def max_reward_points(*, baseline: float, target: float, avg_basket: Decimal) -> int`, `def evaluate(draft: ChallengeDraft, features: UserFeatures) -> ChallengeEconomics`. Результат с несколькими полями — всегда pydantic-модель в `models.py`, не кортеж и не `dict`. Функции с базой принимают `conn` первым аргументом и вызывают `database.py`.
 4. **Событийная логика.** Обработка чека (`receipts/service.process_receipt`) вызывает сервисы соседей в фиксированном порядке из `architecture.md`. Порядок менять нельзя без правки документа.
 5. **Unit-тесты.** `tests/unit/<feature>/test_<module>.py`: пример из `domain-rules.md` как первый тест (входы и ожидаемое число один-в-один), границы (ноль, отрицательные, пустой список), лимиты (минимум и максимум награды).
-6. **Проверка.** `make check`, `uv run pytest tests/unit -q`.
+6. **Время.** Если логика зависит от «сейчас» (неделя, дедлайн, recency) — только `app.core.clock`; в тестах `freeze_time`.
+7. **Проверка.** `make check`, `uv run pytest tests/unit -q`.
 
 ## Пример: economics engine
 

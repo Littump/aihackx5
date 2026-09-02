@@ -1,5 +1,6 @@
 import sys
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable, Iterator
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -9,6 +10,7 @@ from psycopg_pool import AsyncConnectionPool
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
+from app.core import clock
 from app.core.config import settings
 from app.core.db import create_pool
 from app.main import create_app
@@ -61,3 +63,9 @@ async def clean_tables(pool: AsyncConnectionPool) -> AsyncIterator[None]:
         if tables:
             joined = ", ".join(f'"{name}"' for name in tables)
             await connection.execute(f"TRUNCATE {joined} RESTART IDENTITY CASCADE")
+
+
+@pytest.fixture
+def freeze_time() -> Iterator[Callable[[datetime], None]]:
+    yield clock.set_override
+    clock.set_override(None)

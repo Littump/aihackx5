@@ -1,0 +1,7 @@
+# Зоны ответственности из dev/docs/team.md
+*                         @Littump
+dev/backend/app/synthetic/   @tatiana-stlv
+dev/backend/app/llm/         @tatiana-stlv
+dev/backend/app/eval/        @tatiana-stlv
+dev/backend/app/simulation/  @tatiana-stlv
+docs/product-analysis/       @anna-kaz @Littump

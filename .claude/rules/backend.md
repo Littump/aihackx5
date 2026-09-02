@@ -15,6 +15,8 @@ dev/backend/
     core/
       config.py          # Settings (pydantic-settings), читает .env
       db.py              # пул psycopg, get_conn() и алиас Conn для роутеров
+      models.py          # AppModel — базовый класс всех pydantic-моделей
+      clock.py           # now(), today(), week_start(), week_end(); единственный источник времени
       errors.py          # AppError + exception handler
       logging.py
     features/<name>/
@@ -43,8 +45,8 @@ dev/backend/
 | `router.py` | `dto.py`, `service.py` своего feature, `core/db.Conn` | SQL, другие features, бизнес-логика, `game_rules` |
 | `service.py` | `models.py` и `database.py` свои, `service.py` и `models.py` соседей, `game_rules`, `llm` | HTTP, `fastapi`, `Request`, DTO из `dto.py` |
 | `database.py` | `psycopg`, `models.py` свой | всё остальное; никакой логики, только запросы к своим таблицам |
-| `models.py` | `pydantic` | всё остальное |
-| `dto.py` | `pydantic`, `models.py` свой (для `from_attributes`) | всё остальное |
+| `models.py` | `core/models.AppModel`, `pydantic` | всё остальное |
+| `dto.py` | `core/models.AppModel`, `pydantic`, `models.py` свой | всё остальное |
 
 - Соединение в router — параметр `conn: Conn` (`app.core.db.Conn`). Транзакция открывается там и живёт один запрос; исключение из service откатывает её целиком. Service не открывает соединений.
 - Кросс-feature логика (обработка чека, которая трогает challenges, league, domovoy) живёт в service того feature, которому принадлежит событие, и вызывает сервисы соседей. Не database соседей.
@@ -54,8 +56,16 @@ dev/backend/
 - `database.py` возвращает модель из `models.py`, `list[Model]`, скаляр (`int`, `bool`, `Decimal`) или `None`. **Никогда** `dict`, `tuple`, `Row`. Для этого курсор создаётся с `row_factory=class_row(Model)`.
 - `service.py` принимает и возвращает модели из `models.py` (свои или соседей), списки моделей, скаляры. Никаких `dict` в сигнатурах и в возвращаемых значениях. Промежуточные структуры тоже модели, а не словари.
 - `router.py` превращает модель service в DTO: `XResponse.model_validate(model)` при `model_config = ConfigDict(from_attributes=True)` у DTO. Если DTO агрегирует несколько моделей — собирается явно через конструктор.
-- `models.py`: `class UserRow(BaseModel)` — строка таблицы, поля один-в-один с колонками (см. `data-model.md`); доменные объекты (`UserFeatures`, `ChallengeDraft`, `FraudDecision`) — тоже здесь. JSONB-колонки описываются вложенными моделями, не `dict[str, Any]`.
-- `dict` допустим только как параметры SQL-запроса (`{"user_id": user_id}`) внутри `database.py` и как `params`/`results` при записи JSONB через `model.model_dump()`.
+- Все модели наследуют `AppModel` из `app/core/models.py` (там уже `from_attributes=True`), а не `BaseModel` напрямую.
+- `models.py`: `class UserRow(AppModel)` — строка таблицы, поля один-в-один с колонками (см. `data-model.md`); доменные объекты (`UserFeatures`, `ChallengeDraft`, `FraudDecision`) — тоже здесь. JSONB-колонки описываются вложенными моделями, не `dict[str, Any]`.
+- `dict` допустим только как параметры SQL-запроса (`{"user_id": user_id}`) внутри `database.py` и как `params`/`results` при записи JSONB через `model.model_dump(mode="json")`.
+- Деньги: в `models.py` — `Decimal` (как отдаёт `NUMERIC`), в `dto.py` — `float`. Pydantic сам приводит `Decimal → float` при `model_validate`; `Decimal` в DTO запрещён, потому что в JSON он превращается в строку, а контракт обещает `number`. Баллы и XP — `int` везде.
+
+## Время
+
+- Текущее время только через `app.core.clock.now()` / `today()` / `week_start()` / `week_end()`. `datetime.now()`, `utcnow()`, `date.today()` запрещены ruff-правилом `TID251`; naive datetime запрещён правилами `DTZ`.
+- Все `datetime` aware. Таймзона бизнес-логики — `game_rules.TIMEZONE` (`Europe/Moscow`): неделя лиги и челленджа начинается в понедельник 00:00 по ней. В базе `TIMESTAMPTZ`, psycopg возвращает aware.
+- В тестах время замораживается фикстурой `freeze_time(datetime(..., tzinfo=UTC))`. Для демо — `DEMO_NOW=2026-09-05T12:00:00+03:00` в `.env`.
 
 ## SQL
 

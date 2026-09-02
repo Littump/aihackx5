@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     llm_model: str = "claude-sonnet-5"
     app_env: str = "dev"
+    demo_now: str = ""
     cors_origins: list[str] = ["http://localhost:5173"]
 
 

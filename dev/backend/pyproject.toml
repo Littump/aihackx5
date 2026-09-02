@@ -29,11 +29,18 @@ target-version = "py312"
 src = ["app", "tests", "scripts"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "N", "SIM", "RUF", "D200", "D202"]
+select = ["E", "F", "I", "UP", "B", "N", "SIM", "RUF", "DTZ", "TID251", "D200", "D202"]
 ignore = ["RUF001", "RUF002", "RUF003", "RUF012"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"datetime.datetime.now".msg = "используй app.core.clock.now()"
+"datetime.datetime.utcnow".msg = "используй app.core.clock.now()"
+"datetime.datetime.today".msg = "используй app.core.clock.today()"
+"datetime.date.today".msg = "используй app.core.clock.today()"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["B011"]
+"app/core/clock.py" = ["DTZ"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["app"]

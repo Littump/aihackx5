@@ -28,6 +28,7 @@ make dev-fe     # http://localhost:5173
 | `ANTHROPIC_API_KEY` | пусто | без ключа работает fallback-шаблон |
 | `LLM_MODEL` | `claude-sonnet-5` | сверять по скиллу `claude-api` |
 | `APP_ENV` | `dev` | |
+| `DEMO_NOW` | пусто | ISO-время с зоной, например `2026-09-05T12:00:00+03:00`; замораживает «сейчас» для демо |
 | `VITE_API_URL` | `http://localhost:8000` | фронт |
 
 ## Проверки

@@ -1,8 +1,8 @@
 from typing import Literal
 
-from pydantic import BaseModel
+from app.core.models import AppModel
 
 
-class HealthStatus(BaseModel):
+class HealthStatus(AppModel):
     status: Literal["ok"]
     database: Literal["ok", "error"]

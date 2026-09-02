@@ -12,6 +12,8 @@
 | [testing.md](testing.md) | Стратегия тестов, фикстуры, что обязательно |
 | [local-setup.md](local-setup.md) | Поднять всё локально за 5 минут |
 | [team.md](team.md) | Кто за что отвечает и как стыкуемся |
+| [decisions.md](decisions.md) | Архитектурные решения и чем за них платим |
+| [deploy.md](deploy.md) | Схема деплоя на Yandex Cloud VM, что нужно от владельца, порядок первого развёртывания |
 | [backlog/README.md](backlog/README.md) | Доска задач: эпики, статусы, порядок |
 
 Правила для кода — `.claude/rules/`, рецепты — `.claude/skills/`, агенты — `.claude/agents/`. Корневой `CLAUDE.md` — точка входа для любого агента.
