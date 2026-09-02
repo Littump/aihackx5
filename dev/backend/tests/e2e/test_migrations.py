@@ -14,6 +14,7 @@ from psycopg.types.json import Jsonb
 from app.core.config import settings
 from migrate import MIGRATIONS_DIR, migrate
 
+from .. import factories
 from . import expected_schema as schema
 
 TEST_DSN = settings.test_database_url
@@ -121,18 +122,6 @@ async def _insert_row(conn: AsyncConnection, table: str, **overrides: object) ->
     )
     row = await _fetch_one(conn, query, **params)
     return int(row[0])
-
-
-async def _make_store(conn: AsyncConnection, **overrides: object) -> int:
-    return await _insert_row(conn, "stores", **overrides)
-
-
-async def _make_user(conn: AsyncConnection, **overrides: object) -> int:
-    return await _insert_row(conn, "users", **overrides)
-
-
-async def _make_receipt(conn: AsyncConnection, **overrides: object) -> int:
-    return await _insert_row(conn, "receipts", **overrides)
 
 
 async def _fetch_one(conn: AsyncConnection, query: str | sql.Composed, **params: object) -> Row:
@@ -254,43 +243,44 @@ async def test_numeric_rejects_overflow(
 
 
 async def test_delete_user_cascades_to_owned_rows(conn: AsyncConnection) -> None:
-    user_id = await _make_user(conn)
-    receipt_id = await _make_receipt(conn, user_id=user_id)
-    await _insert_row(conn, "receipt_items", receipt_id=receipt_id)
+    user = await factories.make_user(conn)
+    receipt = await factories.make_receipt(conn, user.id)
+    await _insert_row(conn, "receipt_items", receipt_id=receipt.id)
     for table in ("user_features", "domovoy_states", "challenges", "reward_ledger"):
-        await _insert_row(conn, table, user_id=user_id)
-    await conn.execute("DELETE FROM users WHERE id = %(id)s", {"id": user_id})
+        await _insert_row(conn, table, user_id=user.id)
+    await conn.execute("DELETE FROM users WHERE id = %(id)s", {"id": user.id})
     for table in PARENTS:
         assert await _count_rows(conn, table) == 0, table
     assert await _count_rows(conn, "stores") == 1
 
 
 async def test_delete_store_with_receipts_is_restricted(conn: AsyncConnection) -> None:
-    store_id = await _make_store(conn)
-    await _make_receipt(conn, store_id=store_id)
+    store = await factories.make_store(conn)
+    user = await factories.make_user(conn)
+    await factories.make_receipt(conn, user.id, store_id=store.id)
     with pytest.raises(ForeignKeyViolation):
-        await conn.execute("DELETE FROM stores WHERE id = %(id)s", {"id": store_id})
+        await conn.execute("DELETE FROM stores WHERE id = %(id)s", {"id": store.id})
 
 
 async def test_delete_store_nulls_favourite_store_references(conn: AsyncConnection) -> None:
-    store_id = await _make_store(conn)
-    user_id = await _make_user(conn, favourite_store_id=store_id)
-    await _insert_row(conn, "user_features", user_id=user_id, favourite_store_id=store_id)
-    await conn.execute("DELETE FROM stores WHERE id = %(id)s", {"id": store_id})
+    store = await factories.make_store(conn)
+    user = await factories.make_user(conn, favourite_store_id=store.id)
+    await _insert_row(conn, "user_features", user_id=user.id, favourite_store_id=store.id)
+    await conn.execute("DELETE FROM stores WHERE id = %(id)s", {"id": store.id})
     users_row = await _fetch_one(
-        conn, "SELECT favourite_store_id FROM users WHERE id = %(id)s", id=user_id
+        conn, "SELECT favourite_store_id FROM users WHERE id = %(id)s", id=user.id
     )
     features_row = await _fetch_one(
-        conn, "SELECT favourite_store_id FROM user_features WHERE user_id = %(id)s", id=user_id
+        conn, "SELECT favourite_store_id FROM user_features WHERE user_id = %(id)s", id=user.id
     )
     assert (users_row, features_row) == ((None,), (None,))
 
 
 async def test_delete_referrer_nulls_referred_by(conn: AsyncConnection) -> None:
-    referrer_id = await _make_user(conn)
-    referee_id = await _make_user(conn, referred_by_user_id=referrer_id)
-    await conn.execute("DELETE FROM users WHERE id = %(id)s", {"id": referrer_id})
+    referrer = await factories.make_user(conn)
+    referee = await factories.make_user(conn, referred_by_user_id=referrer.id)
+    await conn.execute("DELETE FROM users WHERE id = %(id)s", {"id": referrer.id})
     row = await _fetch_one(
-        conn, "SELECT referred_by_user_id FROM users WHERE id = %(id)s", id=referee_id
+        conn, "SELECT referred_by_user_id FROM users WHERE id = %(id)s", id=referee.id
     )
     assert row == (None,)
