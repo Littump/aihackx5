@@ -208,10 +208,7 @@ async def test_foreign_keys_and_delete_rules(conn: AsyncConnection, table: str) 
 async def test_indexes(conn: AsyncConnection, table: str) -> None:
     cur = await conn.execute(INDEX_QUERY, {"table": table})
     actual = {re.sub(r"\s+", " ", row[0]).replace("public.", "") for row in await cur.fetchall()}
-    expected = {
-        f"CREATE INDEX {index.name} ON {table} USING btree {index.columns}"
-        for index in schema.INDEXES.get(table, set())
-    }
+    expected = {index.definition(table) for index in schema.INDEXES.get(table, set())}
     assert actual == expected
 
 
