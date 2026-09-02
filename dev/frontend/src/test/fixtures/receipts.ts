@@ -1,3 +1,5 @@
+import { XP_CHALLENGE, XP_RECEIPT } from "./game_rules";
+import { heroChallenge } from "./challenges";
 import { DOMOVOY_BY_USER } from "./users";
 import type { Receipt, ReceiptProcessingResult } from "./types";
 
@@ -30,24 +32,30 @@ export function getReceipts(): Receipt[] {
 }
 
 export function buildReceiptProcessingResult(userId: number): ReceiptProcessingResult {
+  const hero = heroChallenge(userId);
+  const completesHero = hero !== null && hero.progress + 1 >= hero.target;
+  const xpDelta = XP_RECEIPT + (completesHero ? XP_CHALLENGE : 0);
+  const baseDomovoy = DOMOVOY_BY_USER[userId] ?? DOMOVOY_BY_USER[1];
   return {
     receipt: getReceipts()[0],
     counted: true,
     counted_reason: null,
-    xp_delta: 10,
-    domovoy: DOMOVOY_BY_USER[userId] ?? DOMOVOY_BY_USER[1],
+    xp_delta: xpDelta,
+    domovoy: { ...baseDomovoy, xp: baseDomovoy.xp + xpDelta },
     savings_delta: 172,
-    challenges: [
-      {
-        challenge_id: 1000 + userId,
-        progress_before: 2,
-        progress_after: 3,
-        target: 3,
-        completed: true,
-        reward_points: 30,
-        reward_xp: 50,
-      },
-    ],
+    challenges: hero
+      ? [
+          {
+            challenge_id: hero.id,
+            progress_before: hero.progress,
+            progress_after: Math.min(hero.target, hero.progress + 1),
+            target: hero.target,
+            completed: completesHero,
+            reward_points: completesHero ? hero.reward_points : 0,
+            reward_xp: completesHero ? hero.reward_xp : 0,
+          },
+        ]
+      : [],
     league_rank_before: 6,
     league_rank_after: 5,
     referral_status: null,
