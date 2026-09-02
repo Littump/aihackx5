@@ -12,7 +12,7 @@
 | INF-004 | E0 | Контракт openapi.yaml для всех ручек MVP + генерация типов + contract-check | R | — | done | 2026-09-02 |
 | BE-001 | E0 | Миграция 001: stores, users, receipts, receipt_items, user_features, domovoy_states, challenges, reward_ledger | R | INF-001 | done | 2026-09-03 |
 | BE-002 | E0 | Миграция 002: leagues, league_members, referrals, fraud_checks, achievements, mechanic_decisions, simulation_runs, eval_runs | R | BE-001 | done | 2026-09-03 |
-| BE-003 | E0 | Дополнить `game_rules.py` всеми константами из domain-rules.md + тест на соответствие документу | R | INF-001 | todo | |
+| BE-003 | E0 | Дополнить `game_rules.py` всеми константами из domain-rules.md + тест на соответствие документу | R | INF-001 | done | 2026-09-03 |
 | BE-004 | E0 | `tests/factories.py`: make_store, make_user, make_receipt, make_challenge | R | BE-002 | todo | |
 | AI-001 | E1 | Генератор синтетики: профили, магазины, чеки 8–12 недель, категории, промо, баллы | T | BE-004 | todo | |
 | AI-002 | E1 | Фрод-паттерны в синтетике: кассир, дробление, ферма рефералов, самореферал (3 %) | T | AI-001, BE-002 | todo | |
