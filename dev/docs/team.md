@@ -18,8 +18,7 @@
 ### 2. LLM-модуль → challenges
 ```python
 # app/llm/domovoy_copy.py
-@dataclass
-class ChallengeCopy:
+class ChallengeCopy(BaseModel):
     title: str
     body: str
     explanation: str
@@ -28,7 +27,7 @@ class ChallengeCopy:
 async def render_challenge(*, challenge: ChallengeDraft, features: UserFeatures) -> ChallengeCopy: ...
 async def render_insight(*, features: UserFeatures, savings: SavingsSummary) -> str: ...
 ```
-`ChallengeDraft` и `UserFeatures` — dataclasses из `challenges/service.py` и `user_features/service.py`. Модуль не ходит в базу и не считает числа: все числа приходят в аргументах и должны попасть в текст как есть. Без ключа или при ошибке — шаблон, `source="template"`. Пока модуль не готов, в core лежит заглушка с шаблоном, чтобы ничего не блокировать.
+`ChallengeDraft` и `UserFeatures` — pydantic-модели из `challenges/models.py` и `user_features/models.py`, `SavingsSummary` — из `savings/models.py`. Модуль не ходит в базу и не считает числа: все числа приходят в аргументах и должны попасть в текст как есть. Без ключа или при ошибке — шаблон, `source="template"`. Пока модуль не готов, в core лежит заглушка с шаблоном, чтобы ничего не блокировать.
 
 ### 3. Eval и Simulation → pm
 `app/eval` и `app/simulation` — CLI: `uv run python -m app.eval --profiles 50`, `uv run python -m app.simulation --users 5000 --weeks 8`. Читают базу через `service.py` features, пишут одну строку в `eval_runs` / `simulation_runs` через `pm.database`. Формат `results` JSONB — в `data-model.md`. PM view читает последнюю строку.

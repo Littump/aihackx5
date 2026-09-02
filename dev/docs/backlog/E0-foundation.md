@@ -38,4 +38,4 @@
 ## BE-004 Фабрики
 **Файлы:** `tests/factories.py`.
 **Описание:** `make_store`, `make_user`, `make_receipt(conn, user_id, *, items=None, purchased_at=None, store_id=None, **overrides)` — вставляет чек с позициями и считает totals, `make_challenge`, `make_domovoy_state`, `make_user_features`.
-**AC:** каждая фабрика возвращает dict строки; `make_receipt` без аргументов создаёт валидный чек с 3 позициями двух категорий; тест `tests/e2e/test_factories.py`.
+**AC:** каждая фабрика возвращает pydantic-модель строки (`UserRow`, `ReceiptRow`, …) через `database.insert_*`; `make_receipt` без аргументов создаёт валидный чек с 3 позициями двух категорий; тест `tests/e2e/test_factories.py`.

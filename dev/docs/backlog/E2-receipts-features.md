@@ -17,7 +17,7 @@
 
 ## BE-007 user_features
 **Файлы:** `app/features/user_features/{service,database}.py`, `calc.py`, тесты.
-**Описание:** `service.recompute(conn, user_id) -> UserFeatures` (dataclass) по §3 `domain-rules.md` за окно `FEATURES_WINDOW_WEEKS`, только counted и не возвращённые чеки. `calc.py` — чистые функции от списка чеков с позициями. Upsert в `user_features`. `service.get(conn, user_id)` — читает, если нет — пересчитывает.
+**Описание:** `service.recompute(conn, user_id) -> UserFeatures` (pydantic-модель в `models.py`, `category_affinity: dict[str, CategoryAffinity]` с вложенной моделью) по §3 `domain-rules.md` за окно `FEATURES_WINDOW_WEEKS`, только counted и не возвращённые чеки. `calc.py` — чистые функции от списка чеков с позициями. Upsert в `user_features`. `service.get(conn, user_id)` — читает, если нет — пересчитывает.
 **AC:**
 - unit на каждую формулу из §3 на фиксированном наборе из 6 чеков (ожидаемые числа посчитаны руками в тесте);
 - пользователь без чеков → `frequency_per_week=0, recency_days=null→ 999`, `avg_basket=0`, пустая affinity;

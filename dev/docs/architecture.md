@@ -17,16 +17,19 @@
 
 ## Backend: feature-модули и слои
 
-Код разложен по features, а не по типам файлов. Каждый feature — папка `app/features/<name>/` с четырьмя файлами:
+Код разложен по features, а не по типам файлов. Каждый feature — папка `app/features/<name>/` с пятью файлами:
 
 | Файл | Отвечает за | Знает про |
 |---|---|---|
-| `router.py` | HTTP: путь, метод, статус, DTO in/out | `service.py` своего feature, `dto.py`, `core/db.get_conn` |
-| `dto.py` | pydantic-модели запросов и ответов, зеркало `openapi.yaml` | только pydantic |
-| `service.py` | бизнес-логика, оркестрация, вызов соседей | `database.py` свой, `service.py` соседей, `game_rules`, `llm` |
-| `database.py` | SQL к своим таблицам | только psycopg |
+| `router.py` | HTTP: путь, метод, статус, DTO in/out | `service.py` своего feature, `dto.py`, `core/db.Conn` |
+| `dto.py` | pydantic-модели запросов и ответов API, зеркало `openapi.yaml` | pydantic, `models.py` свой |
+| `models.py` | pydantic-модели строк таблиц и доменных объектов feature | только pydantic |
+| `service.py` | бизнес-логика, оркестрация, вызов соседей | `database.py` и `models.py` свои, `service.py` и `models.py` соседей, `game_rules`, `llm` |
+| `database.py` | SQL к своим таблицам | psycopg, `models.py` свой |
 
 Стрелки идут только вниз: `router → service → database`. Между features — только `service → service`. Ни один feature не ходит в чужие таблицы напрямую: таблица принадлежит одному feature (см. `data-model.md`, колонка «владелец»).
+
+Данные между слоями — только pydantic-модели из `models.py`: `database.py` читает строки через `class_row(Model)`, service принимает и возвращает модели, router превращает модель в DTO через `model_validate`. `dict`, `tuple`, `dataclass`, `TypedDict` как контейнеры данных запрещены.
 
 Чистые вычисления (формулы без базы) — в отдельных модулях внутри feature: `challenges/economics.py`, `antifraud/scoring.py`, `league/scoring.py`, `domovoy/progression.py`. Это делает unit-тесты тривиальными.
 

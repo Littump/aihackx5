@@ -2,7 +2,7 @@
 
 ## BE-010 candidate + economics
 **Файлы:** `app/features/challenges/candidate.py`, `economics.py`, `tests/unit/challenges/`.
-**Описание:** `candidate.build(features) -> list[ChallengeDraft]` по §4–5 (frequency при headroom, category при affinity, fallback для пустой истории). `economics.evaluate(draft, features) -> ChallengeEconomics` и `max_reward_points(...)` по §6. `ChallengeDraft` — dataclass: type, category, baseline, target, priority, rationale_features.
+**Описание:** `candidate.build(features) -> list[ChallengeDraft]` по §4–5 (frequency при headroom, category при affinity, fallback для пустой истории). `economics.evaluate(draft, features) -> ChallengeEconomics` и `max_reward_points(...)` по §6. `ChallengeDraft` — pydantic-модель в `models.py`: type, category, baseline, target, priority, rationale_features (вложенная модель `RationaleFeatures`).
 **AC:**
 - пример PRD: baseline 2, target 3, basket 600 → margin 90, max 36, reward 30;
 - baseline 1.5, target 3, basket 555 → reward 50;

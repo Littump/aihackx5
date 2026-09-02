@@ -41,6 +41,7 @@
 
 - Слои backend: `router.py` → `service.py` → `database.py`. Router не знает про SQL, database не знает про HTTP, service не знает ни того, ни другого. DTO только в `dto.py`.
 - SQL пишется руками в `database.py` и нигде больше. ORM, query builder и SQL-строки в сервисах запрещены.
+- Между слоями ходят только pydantic-модели из `models.py`: `database.py` возвращает модели через `class_row`, `service.py` принимает и отдаёт модели, `router.py` превращает их в DTO. Никаких `dict`, `tuple`, `dataclass`, `TypedDict`.
 - Докстринги и комментарии не длиннее одной строки. Многострочные докстринги, блочные комментарии и два комментария подряд запрещены — это проверяет хук `scripts/check_comments.py`.
 - Каждая ручка имеет e2e-тест через реальный Postgres. Каждая функция сервиса с логикой имеет unit-тест.
 - Каждое изменение API начинается с `dev/contracts/openapi.yaml`, затем backend, затем `make contract-types` для фронта.

@@ -3,7 +3,7 @@ paths:
   - "dev/backend/**"
 ---
 
-# Backend: FastAPI + raw SQL
+# Backend: FastAPI + raw SQL + pydantic между слоями
 
 ## Структура
 
@@ -19,9 +19,10 @@ dev/backend/
       logging.py
     features/<name>/
       router.py          # только HTTP: path, status, dto in/out, вызов service
-      dto.py             # pydantic-модели запросов и ответов, ничего больше
+      dto.py             # pydantic-модели запросов и ответов API, зеркало openapi.yaml
+      models.py          # pydantic-модели строк таблиц и доменных объектов feature
       service.py         # бизнес-логика, принимает conn, вызывает database.py
-      database.py        # только SQL. Функции принимают conn и параметры, возвращают dict/list[dict]
+      database.py        # только SQL. Принимает conn и параметры, возвращает модели из models.py
     llm/                 # клиент Anthropic, промпты, fallback-шаблоны
     synthetic/           # генератор синтетических данных (CLI)
     eval/                # оценка relevance челленджей
@@ -40,21 +41,29 @@ dev/backend/
 | Слой | Импортирует | Запрещено |
 |---|---|---|
 | `router.py` | `dto.py`, `service.py` своего feature, `core/db.Conn` | SQL, другие features, бизнес-логика, `game_rules` |
-| `service.py` | `database.py` своего feature, `service.py` других features, `game_rules`, `llm` | HTTP, `fastapi`, `Request`, DTO ответов |
-| `database.py` | `psycopg` | всё остальное; никакой логики, только запросы к своим таблицам |
-| `dto.py` | `pydantic` | всё остальное |
+| `service.py` | `models.py` и `database.py` свои, `service.py` и `models.py` соседей, `game_rules`, `llm` | HTTP, `fastapi`, `Request`, DTO из `dto.py` |
+| `database.py` | `psycopg`, `models.py` свой | всё остальное; никакой логики, только запросы к своим таблицам |
+| `models.py` | `pydantic` | всё остальное |
+| `dto.py` | `pydantic`, `models.py` свой (для `from_attributes`) | всё остальное |
 
 - Соединение в router — параметр `conn: Conn` (`app.core.db.Conn`). Транзакция открывается там и живёт один запрос; исключение из service откатывает её целиком. Service не открывает соединений.
-- Service получает и возвращает простые типы: dict, dataclass, list. Преобразование в DTO — в router.
-- Кросс-feature логика (например, обработка чека, которая трогает challenges, league, domovoy) живёт в service того feature, которому принадлежит событие, и вызывает сервисы соседей. Не database соседей.
+- Кросс-feature логика (обработка чека, которая трогает challenges, league, domovoy) живёт в service того feature, которому принадлежит событие, и вызывает сервисы соседей. Не database соседей.
+
+## Данные между слоями: только pydantic
+
+- `database.py` возвращает модель из `models.py`, `list[Model]`, скаляр (`int`, `bool`, `Decimal`) или `None`. **Никогда** `dict`, `tuple`, `Row`. Для этого курсор создаётся с `row_factory=class_row(Model)`.
+- `service.py` принимает и возвращает модели из `models.py` (свои или соседей), списки моделей, скаляры. Никаких `dict` в сигнатурах и в возвращаемых значениях. Промежуточные структуры тоже модели, а не словари.
+- `router.py` превращает модель service в DTO: `XResponse.model_validate(model)` при `model_config = ConfigDict(from_attributes=True)` у DTO. Если DTO агрегирует несколько моделей — собирается явно через конструктор.
+- `models.py`: `class UserRow(BaseModel)` — строка таблицы, поля один-в-один с колонками (см. `data-model.md`); доменные объекты (`UserFeatures`, `ChallengeDraft`, `FraudDecision`) — тоже здесь. JSONB-колонки описываются вложенными моделями, не `dict[str, Any]`.
+- `dict` допустим только как параметры SQL-запроса (`{"user_id": user_id}`) внутри `database.py` и как `params`/`results` при записи JSONB через `model.model_dump()`.
 
 ## SQL
 
 - Только `database.py`. Именованные параметры `%(name)s`, никакой конкатенации строк.
 - Каждая функция делает один запрос или один логический шаг. Имя функции — глагол: `insert_receipt`, `get_active_challenge`, `list_league_members`.
-- Возвращать `dict_row`. Не возвращать курсор.
+- Список колонок в `SELECT` пишется явно и совпадает с полями модели. `SELECT *` запрещён.
 - Индексы и ограничения — в миграции, не «потом».
-- Миграции — только вперёд, файл `migrations/NNN_short_name.sql`, номер на единицу больше последнего. Изменил схему — обновил `dev/docs/data-model.md`.
+- Миграции — только вперёд, файл `migrations/NNN_short_name.sql`, номер на единицу больше последнего. Изменил схему — обновил `dev/docs/data-model.md` и `models.py`.
 
 ## Ручки
 
@@ -73,10 +82,11 @@ dev/backend/
 
 - Только `app/llm/`. Перед первым использованием Anthropic SDK прочитать скилл `claude-api` — модели и параметры сверять там, не по памяти.
 - Любая функция в `llm/` имеет fallback на шаблон, если нет `ANTHROPIC_API_KEY` или вызов упал. Тесты работают без ключа и без сети.
-- LLM возвращает текст, никогда — числа наград, порогов, скоров.
+- LLM возвращает текст, никогда — числа наград, порогов, скоров. Вход и выход `llm/` — pydantic-модели.
 
 ## Чего не делать
 
 - Не создавать общий `utils.py`. Общее — в `core/` с понятным именем.
 - Не хранить состояние в памяти процесса. Всё в Postgres.
 - Не писать `async def` там, где нет await.
+- Не использовать `dataclass` и `TypedDict` для данных между слоями — только pydantic.

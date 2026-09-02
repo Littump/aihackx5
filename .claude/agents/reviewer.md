@@ -10,6 +10,7 @@ tools: Read, Bash, Grep, Glob
 
 Чек-лист, каждый пункт — с `file:line`:
 - Слои: router не импортирует database и чужие сервисы; service не импортирует fastapi; database без логики. SQL только в `database.py`.
+- Данные между слоями: `database.py` возвращает модели через `class_row`, не `dict_row`; в сигнатурах service нет `dict`/`tuple`/`dataclass`; DTO собираются в router через `model_validate`; JSONB описан вложенными моделями.
 - Докстринги и комментарии не длиннее строки, нет двух комментариев подряд, нет закомментированного кода, нет `TODO` без ID.
 - Числа игровых правил только в `game_rules.py`, в документе `domain-rules.md` они совпадают.
 - Контракт: изменённые ручки есть в `openapi.yaml`, поля совпадают, `schema.d.ts` перегенерирован если фронт трогали.

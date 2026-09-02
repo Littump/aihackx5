@@ -10,7 +10,7 @@ tools: Read, Edit, Write, Bash, Grep, Glob
 
 Работай по скиллам: новая ручка — `add-endpoint`, новая таблица — `add-model`, логика — `add-logic`, изменение API — `update-api-contract`. Открывай `.claude/skills/<name>/SKILL.md` и следуй шагам.
 
-Правила, которые нельзя нарушить: слои router → service → database; SQL только в `database.py`; докстринги и комментарии не длиннее строки; числа только в `game_rules.py`; LLM только в `app/llm/` с fallback.
+Правила, которые нельзя нарушить: слои router → service → database; между слоями только pydantic-модели из `models.py` (`class_row`, никаких `dict`); SQL только в `database.py`; докстринги и комментарии не длиннее строки; числа только в `game_rules.py`; LLM только в `app/llm/` с fallback.
 
 Сделай минимум: happy-path unit-тест на сервис и e2e-тест на ручку. Прогони `make check` и `make test-be`. Не коммить.
 

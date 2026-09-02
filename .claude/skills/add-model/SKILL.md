@@ -6,17 +6,18 @@ argument-hint: <имя_таблицы или что меняем>
 
 # add-model — новая таблица или изменение схемы
 
-Без ORM. Модель = таблица в миграции + функции в `database.py` + строка в `data-model.md`.
+Без ORM. Модель = таблица в миграции + pydantic-класс строки в `models.py` + функции в `database.py` + строка в `data-model.md`.
 
 ## Шаги
 
 1. **Спроектировать.** Открыть `dev/docs/data-model.md` — проверить, что сущности ещё нет и что она не дублирует существующую. Определить: имя таблицы (`snake_case`, множественное), первичный ключ (`id BIGSERIAL` или естественный), внешние ключи с `ON DELETE`, `NOT NULL` по умолчанию, `created_at TIMESTAMPTZ NOT NULL DEFAULT now()`, индексы под запросы, которые будут.
 2. **Миграция.** Файл `dev/backend/migrations/NNN_<short_name>.sql`, `NNN` = последний + 1, три цифры. Один файл — одно логическое изменение. Только `CREATE`/`ALTER`/`CREATE INDEX`. Никаких `DROP` данных без задачи. Файл идемпотентным делать не нужно — runner хранит применённые в `schema_migrations`.
 3. **Применить.** `make migrate`. Тестовая база мигрируется автоматически в `tests/conftest.py`.
-4. **Функции доступа.** В `app/features/<feature>/database.py`: `insert_x`, `get_x`, `list_x_by_y`, `update_x_field`. Каждая — один запрос, именованные параметры, `dict_row`, `RETURNING` для insert. Таблица принадлежит одному feature; другие feature ходят к ней только через его `service.py`.
-5. **Документация.** Добавить таблицу в `dev/docs/data-model.md`: назначение, колонки с типами, индексы, кто владелец.
-6. **Фабрика.** В `dev/backend/tests/factories.py` — `async def make_x(conn, **overrides) -> dict` с разумными дефолтами, чтобы e2e-тесты создавали данные одной строкой.
-7. **Тест.** Минимум один e2e-тест, который вставляет через фабрику и читает через функцию `database.py` или через ручку.
+4. **Модель строки.** В `app/features/<feature>/models.py` — `class XRow(BaseModel)` с полями один-в-один с колонками и теми же именами. JSONB — вложенная модель, не `dict`. `Decimal` для `NUMERIC`, `datetime` для `TIMESTAMPTZ`, `Literal[...]` для колонок с `CHECK IN`.
+5. **Функции доступа.** В `app/features/<feature>/database.py`: `insert_x(conn, *, ...) -> XRow`, `get_x(conn, *, id) -> XRow | None`, `list_x_by_y(conn, *, ...) -> list[XRow]`, `update_x_field(conn, *, ...) -> XRow`. Каждая — один запрос, именованные параметры, `row_factory=class_row(XRow)`, явный список колонок, `RETURNING` со всеми колонками для insert/update. Таблица принадлежит одному feature; другие feature ходят к ней только через его `service.py`.
+6. **Документация.** Добавить таблицу в `dev/docs/data-model.md`: назначение, колонки с типами, индексы, кто владелец.
+7. **Фабрика.** В `dev/backend/tests/factories.py` — `async def make_x(conn, **overrides) -> XRow` с разумными дефолтами, вызывает `database.insert_x`, чтобы e2e-тесты создавали данные одной строкой.
+8. **Тест.** Минимум один e2e-тест, который вставляет через фабрику и читает через функцию `database.py` или через ручку; проверяет, что вернулась модель нужного класса.
 
 ## Шаблон миграции
 
