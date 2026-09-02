@@ -29,7 +29,7 @@
 | BE-013 | E6 | `receipts.process_receipt`: оркестратор по порядку из architecture.md, `ReceiptProcessingResult` | R | BE-012, BE-008 | todo | |
 | BE-014 | E6 | `POST /users/{id}/receipts/simulate`: генерация правдоподобного чека по features, сценарии | R | BE-013 | todo | |
 | BE-015 | E6 | `GET /users/{id}/home`: агрегат + recommended_mechanic (правила) + insight | R | BE-013 | todo | |
-| FE-001 | E6 | Оболочка: роутер, нижняя навигация, переключатель пользователя, MSW-хендлеры под контракт | R | INF-002, INF-004 | todo | |
+| FE-001 | E6 | Оболочка: роутер, нижняя навигация, переключатель пользователя, MSW-хендлеры под контракт | R | INF-002, INF-004 | done | 2026-09-03 |
 | FE-002 | E6 | Home: Домовой, XP, настроение, savings, insight, hero challenge, «Почему это мне?», кнопка Simulate | R | FE-001 | todo | |
 | FE-003 | E6 | Challenge: hero + side, прогресс, дедлайн, награда, explanation, история | R | FE-001 | todo | |
 | BE-016 | E7 | `league`: формирование лиг по дому и дивизиону, `scoring.py`, on_receipt, `GET /users/{id}/league` | R | BE-013 | todo | |

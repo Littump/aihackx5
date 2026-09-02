@@ -1,11 +1,17 @@
-import { Outlet } from "react-router";
+import type { ReactNode } from "react";
 
-export function PhoneShell() {
+type PhoneShellProps = {
+  header?: ReactNode;
+  children: ReactNode;
+};
+
+export function PhoneShell({ header, children }: PhoneShellProps) {
   return (
-    <div className="flex min-h-screen justify-center bg-gray-100">
-      <main className="flex min-h-screen w-full max-w-[430px] flex-col bg-white shadow-lg">
-        <Outlet />
-      </main>
+    <div className="flex min-h-screen justify-center bg-bg">
+      <div className="flex min-h-screen w-full max-w-[430px] flex-col bg-surface shadow-lg">
+        {header}
+        <div className="flex flex-1 flex-col overflow-y-auto">{children}</div>
+      </div>
     </div>
   );
 }

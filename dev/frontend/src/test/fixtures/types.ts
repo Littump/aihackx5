@@ -1,0 +1,19 @@
+import type { components } from "@/shared/api/schema";
+
+export type Schemas = components["schemas"];
+export type UserSummary = Schemas["UserSummary"];
+export type DomovoyState = Schemas["DomovoyState"];
+export type SavingsSummary = Schemas["SavingsSummary"];
+export type ChallengeDetail = Schemas["ChallengeDetail"];
+export type Challenge = Schemas["Challenge"];
+export type HomeResponse = Schemas["HomeResponse"];
+export type LeagueResponse = Schemas["LeagueResponse"];
+export type ReferralResponse = Schemas["ReferralResponse"];
+export type Achievement = Schemas["Achievement"];
+export type PmUserResponse = Schemas["PmUserResponse"];
+export type UserFeatures = Schemas["UserFeatures"];
+export type FraudCheck = Schemas["FraudCheck"];
+export type SimulationRun = Schemas["SimulationRun"];
+export type EvalRun = Schemas["EvalRun"];
+export type Receipt = Schemas["Receipt"];
+export type ReceiptProcessingResult = Schemas["ReceiptProcessingResult"];
