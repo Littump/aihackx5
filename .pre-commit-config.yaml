@@ -1,0 +1,51 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: \.md$
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-merge-conflict
+
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check --fix (backend)
+        entry: bash -c 'cd dev/backend && uv run ruff check --fix "${@#dev/backend/}"' --
+        language: system
+        files: ^dev/backend/.*\.py$
+
+      - id: ruff-format
+        name: ruff format (backend)
+        entry: bash -c 'cd dev/backend && uv run ruff format "${@#dev/backend/}"' --
+        language: system
+        files: ^dev/backend/.*\.py$
+
+      - id: mypy
+        name: mypy (backend)
+        entry: bash -c 'cd dev/backend && uv run mypy app'
+        language: system
+        files: ^dev/backend/app/.*\.py$
+        pass_filenames: false
+
+      - id: prettier
+        name: prettier --write (frontend)
+        entry: bash -c 'cd dev/frontend && npx prettier --write --log-level warn "${@#dev/frontend/}"' --
+        language: system
+        files: ^dev/frontend/.*\.(ts|tsx|js|css|json)$
+        exclude: ^dev/frontend/(node_modules|dist)/|schema\.d\.ts$|package-lock\.json$
+
+      - id: eslint
+        name: eslint --fix (frontend)
+        entry: bash -c 'cd dev/frontend && npx eslint --fix --max-warnings 0 "${@#dev/frontend/}"' --
+        language: system
+        files: ^dev/frontend/.*\.(ts|tsx)$
+        exclude: ^dev/frontend/(node_modules|dist)/|schema\.d\.ts$
+
+      - id: check-comments
+        name: докстринги и комментарии не длиннее одной строки
+        entry: python3 scripts/check_comments.py
+        language: system
+        files: \.(py|ts|tsx)$
+        exclude: node_modules/|schema\.d\.ts$|\.venv/

@@ -1,0 +1,884 @@
+openapi: 3.1.0
+info:
+  title: Domovoy API
+  version: 0.1.0
+  description: Персональный игровой слой поверх X5 Клуба. Auth отсутствует, пользователь демо задаётся user_id.
+servers:
+  - url: http://localhost:8000
+tags:
+  - name: health
+  - name: users
+  - name: savings
+  - name: challenges
+  - name: receipts
+  - name: league
+  - name: referrals
+  - name: achievements
+  - name: pm
+
+paths:
+  /api/v1/health:
+    get:
+      tags: [health]
+      operationId: getHealth
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /api/v1/users:
+    get:
+      tags: [users]
+      operationId: listUsers
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, default: 50, minimum: 1, maximum: 500 }
+      responses:
+        "200":
+          description: Список демо-пользователей
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListResponse"
+
+  /api/v1/users/{user_id}/home:
+    get:
+      tags: [users]
+      operationId: getHome
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: Агрегат для экрана Home
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HomeResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/users/{user_id}/savings:
+    get:
+      tags: [savings]
+      operationId: getSavings
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+        - in: query
+          name: period
+          schema: { type: string, enum: [week, month], default: month }
+      responses:
+        "200":
+          description: Экономия за период
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavingsResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/users/{user_id}/challenges:
+    get:
+      tags: [challenges]
+      operationId: listChallenges
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: Активные и завершённые челленджи
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChallengeListResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/users/{user_id}/challenges/refresh:
+    post:
+      tags: [challenges]
+      operationId: refreshChallenges
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: Новый набор на неделю
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChallengeListResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/users/{user_id}/challenges/{challenge_id}:
+    get:
+      tags: [challenges]
+      operationId: getChallenge
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+        - in: path
+          name: challenge_id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Челлендж с объяснением
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChallengeDetail"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/receipts:
+    post:
+      tags: [receipts]
+      operationId: ingestReceipt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReceiptInput"
+      responses:
+        "201":
+          description: Чек обработан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReceiptProcessingResult"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /api/v1/users/{user_id}/receipts/simulate:
+    post:
+      tags: [receipts]
+      operationId: simulateReceipt
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SimulateReceiptInput"
+      responses:
+        "201":
+          description: Сгенерированный чек обработан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReceiptProcessingResult"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/users/{user_id}/receipts:
+    get:
+      tags: [receipts]
+      operationId: listReceipts
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+        - in: query
+          name: limit
+          schema: { type: integer, default: 20, minimum: 1, maximum: 200 }
+      responses:
+        "200":
+          description: История чеков
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReceiptListResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/users/{user_id}/league:
+    get:
+      tags: [league]
+      operationId: getLeague
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: Лига пользователя
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeagueResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/users/{user_id}/referral:
+    get:
+      tags: [referrals]
+      operationId: getReferral
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: Реферальная страница
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReferralResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/referrals/redeem:
+    post:
+      tags: [referrals]
+      operationId: redeemReferral
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RedeemReferralInput"
+      responses:
+        "201":
+          description: Приглашённый создан и привязан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RedeemReferralResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Лимит приглашений
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /api/v1/users/{user_id}/achievements:
+    get:
+      tags: [achievements]
+      operationId: listAchievements
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: Ачивки
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AchievementListResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/pm/users/{user_id}:
+    get:
+      tags: [pm]
+      operationId: getPmUser
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: PM-карточка пользователя
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PmUserResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/pm/fraud:
+    get:
+      tags: [pm]
+      operationId: listFraudChecks
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, default: 50, minimum: 1, maximum: 500 }
+        - in: query
+          name: decision
+          schema: { type: string, enum: [approve, hold, block] }
+      responses:
+        "200":
+          description: Решения антифрода
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FraudCheckListResponse"
+
+  /api/v1/pm/simulation/latest:
+    get:
+      tags: [pm]
+      operationId: getLatestSimulation
+      responses:
+        "200":
+          description: Последняя симуляция
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimulationRun"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/pm/eval/latest:
+    get:
+      tags: [pm]
+      operationId: getLatestEval
+      responses:
+        "200":
+          description: Последний relevance eval
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvalRun"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  parameters:
+    UserId:
+      in: path
+      name: user_id
+      required: true
+      schema: { type: integer }
+
+  responses:
+    NotFound:
+      description: Не найдено
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ValidationError:
+      description: Ошибка валидации
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+
+    HealthResponse:
+      type: object
+      required: [status, database]
+      properties:
+        status: { type: string, enum: [ok] }
+        database: { type: string, enum: [ok, error] }
+
+    UserSummary:
+      type: object
+      required: [id, pseudonym, segment, level]
+      properties:
+        id: { type: integer }
+        pseudonym: { type: string }
+        segment: { type: string, enum: [regular_mid, light, heavy, dormant] }
+        level: { type: integer }
+
+    UserListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/UserSummary" }
+
+    DomovoyState:
+      type: object
+      required: [xp, level, xp_to_next_level, mood, mood_reason, streak_weeks, items]
+      properties:
+        xp: { type: integer }
+        level: { type: integer }
+        xp_to_next_level: { type: integer }
+        mood: { type: string, enum: [cheerful, cozy, healthy, bored, sleepy] }
+        mood_reason: { type: string }
+        streak_weeks: { type: integer }
+        items:
+          type: array
+          items: { type: string }
+
+    SavingsCategory:
+      type: object
+      required: [category, amount]
+      properties:
+        category: { type: string }
+        amount: { type: number }
+
+    SavingsSummary:
+      type: object
+      required: [period, amount, previous_amount, delta, discount_amount, points_earned, points_spent, top_categories]
+      properties:
+        period: { type: string, enum: [week, month] }
+        amount: { type: number }
+        previous_amount: { type: number }
+        delta: { type: number }
+        discount_amount: { type: number }
+        points_earned: { type: integer }
+        points_spent: { type: integer }
+        top_categories:
+          type: array
+          items: { $ref: "#/components/schemas/SavingsCategory" }
+
+    SavingsResponse:
+      $ref: "#/components/schemas/SavingsSummary"
+
+    ChallengeEconomics:
+      type: object
+      required: [avg_basket, expected_incremental_purchases, expected_incremental_margin, max_reward_rub, contribution_margin, reward_share_max]
+      properties:
+        avg_basket: { type: number }
+        expected_incremental_purchases: { type: number }
+        expected_incremental_margin: { type: number }
+        max_reward_rub: { type: number }
+        contribution_margin: { type: number }
+        reward_share_max: { type: number }
+
+    Challenge:
+      type: object
+      required: [id, type, category, status, is_hero, baseline, target, progress, period_start, period_end, reward_xp, reward_points, title, body]
+      properties:
+        id: { type: integer }
+        type: { type: string, enum: [frequency, category] }
+        category: { type: [string, "null"] }
+        status: { type: string, enum: [active, completed, failed, expired] }
+        is_hero: { type: boolean }
+        baseline: { type: number }
+        target: { type: number }
+        progress: { type: number }
+        period_start: { type: string, format: date-time }
+        period_end: { type: string, format: date-time }
+        reward_xp: { type: integer }
+        reward_points: { type: integer }
+        title: { type: string }
+        body: { type: string }
+
+    ChallengeDetail:
+      allOf:
+        - $ref: "#/components/schemas/Challenge"
+        - type: object
+          required: [explanation, rationale_features, economics, copy_source]
+          properties:
+            explanation: { type: string }
+            rationale_features:
+              type: object
+              additionalProperties: true
+            economics: { $ref: "#/components/schemas/ChallengeEconomics" }
+            copy_source: { type: string, enum: [llm, template] }
+
+    ChallengeListResponse:
+      type: object
+      required: [hero, side, history]
+      properties:
+        hero:
+          oneOf:
+            - $ref: "#/components/schemas/ChallengeDetail"
+            - type: "null"
+        side:
+          type: array
+          items: { $ref: "#/components/schemas/ChallengeDetail" }
+        history:
+          type: array
+          items: { $ref: "#/components/schemas/Challenge" }
+
+    LeagueTeaser:
+      type: object
+      required: [division, rank, size, zone]
+      properties:
+        division: { type: integer }
+        rank: { type: integer }
+        size: { type: integer }
+        zone: { type: string, enum: [promotion, safe, demotion] }
+
+    ReferralTeaser:
+      type: object
+      required: [code, invited_count, rewarded_count]
+      properties:
+        code: { type: string }
+        invited_count: { type: integer }
+        rewarded_count: { type: integer }
+
+    HomeResponse:
+      type: object
+      required: [user, domovoy, savings, insight, hero_challenge, league, referral, recommended_mechanic]
+      properties:
+        user: { $ref: "#/components/schemas/UserSummary" }
+        domovoy: { $ref: "#/components/schemas/DomovoyState" }
+        savings: { $ref: "#/components/schemas/SavingsSummary" }
+        insight: { type: string }
+        hero_challenge:
+          oneOf:
+            - $ref: "#/components/schemas/ChallengeDetail"
+            - type: "null"
+        league:
+          oneOf:
+            - $ref: "#/components/schemas/LeagueTeaser"
+            - type: "null"
+        referral: { $ref: "#/components/schemas/ReferralTeaser" }
+        recommended_mechanic:
+          type: object
+          required: [mechanic, reason]
+          properties:
+            mechanic: { type: string, enum: [challenge, league, referral] }
+            reason: { type: string }
+
+    ReceiptItemInput:
+      type: object
+      required: [product_name, category, qty, regular_price, paid_price]
+      properties:
+        product_name: { type: string }
+        category: { type: string }
+        qty: { type: number, minimum: 0.001 }
+        regular_price: { type: number, minimum: 0 }
+        paid_price: { type: number, minimum: 0 }
+        is_promo: { type: boolean, default: false }
+
+    ReceiptInput:
+      type: object
+      required: [user_id, store_id, purchased_at, items]
+      properties:
+        user_id: { type: integer }
+        store_id: { type: integer }
+        purchased_at: { type: string, format: date-time }
+        points_earned: { type: integer, default: 0 }
+        points_spent: { type: integer, default: 0 }
+        pos_id: { type: [string, "null"] }
+        items:
+          type: array
+          minItems: 1
+          items: { $ref: "#/components/schemas/ReceiptItemInput" }
+
+    SimulateReceiptInput:
+      type: object
+      properties:
+        scenario: { type: string, enum: [typical, category_boost, fraud_burst], default: typical }
+        store_id: { type: [integer, "null"] }
+
+    Receipt:
+      type: object
+      required: [id, store_id, store_name, purchased_at, regular_total, paid_total, discount_total, points_earned, points_spent, counted, is_returned, items]
+      properties:
+        id: { type: integer }
+        store_id: { type: integer }
+        store_name: { type: string }
+        purchased_at: { type: string, format: date-time }
+        regular_total: { type: number }
+        paid_total: { type: number }
+        discount_total: { type: number }
+        points_earned: { type: integer }
+        points_spent: { type: integer }
+        counted: { type: boolean }
+        is_returned: { type: boolean }
+        items:
+          type: array
+          items:
+            type: object
+            required: [product_name, category, qty, regular_price, paid_price, is_promo]
+            properties:
+              product_name: { type: string }
+              category: { type: string }
+              qty: { type: number }
+              regular_price: { type: number }
+              paid_price: { type: number }
+              is_promo: { type: boolean }
+
+    ReceiptListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Receipt" }
+
+    FraudDecision:
+      type: object
+      required: [score, decision, signals]
+      properties:
+        score: { type: number }
+        decision: { type: string, enum: [approve, hold, block] }
+        signals:
+          type: array
+          items:
+            type: object
+            required: [code, weight, strong, detail]
+            properties:
+              code: { type: string }
+              weight: { type: number }
+              strong: { type: boolean }
+              detail: { type: string }
+
+    ChallengeProgressDelta:
+      type: object
+      required: [challenge_id, progress_before, progress_after, target, completed, reward_points, reward_xp]
+      properties:
+        challenge_id: { type: integer }
+        progress_before: { type: number }
+        progress_after: { type: number }
+        target: { type: number }
+        completed: { type: boolean }
+        reward_points: { type: integer }
+        reward_xp: { type: integer }
+
+    ReceiptProcessingResult:
+      type: object
+      required: [receipt, counted, counted_reason, xp_delta, domovoy, savings_delta, challenges, league_rank_before, league_rank_after, referral_status, fraud, achievements_unlocked]
+      properties:
+        receipt: { $ref: "#/components/schemas/Receipt" }
+        counted: { type: boolean }
+        counted_reason: { type: [string, "null"] }
+        xp_delta: { type: integer }
+        domovoy: { $ref: "#/components/schemas/DomovoyState" }
+        savings_delta: { type: number }
+        challenges:
+          type: array
+          items: { $ref: "#/components/schemas/ChallengeProgressDelta" }
+        league_rank_before: { type: [integer, "null"] }
+        league_rank_after: { type: [integer, "null"] }
+        referral_status: { type: [string, "null"] }
+        fraud: { $ref: "#/components/schemas/FraudDecision" }
+        achievements_unlocked:
+          type: array
+          items: { type: string }
+
+    LeagueMember:
+      type: object
+      required: [pseudonym, level, score, rank, is_me]
+      properties:
+        pseudonym: { type: string }
+        level: { type: integer }
+        score: { type: integer }
+        rank: { type: integer }
+        is_me: { type: boolean }
+
+    LeagueResponse:
+      type: object
+      required: [division, division_name, week_start, week_end, size, my_rank, my_score, my_zone, promotion_cutoff, demotion_cutoff, members, house]
+      properties:
+        division: { type: integer }
+        division_name: { type: string }
+        week_start: { type: string, format: date }
+        week_end: { type: string, format: date }
+        size: { type: integer }
+        my_rank: { type: integer }
+        my_score: { type: integer }
+        my_zone: { type: string, enum: [promotion, safe, demotion] }
+        promotion_cutoff: { type: integer }
+        demotion_cutoff: { type: integer }
+        members:
+          type: array
+          items: { $ref: "#/components/schemas/LeagueMember" }
+        house:
+          type: object
+          required: [store_name, avg_savings_rate, district_rank, district_size]
+          properties:
+            store_name: { type: string }
+            avg_savings_rate: { type: number }
+            district_rank: { type: integer }
+            district_size: { type: integer }
+
+    ReferralInvitee:
+      type: object
+      required: [label, referee_kind, status, purchases_done, purchases_required, reward_points, created_at]
+      properties:
+        label: { type: string, description: "«Сосед №3», без имён" }
+        referee_kind: { type: string, enum: [new, dormant, active] }
+        status: { type: string, enum: [pending, first_purchase, qualified, on_review, rewarded, blocked] }
+        purchases_done: { type: integer }
+        purchases_required: { type: integer }
+        reward_points: { type: integer }
+        created_at: { type: string, format: date-time }
+
+    ReferralResponse:
+      type: object
+      required: [code, link, rules, referrer_reward_points, referee_reward_points_new, referee_reward_points_dormant, invitees, paid_this_month, paid_limit_month]
+      properties:
+        code: { type: string }
+        link: { type: string }
+        rules:
+          type: array
+          items: { type: string }
+        referrer_reward_points: { type: integer }
+        referee_reward_points_new: { type: integer }
+        referee_reward_points_dormant: { type: integer }
+        invitees:
+          type: array
+          items: { $ref: "#/components/schemas/ReferralInvitee" }
+        paid_this_month: { type: integer }
+        paid_limit_month: { type: integer }
+
+    RedeemReferralInput:
+      type: object
+      required: [code]
+      properties:
+        code: { type: string }
+        device_fingerprint: { type: [string, "null"] }
+        pseudonym: { type: [string, "null"] }
+
+    RedeemReferralResponse:
+      type: object
+      required: [referee_user_id, referrer_user_id, referee_kind, status]
+      properties:
+        referee_user_id: { type: integer }
+        referrer_user_id: { type: integer }
+        referee_kind: { type: string, enum: [new, dormant, active] }
+        status: { type: string, enum: [pending, first_purchase, qualified, on_review, rewarded, blocked] }
+
+    Achievement:
+      type: object
+      required: [code, title, unlocked_at]
+      properties:
+        code: { type: string }
+        title: { type: string }
+        unlocked_at: { type: string, format: date-time }
+
+    AchievementListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Achievement" }
+
+    UserFeatures:
+      type: object
+      required: [computed_at, window_weeks, frequency_per_week, recency_days, avg_basket, promo_sensitivity, cadence_days, category_affinity, realized_savings_30d, favourite_store_id, cross_chain_share]
+      properties:
+        computed_at: { type: string, format: date-time }
+        window_weeks: { type: integer }
+        frequency_per_week: { type: number }
+        recency_days: { type: integer }
+        avg_basket: { type: number }
+        promo_sensitivity: { type: number }
+        cadence_days: { type: number }
+        category_affinity:
+          type: object
+          additionalProperties:
+            type: object
+            required: [share, visits, cadence_days]
+            properties:
+              share: { type: number }
+              visits: { type: integer }
+              cadence_days: { type: number }
+        realized_savings_30d: { type: number }
+        favourite_store_id: { type: integer }
+        cross_chain_share: { type: number }
+
+    RewardLedgerEntry:
+      type: object
+      required: [kind, xp_delta, points_delta, ref_type, ref_id, created_at]
+      properties:
+        kind: { type: string }
+        xp_delta: { type: integer }
+        points_delta: { type: integer }
+        ref_type: { type: [string, "null"] }
+        ref_id: { type: [integer, "null"] }
+        created_at: { type: string, format: date-time }
+
+    PmUserResponse:
+      type: object
+      required: [user, features, recommended_mechanic, hero_challenge, rewards_total_points, rewards_total_xp, expected_incremental_margin_month, fraud_checks, ledger]
+      properties:
+        user: { $ref: "#/components/schemas/UserSummary" }
+        features: { $ref: "#/components/schemas/UserFeatures" }
+        recommended_mechanic:
+          type: object
+          required: [mechanic, reasons]
+          properties:
+            mechanic: { type: string, enum: [challenge, league, referral] }
+            reasons:
+              type: array
+              items: { type: string }
+        hero_challenge:
+          oneOf:
+            - $ref: "#/components/schemas/ChallengeDetail"
+            - type: "null"
+        rewards_total_points: { type: integer }
+        rewards_total_xp: { type: integer }
+        expected_incremental_margin_month: { type: number }
+        fraud_checks:
+          type: array
+          items: { $ref: "#/components/schemas/FraudCheck" }
+        ledger:
+          type: array
+          items: { $ref: "#/components/schemas/RewardLedgerEntry" }
+
+    FraudCheck:
+      type: object
+      required: [id, subject_type, subject_id, user_id, score, decision, signals, created_at]
+      properties:
+        id: { type: integer }
+        subject_type: { type: string, enum: [receipt, referral] }
+        subject_id: { type: integer }
+        user_id: { type: integer }
+        score: { type: number }
+        decision: { type: string, enum: [approve, hold, block] }
+        signals:
+          type: array
+          items:
+            type: object
+            required: [code, weight, strong, detail]
+            properties:
+              code: { type: string }
+              weight: { type: number }
+              strong: { type: boolean }
+              detail: { type: string }
+        created_at: { type: string, format: date-time }
+
+    FraudCheckListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/FraudCheck" }
+
+    SimulationRun:
+      type: object
+      required: [id, created_at, params, results]
+      properties:
+        id: { type: integer }
+        created_at: { type: string, format: date-time }
+        params:
+          type: object
+          additionalProperties: true
+        results:
+          type: object
+          required: [purchases_per_user_control, purchases_per_user_treatment, share_above_n_control, share_above_n_treatment, frequency_uplift, incremental_revenue, incremental_margin, reward_cost, net_effect, referral_conversion, fraud_precision, fraud_recall]
+          properties:
+            purchases_per_user_control: { type: number }
+            purchases_per_user_treatment: { type: number }
+            share_above_n_control: { type: number }
+            share_above_n_treatment: { type: number }
+            frequency_uplift: { type: number }
+            incremental_revenue: { type: number }
+            incremental_margin: { type: number }
+            reward_cost: { type: number }
+            net_effect: { type: number }
+            referral_conversion: { type: number }
+            fraud_precision: { type: number }
+            fraud_recall: { type: number }
+
+    EvalRun:
+      type: object
+      required: [id, created_at, profiles, hit_rate, invalid_rate, fallback_rate, economics_pass_rate, details]
+      properties:
+        id: { type: integer }
+        created_at: { type: string, format: date-time }
+        profiles: { type: integer }
+        hit_rate: { type: number }
+        invalid_rate: { type: number }
+        fallback_rate: { type: number }
+        economics_pass_rate: { type: number }
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: true

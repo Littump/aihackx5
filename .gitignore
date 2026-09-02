@@ -34,3 +34,8 @@ Thumbs.db
 *.db
 data/raw/
 outputs/
+
+# Project
+dev/backend/.synthetic/
+.mypy_cache/
+coverage/

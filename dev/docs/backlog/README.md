@@ -1,0 +1,69 @@
+# Backlog — доска
+
+Статусы: `todo`, `in_progress`, `review`, `done`, `blocked`. Владельцы: R — Роман, T — Татьяна, A — Анна. Порядок в таблице — порядок выполнения. Задача берётся, только если все `deps` в `done`.
+
+Описания и acceptance criteria — в файлах эпиков. Обновлять эту таблицу при каждой смене статуса.
+
+| ID | Эпик | Задача | Владелец | Deps | Статус | Дата |
+|---|---|---|---|---|---|---|
+| INF-001 | E0 | Скелет backend: FastAPI, config, db pool, errors, health, миграции, pytest с Postgres | R | — | done | 2026-09-02 |
+| INF-002 | E0 | Скелет frontend: Vite+React+TS, Tailwind, Query, router, оболочка телефона, Vitest, MSW | R | — | done | 2026-09-02 |
+| INF-003 | E0 | pre-commit: ruff, mypy, eslint, prettier, check_comments; Makefile; docker-compose | R | — | done | 2026-09-02 |
+| INF-004 | E0 | Контракт openapi.yaml для всех ручек MVP + генерация типов + contract-check | R | — | done | 2026-09-02 |
+| BE-001 | E0 | Миграция 001: stores, users, receipts, receipt_items, user_features, domovoy_states, challenges, reward_ledger | R | INF-001 | todo | |
+| BE-002 | E0 | Миграция 002: leagues, league_members, referrals, fraud_checks, achievements, mechanic_decisions, simulation_runs, eval_runs | R | BE-001 | todo | |
+| BE-003 | E0 | `game_rules.py` со всеми константами из domain-rules.md + тест на соответствие документу | R | INF-001 | todo | |
+| BE-004 | E0 | `tests/factories.py`: make_store, make_user, make_receipt, make_challenge | R | BE-002 | todo | |
+| AI-001 | E1 | Генератор синтетики: профили, магазины, чеки 8–12 недель, категории, промо, баллы | T | BE-004 | todo | |
+| AI-002 | E1 | Фрод-паттерны в синтетике: кассир, дробление, ферма рефералов, самореферал (3 %) | T | AI-001, BE-002 | todo | |
+| AI-003 | E1 | `make synth` и seed 300 пользователей для dev | T | AI-001 | todo | |
+| BE-005 | E2 | `users`: список демо-пользователей, `GET /users`, псевдонимы | R | BE-004 | todo | |
+| BE-006 | E2 | `receipts`: приём чека, дедуп 30 мин, дневной лимит, `POST /receipts`, `GET /users/{id}/receipts` | R | BE-005 | todo | |
+| BE-007 | E2 | `user_features`: расчёт всех features по §3 domain-rules, пересчёт после чека | R | BE-006 | todo | |
+| BE-008 | E3 | `savings`: расчёт по §2, `GET /users/{id}/savings` | R | BE-006 | todo | |
+| BE-009 | E4 | `domovoy`: XP, уровень, настроение, streak, `progression.py`, on_receipt | R | BE-007 | todo | |
+| BE-010 | E5 | `challenges/candidate.py` + `economics.py`: кандидаты, target, max reward по §4–6 | R | BE-007, BE-003 | todo | |
+| BE-011 | E5 | `challenges`: personalization (hero/side), генерация набора, `refresh`, `GET` ручки, заглушка copy | R | BE-010 | todo | |
+| AI-004 | E5 | `app/llm/`: клиент Anthropic, `render_challenge`, `render_insight`, шаблоны fallback | T | BE-011 | todo | |
+| BE-012 | E5 | Прогресс челленджа от чека, выполнение → reward_ledger + XP + streak, возврат откатывает | R | BE-011, BE-009 | todo | |
+| BE-013 | E6 | `receipts.process_receipt`: оркестратор по порядку из architecture.md, `ReceiptProcessingResult` | R | BE-012, BE-008 | todo | |
+| BE-014 | E6 | `POST /users/{id}/receipts/simulate`: генерация правдоподобного чека по features, сценарии | R | BE-013 | todo | |
+| BE-015 | E6 | `GET /users/{id}/home`: агрегат + recommended_mechanic (правила) + insight | R | BE-013 | todo | |
+| FE-001 | E6 | Оболочка: роутер, нижняя навигация, переключатель пользователя, MSW-хендлеры под контракт | R | INF-002, INF-004 | todo | |
+| FE-002 | E6 | Home: Домовой, XP, настроение, savings, insight, hero challenge, «Почему это мне?», кнопка Simulate | R | FE-001 | todo | |
+| FE-003 | E6 | Challenge: hero + side, прогресс, дедлайн, награда, explanation, история | R | FE-001 | todo | |
+| BE-016 | E7 | `league`: формирование лиг по дому и дивизиону, `scoring.py`, on_receipt, `GET /users/{id}/league` | R | BE-013 | todo | |
+| BE-017 | E7 | `POST /league/rollover`: недельный сброс, зоны, повышение/понижение, XP | R | BE-016 | todo | |
+| BE-018 | E8 | `antifraud/scoring.py`: сигналы чека и реферала по §11, решение, `fraud_checks` | R | BE-013 | todo | |
+| BE-019 | E8 | `referrals`: код, `redeem`, referee_kind, qualifying purchases, награда после антифрода, лимиты, `GET /users/{id}/referral` | R | BE-018 | todo | |
+| BE-020 | E8 | Антифрод в pipeline чека: block → counted=false, hold → отложенная награда | R | BE-018 | todo | |
+| BE-021 | E8 | `achievements`: правила §12, on_receipt, `GET` | R | BE-013 | todo | |
+| FE-004 | E9 | League: дивизион, список под псевдонимами, моё место, зоны, дельта после покупки, «дом vs район» | R | FE-001, BE-016 | todo | |
+| FE-005 | E9 | Referral: код/QR, правила, приглашённые со статусами, лимиты | R | FE-001, BE-019 | todo | |
+| BE-022 | E10 | `pm`: `GET /pm/users/{id}`, `GET /pm/fraud`, `mechanic_decisions` | R | BE-019, BE-021 | todo | |
+| BE-023 | E10 | `GET /pm/simulation/latest`, `GET /pm/eval/latest` | R | BE-002 | todo | |
+| FE-006 | E10 | PM view: features, механика + причины, челлендж + экономика, фрод, ledger, симуляция, eval | R | FE-001, BE-022, BE-023 | todo | |
+| AI-005 | E11 | `app/eval`: relevance по §14 на 30–50 профилях, запись в eval_runs | T | BE-011, AI-003 | todo | |
+| AI-006 | E11 | `app/simulation`: control vs treatment по §13, запись в simulation_runs | T | AI-003, BE-013 | todo | |
+| AI-007 | E11 | Промпт-тюнинг и проверка, что LLM-тексты содержат числа из features (fallback rate < 20 %) | T | AI-004, AI-005 | todo | |
+| DOC-001 | E12 | Демо-сценарий по §17 PRD с конкретными user_id и ожидаемыми цифрами | A | FE-006 | todo | |
+| INF-005 | E12 | `make demo`: поднять всё, засеять, прогнать eval и simulation одной командой | R | AI-005, AI-006 | todo | |
+| DOC-002 | E12 | Одностраничник пилота и README для жюри | A | DOC-001 | todo | |
+
+## Эпики
+
+| Эпик | Файл | Цель |
+|---|---|---|
+| E0 Foundation | [E0-foundation.md](E0-foundation.md) | Скелеты, схема, константы, контракт |
+| E1 Synthetic | [E1-synthetic.md](E1-synthetic.md) | Данные, на которых всё живёт |
+| E2 Receipts & Features | [E2-receipts-features.md](E2-receipts-features.md) | Чек и признаки |
+| E3 Savings | [E3-savings.md](E3-savings.md) | Экономия |
+| E4 Domovoy | [E4-domovoy.md](E4-domovoy.md) | Персонаж |
+| E5 Challenges | [E5-challenges.md](E5-challenges.md) | Кандидаты, экономика, LLM-текст, прогресс |
+| E6 Pipeline & Frontend core | [E6-pipeline-frontend-core.md](E6-pipeline-frontend-core.md) | Оркестратор, Home, Challenge |
+| E7 League | [E7-league.md](E7-league.md) | Лига |
+| E8 Referral & Antifraud | [E8-referral-antifraud.md](E8-referral-antifraud.md) | Рефералы, фрод, ачивки |
+| E9 Frontend social | [E9-frontend-social.md](E9-frontend-social.md) | League, Referral экраны |
+| E10 PM view | [E10-pm-view.md](E10-pm-view.md) | Объяснимость |
+| E11 Eval & Simulation | [E11-eval-simulation.md](E11-eval-simulation.md) | Числа для жюри |
+| E12 Demo | [E12-demo.md](E12-demo.md) | Сдача |
