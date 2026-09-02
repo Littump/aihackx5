@@ -10,7 +10,7 @@
 | INF-002 | E0 | Скелет frontend: Vite+React+TS, Tailwind, Query, router, оболочка телефона, Vitest, MSW | R | — | done | 2026-09-02 |
 | INF-003 | E0 | pre-commit: ruff, mypy, eslint, prettier, check_comments; Makefile; docker-compose | R | — | done | 2026-09-02 |
 | INF-004 | E0 | Контракт openapi.yaml для всех ручек MVP + генерация типов + contract-check | R | — | done | 2026-09-02 |
-| BE-001 | E0 | Миграция 001: stores, users, receipts, receipt_items, user_features, domovoy_states, challenges, reward_ledger | R | INF-001 | todo | |
+| BE-001 | E0 | Миграция 001: stores, users, receipts, receipt_items, user_features, domovoy_states, challenges, reward_ledger | R | INF-001 | done | 2026-09-03 |
 | BE-002 | E0 | Миграция 002: leagues, league_members, referrals, fraud_checks, achievements, mechanic_decisions, simulation_runs, eval_runs | R | BE-001 | todo | |
 | BE-003 | E0 | Дополнить `game_rules.py` всеми константами из domain-rules.md + тест на соответствие документу | R | INF-001 | todo | |
 | BE-004 | E0 | `tests/factories.py`: make_store, make_user, make_receipt, make_challenge | R | BE-002 | todo | |

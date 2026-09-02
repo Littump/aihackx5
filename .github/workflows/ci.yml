@@ -40,7 +40,7 @@ jobs:
       - run: uv sync --frozen
       - run: uv run ruff check .
       - run: uv run ruff format --check .
-      - run: uv run mypy app
+      - run: uv run mypy app tests scripts
       - run: uv run pytest -q
       - run: uv run python scripts/contract_lint.py ../contracts/openapi.yaml
       - run: uv run python scripts/contract_check.py ../contracts/openapi.yaml

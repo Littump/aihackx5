@@ -25,6 +25,11 @@
 **Файлы:** `migrations/002_social_risk.sql`.
 **Описание:** `leagues`, `league_members`, `referrals`, `fraud_checks`, `achievements`, `mechanic_decisions`, `simulation_runs`, `eval_runs`.
 **AC:** как BE-001, плюс уникальности `referrals.referee_user_id`, `achievements(user_id, code)`.
+**Учесть из ревью BE-001:**
+- `tests/e2e/expected_schema.py` уже 282 строки — превратить в пакет `tests/e2e/expected_schema/` с модулями `core.py` (001) и `social_risk.py` (002) и слиянием словарей в `__init__.py`, чтобы `test_migrations.py` не менялся;
+- `leagues`: ограничение `(store_id, division, week_start)` делать `UNIQUE`-constraint (попадёт в `UNIQUES`, из `INDEXES` исключится через `pg_constraint`), не `CREATE UNIQUE INDEX`;
+- `eval_runs.invalid_rate/fallback_rate/economics_pass_rate` — `NUMERIC(4,3)` как `hit_rate` (уже внесено в `data-model.md`);
+- CHECK-тест не ловит лишнее разрешённое значение сверх документа — при желании сравнивать `pg_get_constraintdef` с ожидаемым списком.
 
 ## BE-003 game_rules.py
 **Файлы:** `app/game_rules.py` (уже содержит `TIMEZONE`), `tests/unit/test_game_rules.py`.
@@ -39,4 +44,4 @@
 ## BE-004 Фабрики
 **Файлы:** `tests/factories.py`.
 **Описание:** `make_store`, `make_user`, `make_receipt(conn, user_id, *, items=None, purchased_at=None, store_id=None, **overrides)` — вставляет чек с позициями и считает totals, `make_challenge`, `make_domovoy_state`, `make_user_features`.
-**AC:** каждая фабрика возвращает pydantic-модель строки (`UserRow`, `ReceiptRow`, …) через `database.insert_*`; `make_receipt` без аргументов создаёт валидный чек с 3 позициями двух категорий; тест `tests/e2e/test_factories.py`.
+**AC:** каждая фабрика возвращает pydantic-модель строки (`UserRow`, `ReceiptRow`, …) через `database.insert_*`; `make_receipt` без аргументов создаёт валидный чек с 3 позициями двух категорий; тест `tests/e2e/test_factories.py`; локальные хелперы `_make_*` в `tests/e2e/test_migrations.py` заменены на фабрики из `tests/factories.py`.

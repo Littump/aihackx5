@@ -4,7 +4,7 @@ UV := uv run --project $(BE)
 CONTRACT := dev/contracts/openapi.yaml
 COMPOSE := $(shell docker compose version >/dev/null 2>&1 && echo docker compose || echo docker-compose)
 
-.PHONY: setup up down migrate synth dev-be dev-fe test-be test-fe lint format check contract-types contract-check contract-lint demo
+.PHONY: setup up down test-db-reset migrate synth dev-be dev-fe test-be test-fe lint format check contract-types contract-check contract-lint demo
 
 setup:
 	cd $(BE) && uv sync
@@ -18,6 +18,9 @@ up:
 
 down:
 	$(COMPOSE) down
+
+test-db-reset:
+	$(COMPOSE) exec -T postgres psql -U domovoy -d domovoy -c "DROP DATABASE IF EXISTS domovoy_test WITH (FORCE)" -c "CREATE DATABASE domovoy_test OWNER domovoy"
 
 migrate:
 	$(UV) python $(BE)/scripts/migrate.py
@@ -38,7 +41,7 @@ test-fe:
 	cd $(FE) && npm run test -- --run
 
 lint:
-	cd $(BE) && uv run ruff check . && uv run ruff format --check . && uv run mypy app
+	cd $(BE) && uv run ruff check . && uv run ruff format --check . && uv run mypy app tests scripts
 	cd $(FE) && npm run lint && npm run format:check && npm run typecheck
 	python3 scripts/check_comments.py $(BE)/app $(BE)/tests $(BE)/scripts $(FE)/src scripts
 

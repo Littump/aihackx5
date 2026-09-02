@@ -24,9 +24,9 @@ repos:
 
       - id: mypy
         name: mypy (backend)
-        entry: bash -c 'cd dev/backend && uv run mypy app'
+        entry: bash -c 'cd dev/backend && uv run mypy app tests scripts'
         language: system
-        files: ^dev/backend/app/.*\.py$
+        files: ^dev/backend/.*\.py$
         pass_filenames: false
 
       - id: prettier

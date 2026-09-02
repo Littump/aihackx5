@@ -58,6 +58,7 @@
 make setup          # uv sync, npm install, pre-commit install
 make up             # Postgres в docker (порт 5433)
 make migrate        # применить SQL-миграции
+make test-db-reset  # пересоздать domovoy_test (после правки уже применённой миграции)
 make dev-be         # uvicorn с reload на :8000
 make dev-fe         # vite на :5173
 make test-be        # pytest unit + e2e

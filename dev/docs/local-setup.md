@@ -48,4 +48,5 @@ make contract-types
 - pre-commit не найден после `make setup` — добавить `~/.local/bin` в `PATH` (туда ставит `uv tool install`).
 - `psycopg` не находит libpq — используем `psycopg[binary]`, ничего ставить не нужно.
 - Тесты падают с `connection refused` — `make up` и подождать 3 секунды.
+- Поправил уже применённый файл миграции, а тесты этого не видят — `make test-db-reset`: тестовая база мигрируется один раз в conftest, правки применённого файла локально невидимы (CI на чистой базе их ловит).
 - pre-commit ругается «files were modified by this hook» — хук отформатировал файлы, `git add -A` и коммит повторно.

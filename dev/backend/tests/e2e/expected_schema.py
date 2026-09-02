@@ -1,0 +1,282 @@
+from decimal import Decimal
+from typing import NamedTuple
+
+BIGINT = "bigint"
+INTEGER = "integer"
+TEXT = "text"
+NUMERIC = "numeric"
+BOOLEAN = "boolean"
+TIMESTAMPTZ = "timestamp with time zone"
+JSONB = "jsonb"
+
+SET_BY_DB = object()
+
+
+class Column(NamedTuple):
+    type: str
+    nullable: bool = False
+    precision: int | None = None
+    scale: int | None = None
+
+
+class ForeignKey(NamedTuple):
+    column: str
+    ref_table: str
+    ref_column: str
+    on_delete: str
+
+
+class Index(NamedTuple):
+    name: str
+    columns: str
+
+
+class Check(NamedTuple):
+    table: str
+    column: str
+    accepted: tuple[str, ...]
+    rejected: str = "unknown"
+
+
+def numeric(precision: int, scale: int, nullable: bool = False) -> Column:
+    return Column(NUMERIC, nullable, precision, scale)
+
+
+COLUMNS: dict[str, dict[str, Column]] = {
+    "stores": {
+        "id": Column(BIGINT),
+        "name": Column(TEXT),
+        "chain": Column(TEXT),
+        "district": Column(TEXT),
+        "city": Column(TEXT),
+    },
+    "users": {
+        "id": Column(BIGINT),
+        "pseudonym": Column(TEXT),
+        "segment": Column(TEXT),
+        "favourite_store_id": Column(BIGINT, nullable=True),
+        "referral_code": Column(TEXT),
+        "referred_by_user_id": Column(BIGINT, nullable=True),
+        "device_fingerprint": Column(TEXT, nullable=True),
+        "social_propensity": numeric(4, 3),
+        "created_at": Column(TIMESTAMPTZ),
+    },
+    "receipts": {
+        "id": Column(BIGINT),
+        "user_id": Column(BIGINT),
+        "store_id": Column(BIGINT),
+        "purchased_at": Column(TIMESTAMPTZ),
+        "regular_total": numeric(12, 2),
+        "paid_total": numeric(12, 2),
+        "discount_total": numeric(12, 2),
+        "points_earned": Column(INTEGER),
+        "points_spent": Column(INTEGER),
+        "counted": Column(BOOLEAN),
+        "is_returned": Column(BOOLEAN),
+        "returned_at": Column(TIMESTAMPTZ, nullable=True),
+        "source": Column(TEXT),
+        "pos_id": Column(TEXT, nullable=True),
+        "created_at": Column(TIMESTAMPTZ),
+    },
+    "receipt_items": {
+        "id": Column(BIGINT),
+        "receipt_id": Column(BIGINT),
+        "product_name": Column(TEXT),
+        "category": Column(TEXT),
+        "qty": numeric(8, 3),
+        "regular_price": numeric(12, 2),
+        "paid_price": numeric(12, 2),
+        "is_promo": Column(BOOLEAN),
+    },
+    "user_features": {
+        "user_id": Column(BIGINT),
+        "computed_at": Column(TIMESTAMPTZ),
+        "window_weeks": Column(INTEGER),
+        "frequency_per_week": numeric(6, 3),
+        "recency_days": Column(INTEGER, nullable=True),
+        "avg_basket": numeric(12, 2),
+        "promo_sensitivity": numeric(4, 3),
+        "cadence_days": numeric(6, 2, nullable=True),
+        "category_affinity": Column(JSONB),
+        "weekday_pattern": Column(JSONB),
+        "realized_savings_30d": numeric(12, 2),
+        "favourite_store_id": Column(BIGINT, nullable=True),
+        "cross_chain_share": numeric(4, 3),
+    },
+    "domovoy_states": {
+        "user_id": Column(BIGINT),
+        "xp": Column(INTEGER),
+        "level": Column(INTEGER),
+        "mood": Column(TEXT),
+        "mood_reason": Column(TEXT),
+        "streak_weeks": Column(INTEGER),
+        "streak_freeze_available": Column(BOOLEAN),
+        "items": Column(JSONB),
+        "last_fed_at": Column(TIMESTAMPTZ, nullable=True),
+        "updated_at": Column(TIMESTAMPTZ),
+    },
+    "challenges": {
+        "id": Column(BIGINT),
+        "user_id": Column(BIGINT),
+        "type": Column(TEXT),
+        "category": Column(TEXT, nullable=True),
+        "status": Column(TEXT),
+        "is_hero": Column(BOOLEAN),
+        "baseline": numeric(8, 3),
+        "target": numeric(8, 3),
+        "progress": numeric(8, 3),
+        "period_start": Column(TIMESTAMPTZ),
+        "period_end": Column(TIMESTAMPTZ),
+        "reward_xp": Column(INTEGER),
+        "reward_points": Column(INTEGER),
+        "economics": Column(JSONB),
+        "rationale_features": Column(JSONB),
+        "copy_title": Column(TEXT),
+        "copy_body": Column(TEXT),
+        "copy_explanation": Column(TEXT),
+        "copy_source": Column(TEXT),
+        "created_at": Column(TIMESTAMPTZ),
+        "completed_at": Column(TIMESTAMPTZ, nullable=True),
+    },
+    "reward_ledger": {
+        "id": Column(BIGINT),
+        "user_id": Column(BIGINT),
+        "kind": Column(TEXT),
+        "xp_delta": Column(INTEGER),
+        "points_delta": Column(INTEGER),
+        "ref_type": Column(TEXT, nullable=True),
+        "ref_id": Column(BIGINT, nullable=True),
+        "created_at": Column(TIMESTAMPTZ),
+    },
+}
+
+TABLES: tuple[str, ...] = tuple(COLUMNS)
+
+PRIMARY_KEYS: dict[str, tuple[str, ...]] = {
+    "stores": ("id",),
+    "users": ("id",),
+    "receipts": ("id",),
+    "receipt_items": ("id",),
+    "user_features": ("user_id",),
+    "domovoy_states": ("user_id",),
+    "challenges": ("id",),
+    "reward_ledger": ("id",),
+}
+
+UNIQUES: dict[str, set[tuple[str, ...]]] = {
+    "users": {("pseudonym",), ("referral_code",)},
+}
+
+FOREIGN_KEYS: dict[str, set[ForeignKey]] = {
+    "users": {
+        ForeignKey("favourite_store_id", "stores", "id", "SET NULL"),
+        ForeignKey("referred_by_user_id", "users", "id", "SET NULL"),
+    },
+    "receipts": {
+        ForeignKey("user_id", "users", "id", "CASCADE"),
+        ForeignKey("store_id", "stores", "id", "RESTRICT"),
+    },
+    "receipt_items": {ForeignKey("receipt_id", "receipts", "id", "CASCADE")},
+    "user_features": {
+        ForeignKey("user_id", "users", "id", "CASCADE"),
+        ForeignKey("favourite_store_id", "stores", "id", "SET NULL"),
+    },
+    "domovoy_states": {ForeignKey("user_id", "users", "id", "CASCADE")},
+    "challenges": {ForeignKey("user_id", "users", "id", "CASCADE")},
+    "reward_ledger": {ForeignKey("user_id", "users", "id", "CASCADE")},
+}
+
+INDEXES: dict[str, set[Index]] = {
+    "users": {
+        Index("users_favourite_store_id_idx", "(favourite_store_id)"),
+        Index("users_referred_by_user_id_idx", "(referred_by_user_id)"),
+        Index("users_device_fingerprint_idx", "(device_fingerprint)"),
+    },
+    "receipts": {
+        Index("receipts_user_id_purchased_at_idx", "(user_id, purchased_at DESC)"),
+        Index("receipts_store_id_purchased_at_idx", "(store_id, purchased_at)"),
+    },
+    "receipt_items": {
+        Index("receipt_items_receipt_id_idx", "(receipt_id)"),
+        Index("receipt_items_category_idx", "(category)"),
+    },
+    "challenges": {
+        Index("challenges_user_id_status_idx", "(user_id, status)"),
+        Index("challenges_user_id_period_end_idx", "(user_id, period_end)"),
+    },
+    "reward_ledger": {
+        Index("reward_ledger_user_id_created_at_idx", "(user_id, created_at DESC)"),
+        Index("reward_ledger_kind_idx", "(kind)"),
+    },
+}
+
+CHECKS: list[Check] = [
+    Check("stores", "chain", ("pyaterochka", "perekrestok")),
+    Check("users", "segment", ("regular_mid", "light", "heavy", "dormant")),
+    Check("receipts", "source", ("synthetic", "simulated", "api")),
+    Check("domovoy_states", "mood", ("cheerful", "cozy", "healthy", "bored", "sleepy")),
+    Check("challenges", "type", ("frequency", "category")),
+    Check("challenges", "status", ("active", "completed", "failed", "expired")),
+    Check("challenges", "copy_source", ("llm", "template")),
+    Check(
+        "reward_ledger",
+        "kind",
+        ("receipt_xp", "challenge", "streak", "league", "referral", "achievement"),
+    ),
+]
+
+DEFAULTS: dict[str, dict[str, object]] = {
+    "users": {
+        "favourite_store_id": None,
+        "referred_by_user_id": None,
+        "device_fingerprint": None,
+        "social_propensity": Decimal("0"),
+        "created_at": SET_BY_DB,
+    },
+    "receipts": {
+        "points_earned": 0,
+        "points_spent": 0,
+        "counted": True,
+        "is_returned": False,
+        "returned_at": None,
+        "pos_id": None,
+        "created_at": SET_BY_DB,
+    },
+    "receipt_items": {"is_promo": False},
+    "user_features": {
+        "computed_at": SET_BY_DB,
+        "frequency_per_week": Decimal("0"),
+        "recency_days": None,
+        "avg_basket": Decimal("0"),
+        "promo_sensitivity": Decimal("0"),
+        "cadence_days": None,
+        "category_affinity": {},
+        "weekday_pattern": [],
+        "realized_savings_30d": Decimal("0"),
+        "favourite_store_id": None,
+        "cross_chain_share": Decimal("0"),
+    },
+    "domovoy_states": {
+        "xp": 0,
+        "level": 1,
+        "mood_reason": "",
+        "streak_weeks": 0,
+        "streak_freeze_available": True,
+        "items": [],
+        "last_fed_at": None,
+        "updated_at": SET_BY_DB,
+    },
+    "challenges": {
+        "category": None,
+        "progress": Decimal("0"),
+        "created_at": SET_BY_DB,
+        "completed_at": None,
+    },
+    "reward_ledger": {
+        "xp_delta": 0,
+        "points_delta": 0,
+        "ref_type": None,
+        "ref_id": None,
+        "created_at": SET_BY_DB,
+    },
+}
