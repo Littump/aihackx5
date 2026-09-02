@@ -155,8 +155,8 @@ PostgreSQL 16. Все таблицы создаются SQL-миграциями
 | store_id | BIGINT NOT NULL FK stores ON DELETE RESTRICT | «дом» |
 | division | INTEGER NOT NULL CHECK 1..5 | 1 бронза … 5 алмаз |
 | week_start | DATE NOT NULL | понедельник |
-| status | TEXT NOT NULL DEFAULT 'open' CHECK IN ('open','closed') | open — набирает до 30 |
-| индексы | | `UNIQUE (store_id, division, week_start, id)`, `(week_start, status)` |
+| status | TEXT NOT NULL DEFAULT 'open' CHECK IN ('open','closed') | open — набирает до 30, при 30 закрывается и открывается новая (шардирование) |
+| индексы | | частичный `UNIQUE (store_id, division, week_start) WHERE status = 'open'` — не более одной открытой лиги на тройку, closed-шардов может быть несколько; `(week_start, status)` |
 
 ### `league_members` (владелец: `league`)
 | колонка | тип | |

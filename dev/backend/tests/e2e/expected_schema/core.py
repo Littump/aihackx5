@@ -1,46 +1,19 @@
 from decimal import Decimal
-from typing import NamedTuple
 
-BIGINT = "bigint"
-INTEGER = "integer"
-TEXT = "text"
-NUMERIC = "numeric"
-BOOLEAN = "boolean"
-TIMESTAMPTZ = "timestamp with time zone"
-JSONB = "jsonb"
-
-SET_BY_DB = object()
-
-
-class Column(NamedTuple):
-    type: str
-    nullable: bool = False
-    precision: int | None = None
-    scale: int | None = None
-
-
-class ForeignKey(NamedTuple):
-    column: str
-    ref_table: str
-    ref_column: str
-    on_delete: str
-
-
-class Index(NamedTuple):
-    name: str
-    columns: str
-
-
-class Check(NamedTuple):
-    table: str
-    column: str
-    accepted: tuple[str, ...]
-    rejected: str = "unknown"
-
-
-def numeric(precision: int, scale: int, nullable: bool = False) -> Column:
-    return Column(NUMERIC, nullable, precision, scale)
-
+from .types import (
+    BIGINT,
+    BOOLEAN,
+    INTEGER,
+    JSONB,
+    SET_BY_DB,
+    TEXT,
+    TIMESTAMPTZ,
+    Check,
+    Column,
+    ForeignKey,
+    Index,
+    numeric,
+)
 
 COLUMNS: dict[str, dict[str, Column]] = {
     "stores": {
