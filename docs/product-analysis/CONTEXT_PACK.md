@@ -1,6 +1,4 @@
-from pathlib import Path
-
-content = r"""# X5 Gaming Loyalty
+# X5 Gaming Loyalty
 
 ## 1. Проблема одной фразой + чья это работа
 
@@ -260,7 +258,3 @@ content = r"""# X5 Gaming Loyalty
 
 **Не делегируем AI** выбор проблемы, RAT, интерпретацию пользовательских сигналов и оценку бизнес-ценности.
 """
-
-out = Path("/mnt/data/CONTEXT_PACK_X5.md")
-out.write_text(content, encoding="utf-8")
-print(f"Готово: {out}")
