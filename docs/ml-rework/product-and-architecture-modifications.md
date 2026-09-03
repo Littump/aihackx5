@@ -17,9 +17,9 @@
 
 | Было | Стало |
 |---|---|
-| LLM — **только текст** (PRD §7.5, CLAUDE.md: «LLM не назначает награды и не считает деньги») | LLM **планирует ход**: тип челленджа, target, SKU-ссылки, `reward_level` (ординал), `needs_promo` |
+| LLM — **только текст** (PRD §7.5, CLAUDE.md: «LLM не назначает награды и не считает деньги») | LLM **планирует ход**: тип челленджа, target, SKU-ссылки, форму награды `reward_kind`, стадию `reward_level` (ординал) |
 | Выбор челленджа — `candidate.build` + `personalization.rank` | Выбор челленджа — LLM Planner; rule-based становится **fallback** |
-| Награда — только промо-деньги | LLM выбирает **форму** награды `reward_kind` (`promo` или `ladder` — очки лестницы); величину считает код |
+| Награда — только промо-деньги | LLM выбирает **форму** награды `reward_kind` (`promo`, `ladder` — очки лестницы, или `none` — самоценный челлендж без промо); величину считает код |
 | Челлендж — один шаг | План — последовательность **`steps[]`** (cap `MAX_PLAN_STEPS=2`): самоценная связка сейчас (`steps[0]`) ведёт к награде потом (`steps[1]`); пользователю показывается только `steps[0]`, `steps[1]` — внутренний сигнал для следующего вызова LLM |
 | Планировщик без памяти | Планировщик видит `previous_plans` (1–3 прошлых хода со статусом/использованием) и меняет стратегию, если прошлый челлендж не сработал |
 | Деньги — Economics Engine | Деньги — Economics Engine (**без изменений**), но вход теперь `reward_level`, а не тип из правил |
@@ -32,7 +32,7 @@
 
 | Модуль | Изменение |
 |---|---|
-| `app/features/catalog/` (**новый**) | владелец `sku_catalog`; чтение каталога, подсказки SKU для планировщика |
+| `app/features/catalog/` (**новый**) | владелец `sku_catalog`; чтение каталога, передача **всего** eligible-каталога планировщику (top-N подсказки нет на хакатоне) |
 | `app/features/challenges/candidate.py` | остаётся как **fallback**-стратегия (не удалять) |
 | `app/features/challenges/personalization.py` | остаётся как fallback-ранжирование |
 | `app/features/challenges/planner.py` (**новый**) | сбор `PlannerInput` (Insight Builder), вызов LLM, приём `ChallengePlan` |
@@ -53,18 +53,18 @@
 |---|---|
 | `sku_catalog` (**новая**, владелец `catalog`) | `sku_id, name, category, brand, regular_price, typical_promo_depth, is_challenge_eligible, popularity_rank` |
 | `receipt_items` | опционально добавить `sku_id` FK на `sku_catalog` (сейчас только `product_name`+`category`) |
-| `challenges` | добавить `sku_refs JSONB`, `reward_level`, `needs_promo`, `reward_kind ('promo'|'ladder')`, `plan_step INTEGER`, `plan_group_id`, `activates_on DATE NULL`, `plan_source ('llm'|'rules')` |
+| `challenges` | добавить `sku_refs JSONB`, `reward_level`, `reward_kind ('promo'|'ladder'|'none')`, `plan_step INTEGER`, `plan_group_id`, `activates_on DATE NULL`, `plan_source ('llm'|'rules')` |
 | `llm_plans` (**новая**, владелец `challenges` или `pm`) | аудит: сырой ответ LLM, валидность, repair-count, для объяснимости PM |
-| `challenge_types` | расширить enum: `basket`, `streak`, `winback` (сейчас только `frequency`,`category`) |
+| `challenge_types` | расширить enum: `basket`, `streak`, `replenishment`, `collection` (сейчас только `frequency`,`category`); «winback» — цель таргетинга, не тип (§6) |
 
 ## 5. Новые константы в `game_rules.py` (+ зеркало в `domain-rules.md`)
 
 - `PROMO_LEVEL_SHARE = {none:0.0, low:0.4, medium:0.7, high:1.0}` (доля от `max_reward_rub`).
 - `MAX_PLAN_STEPS = 2`, `PLANNER_PREV_PLANS_MAX = 3` (обобщённая многошаговость + память планировщика).
 - `CHURN_RISK_CADENCE_FACTOR = 1.8` (порог `recency_days > factor × cadence_days`).
-- `CHALLENGE_LIBRARY = [frequency, category, basket, streak, winback]`.
+- `CHALLENGE_LIBRARY = [frequency, category, basket, streak, replenishment, collection]`.
 - `LADDER_STAGE_BASE_XP = {none:0, low:10, medium:20, high:30}` — **базовая** бонус-XP на стадию; Reward Ladder домножает её на грейд пользователя и начисляет поверх `XP_CHALLENGE` в шкалу уровней §8 (не отдельная валюта).
-- `PLANNER_REPAIR_MAX = 2`, `PLANNER_SKU_HINT_MAX`, `PLANNER_TIMEOUT_S = 8`.
+- `PLANNER_REPAIR_MAX = 2`, `PLANNER_TIMEOUT_S = 8` (top-N подсказки каталога нет — планировщику подаётся весь eligible-каталог).
 - Reward ladder: буст-коэффициент для новичков и функция затухания по tenure/level.
 
 ## 6. Контракт API (`dev/contracts/openapi.yaml`)
@@ -83,7 +83,7 @@
 | Каталог SKU (§3) | BE-024 (миграция), BE-026 (feature `catalog`), AI-009 (генерация в синтетике) |
 | Insight Builder (§4) | BE-027 |
 | LLM Planner + схема (§5) | AI-008 (`emit_challenge_plan`, tool-use), BE-029 (validator + fallback) |
-| Библиотека челленджей (§6) | BE-030 (basket/streak/winback) |
+| Библиотека челленджей (§6) | BE-030 (basket/streak/replenishment/collection) |
 | Economics / reward_level (§7) | BE-025 (константы), BE-028 (`reward_level` → бюджет), BE-031 (`refresh_weekly`) |
 | Reward Ladder (§8) | BE-032 |
 | Reward Ladder ↔ челленджи (§8) | BE-032 (XP за `reward_kind=ladder`) |
@@ -111,6 +111,7 @@
 - `reward_kind`: даём ли LLM свободу выбирать `ladder` vs `promo`, или это жёсткое правило по сегменту/churn.
 - `steps[]` (многошаговый план): фиксируем ли `MAX_PLAN_STEPS=2` на хакатоне или сразу открываем 3 шага в неделю подряд.
 - Каталог SKU: скрейпим реальные товары X5 или берём синтетический правдоподобный набор для хакатона?
+- Каталог в контексте LLM: на хакатоне подаём **весь** eligible-каталог целиком (влезает); в проде он не поместится — нужен retrieval по релевантности. Где порог перехода?
 - Горизонт истории для eval-продолжения (12 недель?) и точка обрезки T (середина?) — фиксируем или свипаем.
 
 

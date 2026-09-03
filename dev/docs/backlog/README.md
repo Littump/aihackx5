@@ -46,14 +46,14 @@
 | AI-005 | E11 | `app/eval`: relevance по §14 на 30–50 профилях, запись в eval_runs | T | BE-011, AI-003 | todo | |
 | AI-006 | E11 | `app/simulation`: control vs treatment по §13, запись в simulation_runs | T | AI-003, BE-013 | todo | |
 | AI-007 | E11 | Промпт-тюнинг и проверка, что LLM-тексты содержат числа из features (fallback rate < 20 %) | T | AI-004, AI-005 | todo | |
-| BE-024 | E14 | Миграция 003: `sku_catalog`, `receipt_items.sku_id`, `challenges` (+sku_refs/reward_level/needs_promo/reward_kind/plan_step/activates_on/plan_source), `llm_plans`, типы basket/streak/winback | R | BE-002 | todo | |
+| BE-024 | E14 | Миграция 003: `sku_catalog`, `receipt_items.sku_id`, `challenges` (+sku_refs/reward_level/reward_kind/plan_step/activates_on/plan_source), `llm_plans`, типы basket/streak/replenishment/collection | R | BE-002 | todo | |
 | BE-025 | E14 | Константы планировщика в `game_rules.py` (PROMO_LEVEL_SHARE, CHURN_RISK, CHALLENGE_LIBRARY, ladder) + зеркало domain-rules | R | BE-024, BE-003 | todo | |
 | BE-026 | E14 | Feature `catalog`: чтение `sku_catalog`, подсказки SKU, `GET /catalog` | R | BE-024 | todo | |
 | BE-027 | E14 | Insight Builder: `PlannerInput` (агрегаты + category timeseries + churn_risk) детерминированно | R | BE-007, BE-025 | todo | |
 | BE-028 | E14 | `economics.py`: `reward_level` → доля бюджета (формула §6 без изменений) | R | BE-025 | todo | |
 | AI-008 | E14 | `app/llm/planner.py`: tool `emit_challenge_plan`, tool-use forcing, `ChallengePlan` (steps[] + reward_kind), fallback без ключа | T | BE-027, BE-025 | todo | |
 | BE-029 | E14 | `plan_validator.py`: проверка SKU/target/типа/rationale, repair, fallback на rule-based | R | BE-027, AI-008 | todo | |
-| BE-030 | E14 | Библиотека челленджей: предикаты basket / streak / winback + target-правила | R | BE-012, BE-025 | todo | |
+| BE-030 | E14 | Библиотека челленджей: предикаты basket / streak / replenishment / collection + target-правила | R | BE-012, BE-025 | todo | |
 | BE-031 | E14 | `refresh_weekly` через planner→validator→economics→ladder, запись `llm_plans`/`plan_source` | R | BE-029, BE-030, BE-028, BE-032 | todo | |
 | BE-032 | E14 | Reward Ladder: награда за опыт по XP/level+tenure, new-user буст, decay + XP за ladder-челленджи (вне LLM/Economics) | R | BE-009, BE-025 | todo | |
 | AI-009 | E14 | Каталог SKU в синтетике + LLM-персоны поверх числовых профилей | T | AI-001, BE-024 | todo | |

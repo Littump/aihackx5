@@ -25,7 +25,8 @@
 - **LLM не придумывает товары.** Она может ссылаться только на существующие SKU/категории из каталога;
   ссылки валидируются детерминированно.
 - **LLM выбирает форму и стадию награды, но не её величину.** Планировщик решает `reward_kind` (`promo` —
-  скидка/баллы против бюджета, либо `ladder` — очки в reward ladder) и стадию `reward_level`, а конкретные
+  скидка/баллы против бюджета; `ladder` — очки в reward ladder; `none` — самоценный челлендж без промо) и
+  стадию `reward_level`, а конкретные
   рубли/XP считают статические модули: Economics по марже, Reward Ladder — как `стадия × грейд пользователя`.
   Часть челленджей **самоценны** (интересная связка товаров) и не тратят промо-бюджет вовсе.
 - **План — последовательность шагов (`steps[]`), а не один оффер.** Планировщик думает на несколько шагов
@@ -108,7 +109,7 @@ flowchart TD
 
 Ключевая идея: **LLM — только этап `Insight Builder → Planner → Validator`**. Всё, что касается денег,
 наград за опыт и текста, остаётся в отдельных детерминированных/статических модулях. LLM выбирает **форму**
-награды (`reward_kind`: промо-бюджет или очки в reward ladder), а **величину** считает статический модуль —
+награды (`reward_kind`: промо-бюджет, очки в reward ladder или `none` — самоценный челлендж), а **величину** считает статический модуль —
 Economics (рубли/баллы) или Reward Ladder (XP/купон). Аллокация бюджета — простой **per-user cap**, без
 онлайн-оптимизаторов. Границы модулей
 совпадают с текущей feature-архитектурой (`router → service → database`, pydantic между слоями).
@@ -165,6 +166,10 @@ Economics (рубли/баллы) или Reward Ladder (XP/купон). Алло
 - **Прошлые ходы планировщика (`previous_plans`):** последние 1–3 hero-плана пользователя со статусом
   (`completed / expired / active`) и фактом использования — чтобы LLM меняла стратегию, если прошлый
   челлендж не сработал (см. §5, §11). Берём из таблиц `challenges` / `llm_plans`.
+- **Полный каталог eligible-SKU (`catalog`):** весь допустимый ассортимент (`sku_id`, `name`, `category`,
+  `regular_price`) — а не top-N подсказка. На хакатоне каталог небольшой (200–500 SKU) и целиком помещается в
+  контекст дешёвой модели, поэтому LLM видит весь выбор товаров. В проде каталог не влезет — там понадобится
+  retrieval по релевантности (см. открытые вопросы).
 
 ### Признаки пользователя простыми словами
 Это те самые «фичи», на которые смотрит планировщик. Ниже — что каждая значит на человеческом языке:
@@ -207,7 +212,7 @@ constrained decoding гарантирует **форму, а не истину**
 Челлендж должен быть привлекательным **сам по себе**, а не только из-за промо:
 
 - **Самоценная связка (basket):** «купи эти два снека вместе — они дешевле в связке». Ценность —
-  в самой комбинации товаров; промо-бюджет тут либо не нужен (`needs_promo=false`), либо минимален.
+  в самой комбинации товаров; промо-бюджет тут не нужен (`reward_kind=none`) либо минимален (низкая стадия `promo`/`ladder`).
 - **Последовательность шагов (`steps[]`):** «купи эти два снека сейчас (`steps[0]`) → на следующей неделе
   скидка на твою любимую категорию (`steps[1]`)». Первый шаг самоценен, второй — крючок удержания. План —
   **массив шагов**, каждый шаг самодостаточен (свой тип/цель/награда). Отдельного флага «открывает следующий»
@@ -219,9 +224,10 @@ constrained decoding гарантирует **форму, а не истину**
 - **Адаптация по истории (`previous_plans`):** планировщик получает свои 1–3 прошлых плана со статусом
   и фактом использования и может сменить стратегию, если прошлый ход не сработал (напр. двухшаговый план
   прошлой недели истёк неиспользованным на `steps[0]` → в этот раз другой тип/стадия награды).
-- **Форма награды (`reward_kind`):** награда за шаг — либо `promo` (скидка/баллы, считает Economics),
-  либо `ladder` (бонус-XP в шкалу опыта §8, считает Reward Ladder). Ladder-награда включает **омниканальную**
-  оптимизацию: пользователь копит XP к следующему подарку лестницы (см. §8).
+- **Форма награды (`reward_kind`):** награда за шаг — `promo` (скидка/баллы, считает Economics),
+  `ladder` (бонус-XP в шкалу опыта §8, считает Reward Ladder) или `none` (самоценный челлендж — интересная
+  связка/серия, промо-бюджет не тратим вовсе). Ladder-награда включает **омниканальную** оптимизацию:
+  пользователь копит XP к следующему подарку лестницы (см. §8).
 
 ### Как получаем строгую схему (важно для Anthropic)
 У Anthropic **нет флага strict schema**. Практический эквивалент schema-constrained decoding — **форсированный
@@ -248,13 +254,12 @@ enum'ов (правила надёжного structured output). Массив р
 {
   "steps": [                         // 1..2 шага; пользователь видит только steps[0], остальное внутреннее
     {
-      "challenge_type": "frequency | category | basket | streak | winback",  // enum из библиотеки
+      "challenge_type": "frequency | category | basket | streak | replenishment | collection",  // enum-механика из §6
       "target": 3,                   // integer; код валидирует диапазон относительно baseline
       "category": "dairy | null",    // enum из 12 категорий или null
       "sku_refs": ["SKU-00123", "SKU-00988"],   // 0..3 sku_id из каталога, проверяются на существование
-      "reward_kind": "promo | ladder",   // форма награды: promo = деньги (Economics); ladder = XP в шкалу §8
-      "reward_level": "none | low | medium | high",  // СТАДИЯ силы награды; величину (₽ или XP) считает код
-      "needs_promo": true,           // если false — шаг самоценен, промо-деньги не тратим
+      "reward_kind": "promo | ladder | none",  // promo = деньги (Economics); ladder = бонус-XP (§8); none = самоценный, без промо
+      "reward_level": "none | low | medium | high",  // СТАДИЯ силы награды; величину (₽ или XP) считает код; none <=> reward_kind=none
       "deadline_days": 7             // int, код клампит к границам недели
     },
     {                                // steps[1]: НЕ показывается пользователю, это план на следующий вызов LLM
@@ -264,7 +269,6 @@ enum'ов (правила надёжного structured output). Массив р
       "sku_refs": [],
       "reward_kind": "promo",
       "reward_level": "low",
-      "needs_promo": true,
       "deadline_days": 7
     }
   ],
@@ -284,8 +288,9 @@ Constrained decoding гарантирует форму, поэтому исти�
 3. каждый `sku_id` ∈ `sku_catalog` и `is_challenge_eligible`; иначе поле чистится/repair.
 4. `target` попадает в допустимый коридор относительно baseline (переиспользуем правило §5/§14
    `domain-rules.md`: `baseline × 1.2 … baseline × 2` и `≤ baseline + 2`).
-5. `reward_level` и `needs_promo` согласованы (`none` ⇒ `needs_promo=false`); при `reward_kind=ladder`
-   промо-деньги не начисляются (`needs_promo=false`, ₽ = 0, награда уходит в Reward Ladder §8 как XP).
+5. `reward_kind` и `reward_level` согласованы: `reward_kind=none` ⇔ `reward_level=none` (самоценный шаг, ни
+   промо-денег, ни бонус-XP); `reward_kind=promo` ⇒ деньги считает Economics по `reward_level`; `reward_kind=ladder`
+   ⇒ промо-деньги = 0, награда уходит в Reward Ladder §8 как бонус-XP (`стадия × грейд`).
 6. Порядок шагов = порядок по неделям: активен только `steps[0]`; `steps[1]` не активен, создаётся отложенно
    как **внутренний сигнал** и учитывается следующим вызовом планировщика (§7 `domain-rules.md`: один активный
    набор на неделю). Пользователю `steps[1]` не показывается.
@@ -304,31 +309,46 @@ Constrained decoding гарантирует форму, поэтому исти�
 
 ## 6. Компонент D — библиотека челленджей (fixed set)
 
-LLM выбирает `challenge_type` только из фиксированного enum. Стартовый набор расширяет текущие два типа:
+LLM выбирает `challenge_type` только из фиксированного enum. Каждый тип — это **механика** (чистый предикат
+прогресса по чекам, как сейчас `_matches_receipt`) с понятным **поведенческим крючком** — почему человек
+захочет её выполнить. Набор подобран под доказанные механики удержания в ритейл-лояльности (Tesco Clubcard
+Challenges, Duolingo streaks, endowed-progress/goal-gradient, коллекционные акции; ссылки в §13):
 
-| type | смысл | привлекателен без промо? |
-|---|---|---|
-| `frequency` | +1 визит к baseline | иногда (прогресс/streak) |
-| `category` | N покупок любимой категории | иногда |
-| `basket` | собрать корзину из 2–3 SKU (кросс-продажа) | часто нужен промо |
-| `streak` | не прервать серию недель | самоценен (игровой) |
-| `winback` | вернуться после просрочки кадэнса (анти-отток) | обычно нужен промо |
+| type | что делает (предикат по чекам) | поведенческий крючок | самоценен без промо? |
+|---|---|---|---|
+| `frequency` | +N визитов к личному baseline за неделю | goal-gradient: цель от его же привычки, близость дедлайна ускоряет | иногда (виден прогресс) |
+| `category` | N покупок/позиций в категории (углубить долю или открыть новую) | share-of-wallet + кросс-категорийное открытие | иногда |
+| `basket` | собрать связку из 2–3 конкретных SKU в одном чеке | bundling/anchoring: «купи вместе — выгоднее», связка ценнее %-скидки | часто самоценен |
+| `streak` | не прервать серию активных недель | loss aversion: прервать серию = потерять «свой» актив (×2 больнее выгоды) | самоценен (игровой) |
+| `replenishment` | докупить категорию-стейпл до истечения личного кадэнса | just-in-time: напоминание **до** того, как молоко кончилось | иногда (промо при высоком churn) |
+| `collection` | закрыть набор: покупки из K разных категорий за неделю | set-completion (эффект Зейгарник): тянет закрыть незавершённый набор | самоценен (игра/открытие) |
 
-Каждый тип — это чистая функция проверки прогресса по чекам (как сейчас `_matches_receipt`), поэтому новый
-тип = данные + один предикат, а не переписывание рекоммендера. `needs_promo=false` для самоценных типов
+Новый тип = данные + один предикат, а не переписывание рекоммендера. `reward_kind=none` для самоценных типов
 экономит бюджет: часть челленджей вообще не тратит промо (это прямо просил продукт-овнер — «часть челленджей
-привлекательны сами по себе»).
+привлекательны сами по себе»). Любой тип может выдавать награду как `promo` (деньги, §7), `ladder` (бонус-XP
+лестницы, §8) **или** `none` (самоценный) — это решает `reward_kind` шага.
 
-Любой тип может выдавать награду как `promo` (деньги, §7) **или** `ladder` (бонус-XP лестницы, §8) — это решает
-`reward_kind` шага. Многошаговые связки (`steps[]`) естественно ложатся на `basket`: связка на `steps[0]` →
-скидка/XP на любимую категорию на `steps[1]` следующей недели.
+**«Winback» — это цель, а не тип челленджа.** Вернуть просевшего пользователя (анти-отток) — не отдельная
+механика, а **задача таргетинга**: её решает любой тип выше, выбранный под сигнал `churn_risk` (обычно
+`replenishment` «ты обычно берёшь молоко раз в 5 дней, прошло 8» или самоценный `basket`), плюс усиленная
+стадия награды (`reward_level=medium/high`). Так же устроен winback в ритейле: механика не меняется, меняется
+**кого и когда** ей цеплять (порог по личному кадэнсу, а не календарные 30/60/90 дней). Поэтому отдельного
+типа `winback` в enum нет — он размазан по `churn_risk` + выбор механики + `reward_level`.
+
+**Осознанно НЕ берём случайные награды.** Механики вроде mystery-box / scratch-card (variable reward,
+near-miss) в ритейле работают, но нарушают инвариант deterministic-наград (decision #7). Поэтому библиотека
+опирается на **детерминированные** крючки (goal-gradient, streak, collection, replenishment), а не на лотерею.
+
+**Многошаговые связки (`steps[]`)** естественно ложатся на `basket` + продолжение: самоценная связка снеков
+сейчас (`steps[0]`, `reward_kind=none`) → скидка/XP на любимую категорию на `steps[1]` следующей недели
+(`reward_kind=promo|ladder`). Планировщик так думает на два шага вперёд под конкретного пользователя.
 
 ---
 
 ## 7. Компонент E — статический Economics / Budget Engine (деньги)
 
-**Не меняем принцип, меняем вход.** Раньше вход экономики — тип+target из рекоммендера; теперь — `reward_level`
-и `needs_promo` из плана LLM. Деньги считает код по марже (формула продукт-овнера уже реализована,
+**Не меняем принцип, меняем вход.** Раньше вход экономики — тип+target из рекоммендера; теперь — `reward_kind`
+и `reward_level` из плана LLM. Деньги считает код по марже (формула продукт-овнера уже реализована,
 `dev/backend/app/features/challenges/economics.py`, `dev/docs/domain-rules.md` §6):
 
 ```
@@ -352,7 +372,7 @@ LLM говорит «насколько крупная награда» (ста�
 
 | `reward_level` | доля от `max_reward_rub` | когда LLM его выбирает |
 |---|---:|---|
-| `none` | 0 % | челлендж самоценен (`needs_promo=false`) |
+| `none` | 0 % | челлендж самоценен (`reward_kind=none`) |
 | `low` | ~40 % | пользователь стабилен, лёгкий толчок |
 | `medium` | ~70 % | появились признаки замедления |
 | `high` | 100 % (= текущий cap) | ранний отток, `churn_risk` высокий |
@@ -431,6 +451,31 @@ Economics (рубли/баллы за конкретный челлендж) и�
 детерминированно. LLM-агенты как синтетические пользователи дают траектории, коррелирующие с реальным
 поведением (SimUSER / Agent4Rec / AlignUSER / LLMEvalRec — тот же класс методов).
 
+```mermaid
+flowchart TD
+    SEED["Профиль персоны + seed<br/>числа = код, характер = LLM"] --> FULL["LLM-as-user: полная история 12 недель<br/>visit / buy / ignore / churn"]
+    FULL --> CUT{"Обрезка в точке T<br/>напр. неделя 6"}
+    CUT -->|"прошлое: недели 1..T"| INS["Insight Builder<br/>инсайт по прошлому, код"]
+    CUT -->|"хвост: недели T+1..12"| HELD["held-out<br/>отброшен ДО планирования"]
+    INS --> C["ветка Control<br/>baseline-оффер X5"]
+    INS --> A["ветка Treatment LLM<br/>планировщик + бюджет + ladder"]
+    INS --> B["ветка Treatment rules<br/>candidate + personalization"]
+    C --> CTc["LLM-as-user дописывает хвост C"]
+    A --> CTa["LLM-as-user дописывает хвост A"]
+    B --> CTb["LLM-as-user дописывает хвост B"]
+    HELD -. "тот же seed воспроизводит хвост" .-> CTc
+    HELD -.-> CTa
+    HELD -.-> CTb
+    CTc --> M["Детерминированный подсчёт денег, код:<br/>incremental visits / revenue / margin<br/>минус reward cost, минус 1.5р инфры/мес"]
+    CTa --> M
+    CTb --> M
+    M --> CMP["Сравнение веток из одной точки T и seed:<br/>net_effect и доля с не менее N покупок за 4 недели"]
+    CMP --> NULL["Нулевой тест: при uplift = 0 хвосты веток совпадают,<br/>net_effect не больше нуля"]
+```
+
+Схема выше — это цикл G.1–G.5: одна персона и seed порождают полную историю, мы режем её в точке T, планируем
+оффер по «прошлому», три ветки дописывают свой хвост, и деньги считает код (без LLM-судьи).
+
 ### G.1 Генерация профилей (LLM + код)
 - Сегменты как в `E1-synthetic`/PRD §13: `regular_mid` (60 %), `light`, `heavy`, `dormant`, плюс
   «персоны» поверх сегмента: «студент за снеками перед парой», «ЗОЖ за конкретным продуктом»,
@@ -472,7 +517,7 @@ Economics (рубли/баллы за конкретный челлендж) и�
   а не только деньги;
 - **reward cost и net effect** = incremental margin − reward cost − **1.5 ₽ LLM/инфраструктуры на пользователя
   в месяц** (формула net из демо-материалов §5.1); reward cost учитывает только долю выполнивших челлендж;
-- **challenge completion rate**, **winback rate** (вернулся ли `dormant`-хвост), **fallback rate**, invalid rate;
+- **challenge completion rate**, **winback rate** (доля вернувшихся `dormant`-хвостов — метрика **цели** анти-оттока, а не типа челленджа), **fallback rate**, invalid rate;
 - служебная **relevance hit rate** (≥0.70) остаётся как sanity-check плана, но решение о победе ветки —
   по деньгам/визитам, а не по вкусу судьи.
 
@@ -496,7 +541,7 @@ Economics (рубли/баллы за конкретный челлендж) и�
 |---|---|---|
 | Какой челлендж дать (тип, target, SKU) на каждый шаг | **LLM Planner** | требует чтения инсайта и time-series |
 | Стадия силы награды (`reward_level`: none/low/medium/high) | **LLM Planner** | «насколько крупно», но не сумма |
-| Форма награды (`reward_kind`: promo vs ladder) на каждый шаг | **LLM Planner** | выбор рычага удержания под инсайт |
+| Форма награды (`reward_kind`: promo / ladder / none) на каждый шаг | **LLM Planner** | выбор рычага удержания под инсайт |
 | Сколько шагов и что планируется дальше (`steps[]`, `steps[1]` — внутренний сигнал) | **LLM Planner** | план на несколько шагов вперёд (cap `MAX_PLAN_STEPS`); `steps[1]` не в UI |
 | Смена стратегии по прошлым ходам (`previous_plans`) | **LLM Planner** | адаптация, если прошлый челлендж не сработал |
 | Существуют ли SKU / валиден ли target / согласованность `steps[]` | код (Validator) | constrained decoding не гарантирует истину |
@@ -522,9 +567,9 @@ Economics (рубли/баллы за конкретный челлендж) и�
     { "category": "dairy", "cadence_days": 5.5, "days_overdue": 5, "share": 0.22, "visits": 9 },
     { "category": "bakery", "cadence_days": 4.0, "days_overdue": 0, "share": 0.15, "visits": 7 }
   ],
-  "catalog_hint": [ { "sku_id": "SKU-00123", "name": "Молоко 3.2% 930мл", "category": "dairy",
-                      "regular_price": 89.9 } ],
-  "challenge_library": ["frequency","category","basket","streak","winback"],
+  "catalog": [ { "sku_id": "SKU-00123", "name": "Молоко 3.2% 930мл", "category": "dairy",
+                 "regular_price": 89.9 } ],   // ПОЛНЫЙ каталог eligible-SKU: на хакатоне целиком влезает в контекст
+  "challenge_library": ["frequency","category","basket","streak","replenishment","collection"],
   "previous_plans": [     // 1..3 последних плана пользователя, чтобы LLM адаптировала стратегию
     { "week": -1, "challenge_type": "basket", "reward_kind": "promo", "reward_level": "low",
       "status": "expired", "used": false },
@@ -555,7 +600,7 @@ Economics (рубли/баллы за конкретный челлендж) и�
 | `features.promo_sensitivity` | float `0..1` | реакция на скидки | код |
 | `features.churn_risk` | enum `none/elevated/high` | риск оттока (порог по §17) | код |
 | `category_timeseries[]` | list | по 3–5 топ-категориям: `cadence_days`, `days_overdue`, `share`, `visits` | код |
-| `catalog_hint[]` | list | подсказка допустимых SKU (`sku_id`, `name`, `category`, `regular_price`) | код (каталог) |
+| `catalog[]` | list | **полный** список eligible-SKU (`sku_id`, `name`, `category`, `regular_price`); на хакатоне целиком влезает в контекст, в проде — retrieval по релевантности (открытый вопрос) | код (каталог) |
 | `challenge_library[]` | list enum | разрешённые типы челленджей | код |
 | `previous_plans[]` | list (1..3) | прошлые hero-планы: `week`, `challenge_type`, `reward_kind`, `reward_level`, `status`, `used` | код |
 | `recent_receipts[]` | list | сырые чеки; по умолчанию **пусто**, включается флагом A/B | код |
@@ -570,9 +615,8 @@ Economics (рубли/баллы за конкретный челлендж) и�
 | `steps[].target` | int | цель за неделю; код проверяет коридор относительно baseline |
 | `steps[].category` | enum \| null | одна из 12 категорий или `null` |
 | `steps[].sku_refs` | list (0..3) | `sku_id` строго из каталога |
-| `steps[].reward_kind` | enum `promo/ladder` | **форма** награды: деньги (Economics) или XP (Reward Ladder §8) |
-| `steps[].reward_level` | enum `none/low/medium/high` | **стадия силы** награды; величину (₽ или XP) считает код |
-| `steps[].needs_promo` | bool | `false` = шаг самоценен, промо-деньги не тратим |
+| `steps[].reward_kind` | enum `promo/ladder/none` | **форма** награды: деньги (Economics), бонус-XP (Reward Ladder §8) или `none` (самоценный, без промо) |
+| `steps[].reward_level` | enum `none/low/medium/high` | **стадия силы** награды; величину (₽ или XP) считает код; `none` ⇔ `reward_kind=none` |
 | `steps[].deadline_days` | int | срок; код клампит к границам недели |
 | `insight_used[]` | list str | какие признаки инсайта реально использованы |
 | `rationale` | str `<=200` | обоснование; обязано содержать число из инсайта |
@@ -604,7 +648,7 @@ sequenceDiagram
         V-->>LLM: repair 1-2
         V->>ST: иначе rule-based fallback (одношаговый)
     end
-    ST->>ST: promo -> руб/баллы ; ladder -> XP x грейд
+    ST->>ST: promo в руб/баллы, ladder в XP x грейд
     ST->>DB: hero steps[0] + отложенный steps[1] (внутр.) + PM-аудит
     DB-->>U: показать только steps[0] (текст Домового)
 ```
@@ -643,3 +687,19 @@ sequenceDiagram
   измерение поведения, а не судейских предпочтений (это осознанный отказ от LLM-as-judge на хакатоне).
 - Простое правило таргетинга промо по `churn_risk`/`promo_sensitivity` вместо uplift/CATE и бюджетного
   knapsack — намеренное упрощение под сроки хакатона (production-путь к uplift отмечен как открытый вопрос).
+- Механики челленджей и поведенческие крючки (§6):
+  - Персональные frequency-миссии и AI-подбор порога/награды — Tesco Clubcard Challenges (Eagle Eye):
+    https://eagleeye.com/case-studies/tesco-clubcard-challenges
+  - Streak и loss aversion — разбор Duolingo: https://trophy.so/blog/duolingo-gamification-case-study
+  - Endowed progress / goal-gradient (Nunes & Dreze 2006, car-wash field study):
+    https://coglode.com/nuggets/endowed-progress-effect ; Kivetz, Urminsky & Zheng 2006 (goal-gradient в
+    реальной программе лояльности): https://doi.org/10.1509/jmkr.43.1.39
+  - Collection / set-completion в ритейле (Woolworths Ooshies):
+    https://theguardian.com/business/2026/aug/25/woolworths-disney-ooshies-craze-causes-coles-sales-slump
+  - Tiered milestones с затухающей маржинальной наградой (Starbucks Rewards, Lidl Plus):
+    https://loyaltyrewardco.com/the-ultimate-guide-to-starbucks-rewards/ ;
+    https://www.loyaltypass.co/blog/playbooks/lidl-plus-loyalty-program
+  - Winback как **цель таргетинга** (не тип механики), триггер по личному кадэнсу:
+    https://digitalapplied.com/blog/customer-win-back-campaigns-2026-retention-playbook
+  - Часть источников — trade-press/вторичные (directionally reliable); для питча этого достаточно, для
+    продакшена нужны первичные подтверждения (открытый вопрос).

@@ -5,7 +5,7 @@
 
 | Документ | О чём |
 |---|---|
-| [ml-solution-architecture.md](ml-solution-architecture.md) | Целевая ML-архитектура: Insight Builder → LLM Challenge Planner (structured output, tool-use; `reward_kind` promo/ladder + многошаговый план `steps[]` (cap 2)) → Validator → статические Economics/Reward Ladder; фиксированный каталог SKU; синтетическая eval **продолжением истории** (обрезка в точке T, LLM-as-user дописывает хвост, деньги считает код — без LLM-судьи). С обоснованием и ссылками на research. |
+| [ml-solution-architecture.md](ml-solution-architecture.md) | Целевая ML-архитектура: Insight Builder → LLM Challenge Planner (structured output, tool-use; `reward_kind` promo/ladder/none + многошаговый план `steps[]` (cap 2)) → Validator → статические Economics/Reward Ladder; фиксированный каталог SKU; синтетическая eval **продолжением истории** (обрезка в точке T, LLM-as-user дописывает хвост, деньги считает код — без LLM-судьи). С обоснованием и ссылками на research. |
 | [product-and-architecture-modifications.md](product-and-architecture-modifications.md) | Карта влияния на уже принятую архитектуру/продукт: сдвиг роли LLM, новые модули и таблицы, константы, контракт, backlog, порядок внедрения, вопросы продукт-овнеру. |
 
 ## Суть в одном абзаце
@@ -14,7 +14,7 @@
 которая читает подготовленный кодом инсайт по пользователю (агрегаты + товарный time-series + сигнал оттока)
 и **планирует** следующий персональный челлендж из фиксированной библиотеки поверх фиксированного каталога SKU,
 возвращая строгую схему (Anthropic tool-use forcing). Планировщик выбирает форму награды (`reward_kind`:
-промо-деньги или бонус-XP reward ladder), думает на несколько шагов вперёд (`steps[]`, cap 2, активен только `steps[0]`)
+промо-деньги, бонус-XP reward ladder или `none` — самоценный челлендж), думает на несколько шагов вперёд (`steps[]`, cap 2, активен только `steps[0]`)
 и адаптируется по своим прошлым ходам (`previous_plans`); часть челленджей самоценна
 и не тратит бюджет. Деньги считает прежний статический Economics Engine по марже (LLM задаёт лишь ординальный
 `reward_level`), XP — Reward Ladder. Проверяем поведенчески: LLM-as-user генерирует полную историю профиля,

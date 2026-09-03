@@ -21,11 +21,11 @@ LLM в роли time-series / insight-аналитика, которая **пл�
   popularity_rank INTEGER`, индекс `(category, popularity_rank)`.
 - `receipt_items.sku_id TEXT NULL FK sku_catalog ON DELETE SET NULL` (обратно совместимо: `product_name`+`category` остаются).
 - `challenges`: `+ sku_refs JSONB NOT NULL DEFAULT '[]'`, `+ reward_level TEXT CHECK IN ('none','low','medium','high')`,
-  `+ needs_promo BOOLEAN NOT NULL DEFAULT false`, `+ reward_kind TEXT NOT NULL DEFAULT 'promo' CHECK IN ('promo','ladder')`,
+  `+ reward_kind TEXT NOT NULL DEFAULT 'promo' CHECK IN ('promo','ladder','none')`,
   `+ plan_step INTEGER NOT NULL DEFAULT 0` (индекс шага в плане), `+ plan_group_id TEXT NULL` (связывает шаги одного плана),
   `+ activates_on DATE NULL` (неделя активации отложенного внутреннего шага),
   `+ plan_source TEXT NOT NULL DEFAULT 'rules' CHECK IN ('llm','rules')`. Активен всегда только `plan_step=0` текущей недели.
-- `challenges.type` CHECK расширить: `frequency, category, basket, streak, winback`.
+- `challenges.type` CHECK расширить: `frequency, category, basket, streak, replenishment, collection`.
 - `llm_plans` (владелец `challenges`): `id, user_id FK, raw_output JSONB` (весь план с `steps[]`), `is_valid BOOLEAN,
   repair_count INTEGER, plan_source TEXT, created_at` — аудит для PM view (полный многошаговый план).
 **AC:** миграция применяется и откатывается; `test_migrations` видит новые таблицы/колонки; старые e2e зелёные (дефолты не ломают BE-011/012).
@@ -35,42 +35,42 @@ LLM в роли time-series / insight-аналитика, которая **пл�
 **Описание:**
 - `PROMO_LEVEL_SHARE = {"none":0.0,"low":0.4,"medium":0.7,"high":1.0}` — доля от `max_reward_rub`.
 - `CHURN_RISK_CADENCE_FACTOR = 1.8` (порог `recency_days > factor × cadence_days`).
-- `CHALLENGE_LIBRARY = ("frequency","category","basket","streak","winback")`.
-- `PLANNER_REPAIR_MAX = 2`, `PLANNER_SKU_HINT_MAX = 12`, `PLANNER_TIMEOUT_S = 8`.
+- `CHALLENGE_LIBRARY = ("frequency","category","basket","streak","replenishment","collection")`.
+- `PLANNER_REPAIR_MAX = 2`, `PLANNER_TIMEOUT_S = 8` — top-N подсказки каталога нет: планировщику подаётся весь eligible-каталог (§4/§11).
 - `MAX_PLAN_STEPS = 2` — максимум последовательных шагов в одном решении LLM (структура рассчитана на N, cap = 2).
 - `PLANNER_PREV_PLANS_MAX = 3` — сколько прошлых планов подаём в `previous_plans`.
-- `REWARD_KINDS = ("promo","ladder")`; `LADDER_STAGE_BASE_XP = {"none":0,"low":10,"medium":20,"high":30}` — **базовая** бонус-XP на стадию `reward_level`, которую Reward Ladder (BE-032) домножает на грейд пользователя; итог начисляется **поверх** `XP_CHALLENGE`(+50) в ту же шкалу уровней §8 (не отдельная валюта; assumptions).
+- `REWARD_KINDS = ("promo","ladder","none")`; `LADDER_STAGE_BASE_XP = {"none":0,"low":10,"medium":20,"high":30}` — **базовая** бонус-XP на стадию `reward_level`, которую Reward Ladder (BE-032) домножает на грейд пользователя; итог начисляется **поверх** `XP_CHALLENGE`(+50) в ту же шкалу уровней §8 (не отдельная валюта; assumptions).
 - Reward ladder: `LADDER_NEWBIE_BOOST`, `LADDER_DECAY_PER_LEVEL`, `LADDER_COUPON_MAX_RUB` (значения — assumptions).
 **AC:** новый раздел §17 в `domain-rules.md` совпадает с `game_rules.py` (тест соответствия, как в BE-003); `PROMO_LEVEL_SHARE['high'] == 1.0` = текущий cap, т.е. `high` не пробивает маржу; `MAX_PLAN_STEPS == 2` и присутствует в §17; `LADDER_STAGE_BASE_XP` документирован как **базовая** добавка на стадию (итоговая величина = база × грейд, считает код), начисляется в шкалу §8, не отдельный счёт.
 
 ## BE-026 Feature `catalog` (владелец: R)
 **Файлы:** `dev/backend/app/features/catalog/{router,dto,models,service,database}.py`, тесты.
-**Описание:** чтение `sku_catalog`; `get_hints(category|None, limit) -> list[SkuHint]` для планировщика (топ по `popularity_rank`, только `is_challenge_eligible`); `GET /catalog?category=` для отладки/демо.
-**AC:** возвращает только eligible SKU; alcohol/tobacco отфильтрованы; пустая категория → топ по популярности; e2e на ручку.
+**Описание:** чтение `sku_catalog`; `get_catalog() -> list[SkuCatalogItem]` для планировщика — **весь** eligible-каталог (упорядочен по `popularity_rank`, только `is_challenge_eligible`), а не top-N подсказка; `GET /catalog?category=` для отладки/демо. На хакатоне каталог целиком влезает в контекст LLM (§4/§11); в проде — retrieval по релевантности (открытый вопрос).
+**AC:** возвращает только eligible SKU; alcohol/tobacco отфильтрованы; каталог упорядочен по популярности; e2e на ручку.
 
 ## BE-027 Insight Builder (владелец: R)
 **Файлы:** `dev/backend/app/features/challenges/insight.py`, `models.py` (`PlannerInput`, `CategoryTimeseries`, `ChurnRisk`, `PreviousPlan`), `tests/unit/challenges/test_insight.py`.
 **Описание:** детерминированно собирает `PlannerInput` из `user_features` + чеков: агрегаты, `category_timeseries`
 (cadence_days, days_overdue, share, visits по 3–5 топ-категориям), `churn_risk` (`none|elevated|high` по §17),
-`catalog_hint` из BE-026, `previous_plans` — последние `PLANNER_PREV_PLANS_MAX` hero-плана из `challenges`/`llm_plans`
+`catalog` (весь eligible-каталог) из BE-026, `previous_plans` — последние `PLANNER_PREV_PLANS_MAX` hero-плана из `challenges`/`llm_plans`
 (`week`, `challenge_type`, `reward_kind`, `reward_level`, `status` `completed|expired|active`, `used`). Сырые чеки по
 умолчанию не включаются (флаг `include_receipts`). Никакого LLM, никакой арифметики в LLM.
 **AC:** `churn_risk` считается по порогу `CHURN_RISK_CADENCE_FACTOR`; для пустой истории — безопасные дефолты (как §3 sentinel), `previous_plans=[]`; `previous_plans` не длиннее `PLANNER_PREV_PLANS_MAX` и упорядочен свежими вперёд; JSON сериализуется < ~1.5 КБ на дефолте; unit на каждое поле.
 
 ## BE-028 `reward_level` → бюджет в `economics.py` (владелец: R)
 **Файлы:** `dev/backend/app/features/challenges/economics.py`, `tests/unit/challenges/test_economics.py`.
-**Описание:** `reward_points_for_level(economics, reward_level) -> int` = `max_reward_points(max_reward_rub × PROMO_LEVEL_SHARE[level])`. Формула маржи §6 не меняется. `none`/`needs_promo=false` → 0 баллов (только XP). При `reward_kind='ladder'` Economics возвращает 0 рублей/баллов — награду отдаёт Reward Ladder (BE-032).
+**Описание:** `reward_points_for_level(economics, reward_level) -> int` = `max_reward_points(max_reward_rub × PROMO_LEVEL_SHARE[level])`. Формула маржи §6 не меняется. `reward_kind='none'` → 0 денежных баллов (самоценный шаг, только базовый `XP_CHALLENGE` §8). При `reward_kind='ladder'` Economics возвращает 0 рублей/баллов — награду отдаёт Reward Ladder (BE-032).
 **AC:** пример PO (600 ₽, 2→3): `high` → 30 баллов (= текущий результат), `medium` → 20, `low` → 10, `none` → 0; ни один уровень не превышает `40% × margin`; reward ≤ 150; `reward_kind='ladder'` → 0 денег.
 
 ## BE-029 Plan Validator + fallback (владелец: R)
 **Файлы:** `dev/backend/app/features/challenges/plan_validator.py`, `tests/unit/challenges/test_plan_validator.py`.
-**Описание:** валидирует `ChallengePlan` = `steps[]` (`1..MAX_PLAN_STEPS`) + `insight_used` + `rationale`. Общие правила на **каждый** шаг: `challenge_type ∈ CHALLENGE_LIBRARY`; `category ∈ CATEGORIES` и не в `CHALLENGE_EXCLUDED_CATEGORIES`; каждый `sku_id ∈ sku_catalog` и eligible; `target` в коридоре §5/§14; `reward_level`↔`needs_promo` согласованы; `reward_kind ∈ REWARD_KINDS` (при `ladder` → `needs_promo=false`). Правила плана: `1 ≤ len(steps) ≤ MAX_PLAN_STEPS`; активен только `steps[0]`, `steps[1]` — внутренний отложенный шаг (пользователю не показывается); `rationale` содержит число из инсайта (§14 п.4). При провале — repair (до `PLANNER_REPAIR_MAX`), затем fallback на `candidate.build` + `personalization.rank` (одношаговый план). Возвращает `(list[ChallengeDraft], plan_source)` — по одному drafту на шаг, активен только `steps[0]`.
-**AC:** невалидный SKU → repair→fallback (`plan_source='rules'`, один шаг); target вне коридора → repair; `reward_kind='ladder'` с `needs_promo=true` → нормализуется; `len(steps) > MAX_PLAN_STEPS` → отклоняется; валидный план → `ChallengeDraft`-ы эквивалентны по полям существующему; unit на каждое правило.
+**Описание:** валидирует `ChallengePlan` = `steps[]` (`1..MAX_PLAN_STEPS`) + `insight_used` + `rationale`. Общие правила на **каждый** шаг: `challenge_type ∈ CHALLENGE_LIBRARY`; `category ∈ CATEGORIES` и не в `CHALLENGE_EXCLUDED_CATEGORIES`; каждый `sku_id ∈ sku_catalog` и eligible; `target` в коридоре §5/§14; `reward_kind ∈ REWARD_KINDS` и согласован с `reward_level` (`reward_kind=none` ⇔ `reward_level=none`; при `ladder` промо-деньги = 0). Правила плана: `1 ≤ len(steps) ≤ MAX_PLAN_STEPS`; активен только `steps[0]`, `steps[1]` — внутренний отложенный шаг (пользователю не показывается); `rationale` содержит число из инсайта (§14 п.4). При провале — repair (до `PLANNER_REPAIR_MAX`), затем fallback на `candidate.build` + `personalization.rank` (одношаговый план). Возвращает `(list[ChallengeDraft], plan_source)` — по одному drafту на шаг, активен только `steps[0]`.
+**AC:** невалидный SKU → repair→fallback (`plan_source='rules'`, один шаг); target вне коридора → repair; `reward_kind='none'` с `reward_level!='none'` → нормализуется/repair; `len(steps) > MAX_PLAN_STEPS` → отклоняется; валидный план → `ChallengeDraft`-ы эквивалентны по полям существующему; unit на каждое правило.
 
-## BE-030 Библиотека челленджей: basket / streak / winback (владелец: R)
+## BE-030 Библиотека челленджей: basket / streak / replenishment / collection (владелец: R)
 **Файлы:** `dev/backend/app/features/challenges/{service,candidate,models}.py`, тесты.
-**Описание:** предикаты прогресса `_matches_receipt` для новых типов: `basket` (в чеке ≥ K из `sku_refs`/категорий — **самоценная связка**), `streak` (не прервать серию недель — уже есть в domovoy, связать), `winback` (первый counted-чек после просрочки кадэнса). Правила target для новых типов в §5-подобном виде. Поддержать **многошаговый план (`steps[]`)**: активен только `steps[0]`; если в плане есть `steps[1]`, при закрытии `steps[0]` он создаётся **отложенным** внутренним шагом с `activates_on` = следующая неделя и подаётся в `previous_plans` следующему вызову планировщика; пользователю не показывается (один активный набор на неделю, §7). Rule-based `candidate` учит новые типы как fallback-кандидатов там, где это тривиально (иначе fallback = frequency/category).
-**AC:** basket-челлендж двигается только при попадании SKU/категорий; winback закрывается первым визитом; план с `steps[1]` создаёт ровно один отложенный внутренний шаг на след. неделю; в один момент активен ровно один hero; возврат откатывает как в BE-012; unit на каждый предикат.
+**Описание:** предикаты прогресса `_matches_receipt` для новых типов: `basket` (в чеке ≥ K из `sku_refs`/категорий — **самоценная связка**), `streak` (не прервать серию активных недель — уже есть в domovoy, связать), `replenishment` (counted-чек с категорией-стейплом относительно истечения личного кадэнса — just-in-time и анти-отток), `collection` (покупки из ≥ K разных категорий за неделю — set-completion). «Winback» — не тип, а **цель**: её решает `replenishment`/`basket` под сигнал `churn_risk` + стадия награды (§6). Правила target для новых типов в §5-подобном виде. Поддержать **многошаговый план (`steps[]`)**: активен только `steps[0]`; если в плане есть `steps[1]`, при закрытии `steps[0]` он создаётся **отложенным** внутренним шагом с `activates_on` = следующая неделя и подаётся в `previous_plans` следующему вызову планировщика; пользователю не показывается (один активный набор на неделю, §7). Rule-based `candidate` учит новые типы как fallback-кандидатов там, где это тривиально (иначе fallback = frequency/category).
+**AC:** basket-челлендж двигается только при попадании SKU/категорий; `replenishment` закрывается первым counted-чеком с целевой категорией; `collection` — при ≥ K разных категориях; план с `steps[1]` создаёт ровно один отложенный внутренний шаг на след. неделю; в один момент активен ровно один hero; возврат откатывает как в BE-012; unit на каждый предикат.
 
 ## BE-031 `refresh_weekly` через planner (владелец: R)
 **Файлы:** `dev/backend/app/features/challenges/service.py`, `database.py`, тесты.
@@ -101,13 +101,12 @@ LLM в роли time-series / insight-аналитика, которая **пл�
 ```python
 # app/llm/planner.py
 class ChallengeStep(BaseModel):
-    challenge_type: Literal["frequency","category","basket","streak","winback"]
+    challenge_type: Literal["frequency","category","basket","streak","replenishment","collection"]
     target: int
     category: str | None
     sku_refs: list[str]            # 0..3 sku_id
-    reward_kind: Literal["promo","ladder"]     # promo = деньги (Economics); ladder = бонус-XP (Reward Ladder §8)
+    reward_kind: Literal["promo","ladder","none"]   # promo = деньги (Economics); ladder = бонус-XP (§8); none = самоценный
     reward_level: Literal["none","low","medium","high"]
-    needs_promo: bool
     deadline_days: int
 
 class ChallengePlan(BaseModel):
@@ -133,15 +132,14 @@ async def plan(*, planner_input: PlannerInput) -> ChallengePlan | None: ...  # N
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["challenge_type","target","category","sku_refs","reward_kind","reward_level","needs_promo","deadline_days"],
+        "required": ["challenge_type","target","category","sku_refs","reward_kind","reward_level","deadline_days"],
         "properties": {
-          "challenge_type": {"enum": ["frequency","category","basket","streak","winback"], "description": "тип из библиотеки"},
+          "challenge_type": {"enum": ["frequency","category","basket","streak","replenishment","collection"], "description": "тип-механика из библиотеки (§6)"},
           "target": {"type": "integer", "minimum": 1, "description": "цель за неделю; код валидирует коридор относительно baseline"},
           "category": {"type": ["string","null"], "enum": ["dairy","bakery","fruits_veg","meat_fish","grocery","snacks","drinks","alcohol","household","beauty","ready_food","other", null], "description": "макрокатегория или null"},
           "sku_refs": {"type": "array", "items": {"type": "string"}, "maxItems": 3, "description": "sku_id ИЗ каталога, будут проверены на существование"},
-          "reward_kind": {"enum": ["promo","ladder"], "description": "promo = скидка/баллы (деньги считает код); ladder = бонус-XP в шкалу опыта (§8)"},
+          "reward_kind": {"enum": ["promo","ladder","none"], "description": "promo = скидка/баллы (деньги считает код); ladder = бонус-XP в шкалу опыта (§8); none = самоценный, без промо"},
           "reward_level": {"enum": ["none","low","medium","high"], "description": "стадия силы награды; величину (руб или XP) считает код, НЕ ты"},
-          "needs_promo": {"type": "boolean", "description": "false = шаг самоценен, промо не тратим"},
           "deadline_days": {"type": "integer", "minimum": 1, "maximum": 14, "description": "код клампит к границам недели"}
         }
       }
