@@ -36,3 +36,24 @@ class UserSummary(AppModel):
     pseudonym: str
     segment: Literal["regular_mid", "light", "heavy", "dormant"]
     level: int
+
+
+class DomovoyStateSummary(AppModel):
+    xp: int
+    level: int
+    xp_to_next_level: int
+    mood: Literal["cheerful", "cozy", "healthy", "bored", "sleepy"]
+    mood_reason: str
+    streak_weeks: int
+    items: list[str]
+
+
+class ReferralTeaserRow(AppModel):
+    code: str
+    invited_count: int
+    rewarded_count: int
+
+
+class RecommendedMechanicRow(AppModel):
+    mechanic: Literal["challenge", "league", "referral"]
+    reason: str

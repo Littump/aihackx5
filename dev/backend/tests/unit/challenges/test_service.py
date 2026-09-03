@@ -214,3 +214,15 @@ async def test_get_one_raises_not_found_for_a_foreign_user(
         await service.get_one(None, 1, 5)  # type: ignore[arg-type]
 
     assert exc_info.value.code == "challenge_not_found"
+
+
+async def test_count_completed_delegates_to_database(monkeypatch: pytest.MonkeyPatch) -> None:
+    async def fake_count(_: AsyncConnection, *, user_id: int) -> int:
+        assert user_id == 1
+        return 4
+
+    monkeypatch.setattr(database, "count_completed_challenges", fake_count)
+
+    result = await service.count_completed(None, 1)  # type: ignore[arg-type]
+
+    assert result == 4

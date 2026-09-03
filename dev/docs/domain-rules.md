@@ -233,3 +233,16 @@ Qualifying: 1-я покупка `≥ REFERRAL_MIN_FIRST_PURCHASE = 500 ₽`; 2-�
 | Цена одной буст-позиции | 150 ₽ | `SIMULATE_BOOST_ITEM_PRICE` |
 | Чеков в `fraud_burst` | 4 по 100 ₽ с интервалом 3 мин | `SIMULATE_FRAUD_BURST_COUNT/AMOUNT/INTERVAL_MIN` |
 | Категория позиции в `fraud_burst` | `grocery` | `SIMULATE_FRAUD_BURST_CATEGORY` |
+
+## 16. Recommended mechanic (Home)
+
+`GET /users/{id}/home` выбирает одну механику в `recommended_mechanic`. Первое сработавшее правило побеждает, причина — одна фраза.
+
+| # | Условие | Механика |
+|---|---|---|
+| 1 | `completed_challenges_count == 0` | `challenge` («Начни с первого челленджа») |
+| 2 | `completed_challenges_count ≥ RECOMMENDED_MECHANIC_LEAGUE_MIN_COMPLETED (3)` и `has_league` | `league` |
+| 3 | `social_propensity ≥ RECOMMENDED_MECHANIC_REFERRAL_MIN_SOCIAL_PROPENSITY (0.6)` и `completed_challenges_count ≥ RECOMMENDED_MECHANIC_REFERRAL_MIN_COMPLETED (2)` | `referral` |
+| 4 | иначе | `challenge` («Выполни ещё один челлендж») |
+
+`completed_challenges_count` — все челленджи пользователя со `status='completed'` за всё время, не только за неделю. `has_league` пока всегда `false` — лиги нет до BE-016, правило написано как чистая функция с этим параметром, чтобы ветку `league` можно было протестировать отдельно от интеграции. Решение сохраняется в `mechanic_decisions` при каждом вызове `GET /home`: `reasons` содержит фразу и контекст (`completed_challenges_count`, `has_league`, `social_propensity`) для будущей PM-объяснимости.
