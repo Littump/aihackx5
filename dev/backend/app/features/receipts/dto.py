@@ -6,6 +6,11 @@ from pydantic import Field
 from app.core.models import AppModel
 
 
+class SimulateReceiptInput(AppModel):
+    scenario: Literal["typical", "category_boost", "fraud_burst"] = "typical"
+    store_id: int | None = None
+
+
 class ReceiptItemInput(AppModel):
     product_name: str
     category: str

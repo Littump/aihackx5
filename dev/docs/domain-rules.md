@@ -216,3 +216,20 @@ Qualifying: 1-я покупка `≥ REFERRAL_MIN_FIRST_PURCHASE = 500 ₽`; 2-�
 ## 14. Eval релевантности
 
 Челлендж релевантен, если все четыре условия верны: (1) категория входит в топ-5 affinity или тип `frequency`; (2) `target` в пределах `baseline × 1.2 … baseline × 2` и `≤ baseline + 2`; (3) условия проверяемы по чекам (тип из библиотеки, поля заполнены); (4) `explanation` содержит хотя бы одно число из `rationale_features`. Hit rate = доля релевантных из 30–50 профилей, цель `≥ 0.70`. Дополнительно: invalid rate (не прошёл валидатор), fallback rate (copy_source = template), economics pass rate.
+
+## 15. Simulate demo receipt (assumptions)
+
+`POST /users/{id}/receipts/simulate` генерирует правдоподобный чек из `user_features`, не показатель X5.
+
+| Параметр | Значение | Константа |
+|---|---|---|
+| Число позиций | 3–6 | `SIMULATE_ITEMS_MIN/MAX` |
+| Базовая корзина без истории | 500 ₽ | `SIMULATE_DEFAULT_AVG_BASKET` |
+| Разброс суммы вокруг `avg_basket` | ×0.7 … ×1.3 | `SIMULATE_BASKET_VARIATION_MIN/MAX` |
+| Разброс веса позиции при делении суммы чека | ×0.5 … ×1.5 | `SIMULATE_ITEM_WEIGHT_MIN/MAX` |
+| Разброс скидки промо-позиции | 10–30 % | `SIMULATE_PROMO_DISCOUNT_MIN/MAX` |
+| Дефолтные категории без affinity | `dairy, bakery, fruits_veg` | `SIMULATE_DEFAULT_CATEGORIES` |
+| Позиций-бустов в `category_boost` | 2 | `SIMULATE_CATEGORY_BOOST_ITEMS` |
+| Цена одной буст-позиции | 150 ₽ | `SIMULATE_BOOST_ITEM_PRICE` |
+| Чеков в `fraud_burst` | 4 по 100 ₽ с интервалом 3 мин | `SIMULATE_FRAUD_BURST_COUNT/AMOUNT/INTERVAL_MIN` |
+| Категория позиции в `fraud_burst` | `grocery` | `SIMULATE_FRAUD_BURST_CATEGORY` |

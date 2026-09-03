@@ -7,9 +7,11 @@ from app.features.receipts.dto import (
     ReceiptInput,
     ReceiptListResponse,
     ReceiptProcessingResult,
+    SimulateReceiptInput,
 )
 
 router = APIRouter(tags=["receipts"])
+DEFAULT_SIMULATE_INPUT = SimulateReceiptInput()
 
 
 @router.post(
@@ -25,6 +27,20 @@ async def create_receipt(payload: ReceiptInput, conn: Conn) -> ReceiptProcessing
         points_spent=payload.points_spent,
         pos_id=payload.pos_id,
         items=payload.items,
+    )
+    return ReceiptProcessingResult.model_validate(outcome)
+
+
+@router.post(
+    "/users/{user_id}/receipts/simulate",
+    response_model=ReceiptProcessingResult,
+    status_code=status.HTTP_201_CREATED,
+)
+async def simulate_receipt(
+    user_id: int, conn: Conn, payload: SimulateReceiptInput = DEFAULT_SIMULATE_INPUT
+) -> ReceiptProcessingResult:
+    outcome = await service.simulate_receipt(
+        conn, user_id=user_id, scenario=payload.scenario, store_id=payload.store_id
     )
     return ReceiptProcessingResult.model_validate(outcome)
 

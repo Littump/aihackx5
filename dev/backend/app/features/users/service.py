@@ -40,6 +40,13 @@ async def get_store(conn: AsyncConnection, store_id: int) -> StoreRow:
     return store
 
 
+async def get_default_store(conn: AsyncConnection) -> StoreRow:
+    store = await database.get_default_store(conn)
+    if store is None:
+        raise AppError("no_stores_available", "в базе нет ни одного магазина", 404)
+    return store
+
+
 async def get_stores_by_ids(conn: AsyncConnection, *, store_ids: list[int]) -> list[StoreRow]:
     if not store_ids:
         return []

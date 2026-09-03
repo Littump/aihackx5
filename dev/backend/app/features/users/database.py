@@ -11,6 +11,7 @@ USER_GET_BY_ID = (
 )
 PSEUDONYM_EXISTS = "SELECT EXISTS(SELECT 1 FROM users WHERE pseudonym = %(pseudonym)s)"
 STORE_GET_BY_ID = "SELECT id, name, chain, district, city FROM stores WHERE id = %(store_id)s"
+STORE_GET_DEFAULT = "SELECT id, name, chain, district, city FROM stores ORDER BY id LIMIT 1"
 STORE_LIST_BY_IDS = (
     "SELECT id, name, chain, district, city FROM stores WHERE id = ANY(%(store_ids)s)"
 )
@@ -67,6 +68,12 @@ async def pseudonym_exists(conn: AsyncConnection, *, pseudonym: str) -> bool:
 async def get_store_by_id(conn: AsyncConnection, *, store_id: int) -> StoreRow | None:
     async with conn.cursor(row_factory=class_row(StoreRow)) as cur:
         await cur.execute(STORE_GET_BY_ID, {"store_id": store_id})
+        return await cur.fetchone()
+
+
+async def get_default_store(conn: AsyncConnection) -> StoreRow | None:
+    async with conn.cursor(row_factory=class_row(StoreRow)) as cur:
+        await cur.execute(STORE_GET_DEFAULT)
         return await cur.fetchone()
 
 
