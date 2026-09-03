@@ -51,7 +51,7 @@
 | INF-006 | E13 | Dockerfile backend/frontend, nginx.conf, docker-compose.prod.yml, .env.prod.example | R | INF-001, INF-002 | done | 2026-09-03 |
 | INF-009 | E13 | Миграции как одноразовый сервис перед backend, rollback.sh, правило откатов | R | INF-006 | done | 2026-09-03 |
 | INF-007 | E13 | setup-vm.sh: docker, ufw, пользователь деплоя, pg_dump по cron | R | INF-006 | done | 2026-09-03 |
-| INF-008 | E13 | CD workflow: сборка образов в ghcr, деплой на VM по SSH после зелёного CI | R | INF-007, INF-009 | blocked: нужны secrets | |
+| INF-008 | E13 | CD workflow: сборка образов в ghcr, деплой на VM по SSH после зелёного CI | R | INF-007, INF-009 | done | 2026-09-03 |
 | INF-011 | E13 | Демо-данные на VM: синтетика, DEMO_NOW, eval и simulation | R | INF-008, AI-003 | blocked: нужна VM | |
 | INF-010 | E13 | Домен и TLS, если будет домен | R | INF-008 | blocked: нужен домен | |
 | DOC-002 | E12 | Одностраничник пилота и README для жюри | A | DOC-001 | todo | |
