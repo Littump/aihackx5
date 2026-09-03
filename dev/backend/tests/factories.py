@@ -14,6 +14,8 @@ from app.features.league import database as league_db
 from app.features.league.models import LeagueMemberRow, LeagueRow
 from app.features.receipts import database as receipts_db
 from app.features.receipts.models import ReceiptItemRow, ReceiptRow
+from app.features.referrals import database as referrals_db
+from app.features.referrals.models import ReferralRow
 from app.features.user_features import database as user_features_db
 from app.features.user_features.models import UserFeaturesRow
 from app.features.users import database as users_db
@@ -76,6 +78,7 @@ async def make_user(conn: AsyncConnection, **overrides: object) -> UserRow:
         "referred_by_user_id": None,
         "device_fingerprint": None,
         "social_propensity": Decimal("0"),
+        "created_at": None,
     }
     params.update(overrides)
     return await users_db.insert_user(conn, params)
@@ -224,3 +227,23 @@ async def make_user_features(
     }
     params.update(overrides)
     return await user_features_db.insert_user_features(conn, params)
+
+
+async def make_referral(
+    conn: AsyncConnection, referrer_user_id: int, referee_user_id: int, **overrides: object
+) -> ReferralRow:
+    params: dict[str, object] = {
+        "referrer_user_id": referrer_user_id,
+        "referee_user_id": referee_user_id,
+        "referee_kind": "new",
+        "status": "pending",
+        "first_purchase_at": None,
+        "second_purchase_at": None,
+        "fraud_score": None,
+        "fraud_reasons": Jsonb([]),
+        "referrer_reward_points": 0,
+        "referee_reward_points": 0,
+        "created_at": None,
+    }
+    params.update(overrides)
+    return await referrals_db.insert_referral_row(conn, params)

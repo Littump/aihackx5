@@ -23,6 +23,12 @@ RECEIPT_LIST_COUNTED_SINCE_SELECT = (
     "AND (%(until)s::timestamptz IS NULL OR purchased_at < %(until)s) "
     "ORDER BY purchased_at ASC, id ASC"
 )
+RECEIPT_LIST_SINCE_SELECT = (
+    "SELECT id, user_id, store_id, purchased_at, regular_total, paid_total, discount_total, "
+    "points_earned, points_spent, counted, is_returned, returned_at, source, pos_id, created_at "
+    "FROM receipts WHERE user_id = %(user_id)s AND purchased_at >= %(since)s "
+    "ORDER BY purchased_at DESC, id DESC"
+)
 DEDUP_WINDOW_EXISTS = (
     "SELECT EXISTS (SELECT 1 FROM receipts WHERE user_id = %(user_id)s "
     "AND store_id = %(store_id)s AND counted = true AND purchased_at > "
@@ -92,6 +98,14 @@ async def list_counted_receipts_since(
             RECEIPT_LIST_COUNTED_SINCE_SELECT,
             {"user_id": user_id, "since": since, "until": until},
         )
+        return await cur.fetchall()
+
+
+async def list_receipts_since(
+    conn: AsyncConnection, *, user_id: int, since: datetime
+) -> list[ReceiptRow]:
+    async with conn.cursor(row_factory=class_row(ReceiptRow)) as cur:
+        await cur.execute(RECEIPT_LIST_SINCE_SELECT, {"user_id": user_id, "since": since})
         return await cur.fetchall()
 
 
