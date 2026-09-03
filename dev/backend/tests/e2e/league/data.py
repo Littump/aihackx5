@@ -19,6 +19,7 @@ LEAGUE_RESPONSE_FIELDS = {
 }
 LEAGUE_MEMBER_FIELDS = {"pseudonym", "level", "score", "rank", "is_me"}
 LEAGUE_HOUSE_FIELDS = {"store_name", "avg_savings_rate", "district_rank", "district_size"}
+ROLLOVER_RESULT_FIELDS = {"leagues_closed", "users_promoted", "users_demoted", "week_start"}
 
 NO_SAVINGS_ITEM: list[dict[str, object]] = [
     {

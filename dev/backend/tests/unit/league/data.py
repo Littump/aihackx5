@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+from app.features.league.models import LeagueZone
+
 WEEK_SCORE_CASES: list[tuple[Decimal, Decimal, int, int, int, int]] = [
     (Decimal("120"), Decimal("1000"), 1, 3, 4, 124),
     (Decimal("900"), Decimal("1000"), 0, 0, 0, 100),
@@ -27,4 +29,12 @@ ZONE_CASES: list[tuple[int, int, int, str]] = [
     (7, 12, 3, "promotion"),
     (8, 12, 3, "demotion"),
     (12, 12, 3, "demotion"),
+]
+
+NEXT_DIVISION_CASES: list[tuple[int, LeagueZone, int]] = [
+    (3, "promotion", 4),
+    (3, "demotion", 2),
+    (3, "safe", 3),
+    (5, "promotion", 5),
+    (1, "demotion", 1),
 ]

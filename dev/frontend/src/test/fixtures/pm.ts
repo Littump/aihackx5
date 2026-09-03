@@ -65,6 +65,29 @@ export function getFraudChecks(): FraudCheck[] {
       ],
       created_at: "2026-09-01T14:00:00+03:00",
     },
+    {
+      id: 2,
+      subject_type: "receipt",
+      subject_id: 502,
+      user_id: 1,
+      score: 0.1,
+      decision: "approve",
+      signals: [],
+      created_at: "2026-08-31T09:00:00+03:00",
+    },
+    {
+      id: 3,
+      subject_type: "referral",
+      subject_id: 7,
+      user_id: 3,
+      score: 0.91,
+      decision: "block",
+      signals: [
+        { code: "referral_farm", weight: 0.5, strong: true, detail: "5 рефералов за час" },
+        { code: "self_referral", weight: 0.4, strong: true, detail: "совпадает IP с рефером" },
+      ],
+      created_at: "2026-08-30T18:30:00+03:00",
+    },
   ];
 }
 

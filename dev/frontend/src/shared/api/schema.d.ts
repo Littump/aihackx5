@@ -180,6 +180,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/league/rollover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["rolloverLeague"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/{user_id}/referral": {
         parameters: {
             query?: never;
@@ -528,6 +544,13 @@ export interface components {
                 district_rank: number;
                 district_size: number;
             };
+        };
+        RolloverResult: {
+            leagues_closed: number;
+            users_promoted: number;
+            users_demoted: number;
+            /** Format: date */
+            week_start: string;
         };
         ReferralInvitee: {
             /** @description «Сосед №3», без имён */
@@ -916,6 +939,7 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationError"];
         };
     };
     listReceipts: {
@@ -964,6 +988,26 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+        };
+    };
+    rolloverLeague: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Итоги закрытия лиг прошедшей недели */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RolloverResult"];
+                };
+            };
         };
     };
     getReferral: {

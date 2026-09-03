@@ -74,6 +74,11 @@ class ChallengeListResult(AppModel):
     history: list[ChallengeRow]
 
 
+class RewardLedgerTotals(AppModel):
+    points: int
+    xp: int
+
+
 class ChallengeProgressDelta(AppModel):
     challenge_id: int
     progress_before: Decimal

@@ -1,3 +1,6 @@
+from decimal import Decimal
+from typing import Literal
+
 from psycopg import AsyncConnection
 
 from app.core.errors import AppError
@@ -5,7 +8,10 @@ from app.features.domovoy import service as domovoy_service
 from app.features.users import database
 from app.features.users.models import StoreRow, UserRow, UserSummary
 from app.features.users.pseudonyms import generate_unique_pseudonym
+from app.features.users.referral_codes import generate_unique_referral_code
 from app.game_rules import level_for_xp
+
+Segment = Literal["regular_mid", "light", "heavy", "dormant"]
 
 
 async def list_users(conn: AsyncConnection, *, limit: int) -> list[UserSummary]:
@@ -64,3 +70,45 @@ async def generate_pseudonym(conn: AsyncConnection) -> str:
         return await database.pseudonym_exists(conn, pseudonym=candidate)
 
     return await generate_unique_pseudonym(is_taken)
+
+
+async def get_user_by_referral_code(conn: AsyncConnection, code: str) -> UserRow | None:
+    return await database.get_user_by_referral_code(conn, referral_code=code)
+
+
+async def generate_referral_code(conn: AsyncConnection) -> str:
+    async def is_taken(candidate: str) -> bool:
+        return await database.referral_code_exists(conn, referral_code=candidate)
+
+    return await generate_unique_referral_code(is_taken)
+
+
+async def create_user(
+    conn: AsyncConnection,
+    *,
+    segment: Segment,
+    pseudonym: str | None = None,
+    referred_by_user_id: int | None = None,
+    device_fingerprint: str | None = None,
+) -> UserRow:
+    resolved_pseudonym = await _resolve_pseudonym(conn, pseudonym)
+    referral_code = await generate_referral_code(conn)
+    params: dict[str, object] = {
+        "pseudonym": resolved_pseudonym,
+        "segment": segment,
+        "favourite_store_id": None,
+        "referral_code": referral_code,
+        "referred_by_user_id": referred_by_user_id,
+        "device_fingerprint": device_fingerprint,
+        "social_propensity": Decimal("0"),
+        "created_at": None,
+    }
+    return await database.insert_user(conn, params)
+
+
+async def _resolve_pseudonym(conn: AsyncConnection, pseudonym: str | None) -> str:
+    if pseudonym is None:
+        return await generate_pseudonym(conn)
+    if await database.pseudonym_exists(conn, pseudonym=pseudonym):
+        raise AppError("pseudonym_taken", "псевдоним уже занят", 409)
+    return pseudonym

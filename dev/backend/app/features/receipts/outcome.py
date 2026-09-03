@@ -1,3 +1,4 @@
+from app.features.antifraud.models import FraudDecision
 from app.features.challenges.models import ChallengeProgressDelta
 from app.features.league.models import LeagueRankChange
 from app.features.receipts.models import (
@@ -9,6 +10,7 @@ from app.features.receipts.models import (
     ReceiptProcessingOutcome,
 )
 from app.features.savings import calc as savings_calc
+from app.game_rules import XP_ACHIEVEMENT
 
 
 def build_outcome(
@@ -18,8 +20,15 @@ def build_outcome(
     domovoy_state: DomovoyStateStub,
     challenge_deltas: list[ChallengeProgressDelta],
     league_rank_change: LeagueRankChange,
+    referral_status: str | None,
+    fraud_decision: FraudDecision,
+    achievements_unlocked: list[str],
 ) -> ReceiptProcessingOutcome:
-    xp_delta = domovoy_xp_delta + _completed_challenges_xp(challenge_deltas)
+    xp_delta = (
+        domovoy_xp_delta
+        + _completed_challenges_xp(challenge_deltas)
+        + len(achievements_unlocked) * XP_ACHIEVEMENT
+    )
     return ReceiptProcessingOutcome(
         receipt=receipt,
         counted=decision.counted,
@@ -30,9 +39,9 @@ def build_outcome(
         challenges=_map_challenge_deltas(challenge_deltas),
         league_rank_before=league_rank_change.rank_before,
         league_rank_after=league_rank_change.rank_after,
-        referral_status=None,
-        fraud=_stub_fraud_decision(),
-        achievements_unlocked=[],
+        referral_status=referral_status,
+        fraud=FraudDecisionStub.model_validate(fraud_decision),
+        achievements_unlocked=achievements_unlocked,
     )
 
 
@@ -44,7 +53,3 @@ def _map_challenge_deltas(
     deltas: list[ChallengeProgressDelta],
 ) -> list[ChallengeProgressDeltaStub]:
     return [ChallengeProgressDeltaStub.model_validate(delta) for delta in deltas]
-
-
-def _stub_fraud_decision() -> FraudDecisionStub:
-    return FraudDecisionStub(score=0.0, decision="approve", signals=[])

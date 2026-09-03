@@ -239,7 +239,7 @@ Score должен учитывать прогресс и выполнение �
 > **E14 (ML rework, принято).** Целевой pipeline: **чеки → user features → Insight Builder → LLM Challenge
 > Planner (structured output) → детерминированный validator → Economics / Reward Ladder → пользователь**.
 > `candidate` + `personalization` ниже сохраняются как **fallback** (без ключа LLM или при невалидном
-> плане, `plan_source=rules`), а не удаляются. Деньги/XP по-прежнему считает код (decision #7/#14).
+> плане, `plan_source=rules`), а не удаляются. Деньги/XP по-прежнему считает код (decision #7/#15).
 
 ### 7.1. User Features — обычный код
 
@@ -334,7 +334,7 @@ LLM **не назначает скидку, reward или финансовые �
 > деньги» сохраняется: **конкретную сумму в рублях и число XP считает только код** — Economics Engine по
 > марже (§7.4) и Reward Ladder по грейду пользователя. Ответ LLM детерминированно валидируется (SKU/target/
 > тип), при провале — repair и fallback на rule-based. Полный дизайн — `docs/ml-rework/ml-solution-architecture.md`,
-> граница уточнена в decision #7/#14.
+> граница уточнена в decision #7/#15.
 
 ---
 

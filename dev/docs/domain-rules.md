@@ -123,8 +123,9 @@ Streak: число подряд идущих недель с выполненн�
 
 - «Дом» = `favourite_store_id`. Лига = `(store_id, division, week_start)` до `LEAGUE_SIZE = 30` участников; `open` лига добирает, при 30 закрывается и открывается новая.
 - Дивизионы 1..5: бронза, серебро, золото, платина, алмаз. Новичок — дивизион 1.
-- Неделя: понедельник 00:00 — воскресенье 23:59. Сброс — ручка `POST /league/rollover` (в backlog).
+- Неделя: понедельник 00:00 — воскресенье 23:59. Сброс — ручка `POST /league/rollover`.
 - Зоны: повышение — топ `LEAGUE_PROMOTE_TOP = 7`, вылет — низ `LEAGUE_DEMOTE_BOTTOM = 5` (в дивизионе 1 не вылетают, в 5 не повышаются).
+- Rollover: XP за повышение (`XP_LEAGUE_PROMOTION`) и за топ-`LEAGUE_TOP3_RANK = 3` недели (`XP_LEAGUE_TOP3`) начисляются независимо, оба возможны одному участнику. Начисление ровно одно на лигу-неделю: закрытая лига повторно не обрабатывается.
 
 Score за неделю:
 ```
@@ -148,7 +149,9 @@ score = 200 × savings_rate
 
 Qualifying: 1-я покупка `≥ REFERRAL_MIN_FIRST_PURCHASE = 500 ₽`; 2-я покупка не раньше `REFERRAL_SECOND_PURCHASE_MIN_DAYS = 7` дней после первой. Награда пригласившему — после 2-й покупки и `antifraud.decision == approve`; `hold` → статус `on_review`, повторная проверка через 14 дней или при следующей покупке; `block` → `blocked`.
 
-Лимиты: `REFERRAL_PAID_PER_MONTH = 5`, `REFERRAL_PAID_PER_YEAR = 20`.
+Лимиты: `REFERRAL_PAID_PER_MONTH = 5`, `REFERRAL_PAID_PER_YEAR = 20`. `POST /referrals/redeem` возвращает `409 referral_limit_reached`, когда у пригласившего уже `REFERRAL_PAID_PER_YEAR` рефералов в статусе `rewarded` за текущий календарный год (годовой лимит, не месячный).
+
+Известное ограничение MVP: реферал, упёршийся в месячный лимит `REFERRAL_PAID_PER_MONTH`, остаётся в `status='qualified'` без награды навсегда — retry на следующий месяц не реализован, это осознанное упрощение, а не баг.
 
 ## 11. Антифрод
 
@@ -178,23 +181,33 @@ Qualifying: 1-я покупка `≥ REFERRAL_MIN_FIRST_PURCHASE = 500 ₽`; 2-�
 | Скор | Решение |
 |---|---|
 | `< 0.5` | `approve` |
-| `0.5 – 0.8` | `hold`: награда откладывается, чек `counted` остаётся |
-| `≥ 0.8` **и ≥ 2 strong** | `block`: выплаты нет, чек `counted=false`, в PM view с причинами |
+| `0.5 – 0.8` | `hold`: чек `counted` остаётся как решил дедуп/лимит |
+| `≥ 0.8` **и ≥ 2 strong** | `block`: чек `counted=false`, в PM view с причинами |
 | `≥ 0.8`, но < 2 strong | `hold` — precision важнее recall |
 
 Каждая проверка сохраняется с полным списком сигналов и человеческим `detail`.
 
+### Эффект в пайплайне чека (BE-020)
+
+`block` переводит `counted` в `false` (`counted_reason=fraud_block`), если чек ещё не стал `counted=false` по другой причине. Если дедуп/лимит уже сделали чек `counted=false` раньше — причина остаётся исходной (`dedup_window`/`daily_limit`), не перезаписывается на `fraud_block`. `hold` не влияет на чек-награды: XP и прогресс челленджа начисляются нормально, единственный эффект `hold` в MVP — запись в `fraud_checks` для PM view. Реферальные награды регулируются отдельным независимым фрод-чеком в `referrals.service` (`score_referral` на реферальные сигналы), не этим шагом.
+
 ## 12. Ачивки (MVP)
 
-| code | Условие |
-|---|---|
-| `first_receipt` | первый counted-чек |
-| `first_challenge` | первый выполненный челлендж |
-| `streak_4` | streak 4 недели |
-| `saver_1000` | savings за месяц ≥ 1000 ₽ |
-| `explorer` | чеки в обеих сетях за 30 дней |
-| `neighbour` | первый успешный реферал |
-| `league_top3` | топ-3 недели |
+| code | Условие | Константа |
+|---|---|---|
+| `first_receipt` | первый counted-чек | — |
+| `first_challenge` | первый выполненный челлендж | — |
+| `streak_4` | streak_weeks ≥ 4 недель | `ACHIEVEMENT_STREAK_WEEKS = 4` |
+| `saver_1000` | savings за месяц ≥ 1000 ₽ | `SAVER_1000_THRESHOLD_RUB = 1000` |
+| `explorer` | counted-чеки в обеих сетях (pyaterochka и perekrestok) за 30 дней | `ACHIEVEMENT_EXPLORER_WINDOW_DAYS = 30` |
+| `neighbour` | первый успешный реферал (`referral.status` стал `rewarded`) | — |
+| `league_top3` | финальный ранг в закрывшейся лиге-неделе ≤ 3 (проверяется в `league.rollover`, не на каждом чеке) | `LEAGUE_TOP3_RANK = 3` |
+
+Награда за каждую разблокированную ачивку — `XP_ACHIEVEMENT = 25`, без баллов. Повторное срабатывание не начисляет награду и не создаёт вторую строку: `UNIQUE (user_id, code)`.
+
+`league_top3` намеренно не проверяется по живому рангу внутри `receipts.process_receipt`: соло-лига в начале недели тривиально даёт ранг 1, что обесценивало бы смысл «топ-3 недели». Ачивка разблокируется в `league.rollover.rollover_week` тем же условием (`rank ≤ LEAGUE_TOP3_RANK`), что уже определяет получателей `XP_LEAGUE_TOP3`.
+
+`achievements_unlocked` в ответе `POST /receipts` содержит только коды, разблокированные для пользователя ЭТОГО чека. `neighbour` начисляется рефереру (другому пользователю) и в этот список не попадает, хотя запись в `achievements` и XP рефереру создаются немедленно.
 
 ## 13. Симуляция (assumptions)
 
@@ -231,7 +244,7 @@ Qualifying: 1-я покупка `≥ REFERRAL_MIN_FIRST_PURCHASE = 500 ₽`; 2-�
 | Дефолтные категории без affinity | `dairy, bakery, fruits_veg` | `SIMULATE_DEFAULT_CATEGORIES` |
 | Позиций-бустов в `category_boost` | 2 | `SIMULATE_CATEGORY_BOOST_ITEMS` |
 | Цена одной буст-позиции | 150 ₽ | `SIMULATE_BOOST_ITEM_PRICE` |
-| Чеков в `fraud_burst` | 4 по 100 ₽ с интервалом 3 мин | `SIMULATE_FRAUD_BURST_COUNT/AMOUNT/INTERVAL_MIN` |
+| Чеков в `fraud_burst` | 5 по 100 ₽ с интервалом 3 мин, один `pos_id` | `SIMULATE_FRAUD_BURST_COUNT/AMOUNT/INTERVAL_MIN/POS_ID` |
 | Категория позиции в `fraud_burst` | `grocery` | `SIMULATE_FRAUD_BURST_CATEGORY` |
 
 ## 16. Recommended mechanic (Home)

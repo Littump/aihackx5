@@ -4,7 +4,7 @@ from typing import Literal
 
 from psycopg import AsyncConnection
 
-from app.core.clock import now, week_end, week_start
+from app.core.clock import month_end, month_start, now, week_end, week_start
 from app.core.errors import AppError
 from app.features.challenges import candidate, database, economics, personalization
 from app.features.challenges.models import (
@@ -14,6 +14,7 @@ from app.features.challenges.models import (
     ChallengeRow,
     RewardKind,
     RewardLedgerEntry,
+    RewardLedgerTotals,
 )
 from app.features.receipts.models import ReceiptDetail
 from app.features.user_features import service as user_features_service
@@ -23,6 +24,7 @@ from app.game_rules import CHALLENGE_PROGRESS_STEP, XP_CHALLENGE
 from app.llm import domovoy_copy
 
 RETURN_LOOKUP_STATUSES: list[str] = ["active", "completed"]
+EXPECTED_MARGIN_STATUSES: list[str] = ["active", "completed"]
 
 
 async def record_reward(
@@ -198,6 +200,28 @@ async def count_completed_in_period(
     return await database.count_completed_challenges_in_period(
         conn, user_id=user_id, start=start, end=end
     )
+
+
+async def list_ledger_for_user(
+    conn: AsyncConnection, user_id: int, limit: int
+) -> list[RewardLedgerEntry]:
+    return await database.list_reward_ledger_for_user(conn, user_id=user_id, limit=limit)
+
+
+async def sum_ledger_for_user(conn: AsyncConnection, user_id: int) -> RewardLedgerTotals:
+    return await database.sum_reward_ledger_for_user(conn, user_id=user_id)
+
+
+async def sum_expected_margin_for_month(conn: AsyncConnection, user_id: int) -> Decimal:
+    challenges = await database.list_challenges_for_user_in_month(
+        conn,
+        user_id=user_id,
+        month_start=month_start(),
+        month_end=month_end(),
+        statuses=EXPECTED_MARGIN_STATUSES,
+    )
+    total = sum((c.economics.expected_incremental_margin for c in challenges), 0.0)
+    return Decimal(str(total))
 
 
 async def get_one(conn: AsyncConnection, user_id: int, challenge_id: int) -> ChallengeRow:

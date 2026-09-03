@@ -116,6 +116,8 @@ def make_challenge_row(
     baseline: Decimal = Decimal("2"),
     target: Decimal = Decimal("3"),
     progress: Decimal = Decimal("0"),
+    period_start: datetime = COMPUTED_AT,
+    economics: ChallengeEconomics | None = None,
 ) -> ChallengeRow:
     return ChallengeRow(
         id=id,
@@ -127,11 +129,12 @@ def make_challenge_row(
         baseline=baseline,
         target=target,
         progress=progress,
-        period_start=COMPUTED_AT,
+        period_start=period_start,
         period_end=COMPUTED_AT,
         reward_xp=50,
         reward_points=30,
-        economics=ChallengeEconomics(
+        economics=economics
+        or ChallengeEconomics(
             avg_basket=0.0,
             expected_incremental_purchases=0.0,
             expected_incremental_margin=0.0,

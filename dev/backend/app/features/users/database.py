@@ -20,6 +20,12 @@ USER_LIST_BY_IDS = (
     "referred_by_user_id, device_fingerprint, social_propensity, created_at "
     "FROM users WHERE id = ANY(%(user_ids)s)"
 )
+USER_GET_BY_REFERRAL_CODE = (
+    "SELECT id, pseudonym, segment, favourite_store_id, referral_code, "
+    "referred_by_user_id, device_fingerprint, social_propensity, created_at "
+    "FROM users WHERE referral_code = %(referral_code)s"
+)
+REFERRAL_CODE_EXISTS = "SELECT EXISTS(SELECT 1 FROM users WHERE referral_code = %(referral_code)s)"
 STORE_INSERT = (
     "INSERT INTO stores (name, chain, district, city) "
     "VALUES (%(name)s, %(chain)s, %(district)s, %(city)s) "
@@ -27,9 +33,10 @@ STORE_INSERT = (
 )
 USER_INSERT = (
     "INSERT INTO users (pseudonym, segment, favourite_store_id, referral_code, "
-    "referred_by_user_id, device_fingerprint, social_propensity) "
+    "referred_by_user_id, device_fingerprint, social_propensity, created_at) "
     "VALUES (%(pseudonym)s, %(segment)s, %(favourite_store_id)s, %(referral_code)s, "
-    "%(referred_by_user_id)s, %(device_fingerprint)s, %(social_propensity)s) "
+    "%(referred_by_user_id)s, %(device_fingerprint)s, %(social_propensity)s, "
+    "COALESCE(%(created_at)s, now())) "
     "RETURNING id, pseudonym, segment, favourite_store_id, referral_code, "
     "referred_by_user_id, device_fingerprint, social_propensity, created_at"
 )
@@ -72,6 +79,19 @@ async def list_users_by_ids(conn: AsyncConnection, *, user_ids: list[int]) -> li
 async def pseudonym_exists(conn: AsyncConnection, *, pseudonym: str) -> bool:
     async with conn.cursor() as cur:
         await cur.execute(PSEUDONYM_EXISTS, {"pseudonym": pseudonym})
+        row = await cur.fetchone()
+        return bool(row is not None and row[0])
+
+
+async def get_user_by_referral_code(conn: AsyncConnection, *, referral_code: str) -> UserRow | None:
+    async with conn.cursor(row_factory=class_row(UserRow)) as cur:
+        await cur.execute(USER_GET_BY_REFERRAL_CODE, {"referral_code": referral_code})
+        return await cur.fetchone()
+
+
+async def referral_code_exists(conn: AsyncConnection, *, referral_code: str) -> bool:
+    async with conn.cursor() as cur:
+        await cur.execute(REFERRAL_CODE_EXISTS, {"referral_code": referral_code})
         row = await cur.fetchone()
         return bool(row is not None and row[0])
 

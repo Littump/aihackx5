@@ -25,6 +25,7 @@ from app.game_rules import (
     SIMULATE_FRAUD_BURST_CATEGORY,
     SIMULATE_FRAUD_BURST_COUNT,
     SIMULATE_FRAUD_BURST_INTERVAL_MIN,
+    SIMULATE_FRAUD_BURST_POS_ID,
     SIMULATE_ITEM_WEIGHT_MAX,
     SIMULATE_ITEM_WEIGHT_MIN,
     SIMULATE_ITEMS_MAX,
@@ -217,7 +218,7 @@ async def _simulate_fraud_burst(
             purchased_at=purchased_at,
             points_earned=0,
             points_spent=0,
-            pos_id=None,
+            pos_id=SIMULATE_FRAUD_BURST_POS_ID,
             items=[fraud_burst_item()],
         )
     assert outcome is not None

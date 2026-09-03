@@ -4,13 +4,10 @@ from datetime import datetime, timedelta
 from psycopg import AsyncConnection
 
 from app.core.clock import day_start
-from app.features.challenges.models import ChallengeProgressDelta
-from app.features.domovoy.models import DomovoyDelta, DomovoyStateRow
-from app.features.league.models import LeagueRankChange
-from app.features.receipts import database, outcome
+from app.features.antifraud.models import FraudDecision
+from app.features.receipts import database, outcome, pipeline
 from app.features.receipts.models import (
     CountedDecision,
-    DomovoyStateStub,
     ReceiptDetail,
     ReceiptItemDraft,
     ReceiptItemInputLike,
@@ -23,12 +20,7 @@ from app.features.receipts.models import (
 )
 from app.features.receipts.totals import compute_totals
 from app.features.users import service as users_service
-from app.game_rules import (
-    RECEIPT_DEDUP_WINDOW_MIN,
-    RECEIPTS_PER_DAY_MAX,
-    level_for_xp,
-    xp_to_next_level,
-)
+from app.game_rules import RECEIPT_DEDUP_WINDOW_MIN, RECEIPTS_PER_DAY_MAX
 
 
 async def process_receipt(
@@ -61,12 +53,45 @@ async def process_receipt(
         counted=decision.counted,
     )
     item_rows = await _insert_items(conn, receipt_id=receipt_row.id, items=drafts)
+    fraud_decision = await pipeline.run_antifraud_step(conn, user_id, receipt_row)
+    receipt_row, decision = await _apply_fraud_decision(
+        conn, receipt_row=receipt_row, decision=decision, fraud_decision=fraud_decision
+    )
+    return await _apply_rewards(
+        conn,
+        user_id=user_id,
+        store_name=store.name,
+        receipt_row=receipt_row,
+        item_rows=item_rows,
+        decision=decision,
+        fraud_decision=fraud_decision,
+    )
+
+
+async def _apply_rewards(
+    conn: AsyncConnection,
+    *,
+    user_id: int,
+    store_name: str,
+    receipt_row: ReceiptRow,
+    item_rows: list[ReceiptItemRow],
+    decision: CountedDecision,
+    fraud_decision: FraudDecision,
+) -> ReceiptProcessingOutcome:
     await _recompute_user_features(conn, user_id)
-    domovoy_delta = await _run_domovoy_step(conn, user_id, receipt_row)
-    receipt_detail = _to_receipt_detail(receipt_row, store_name=store.name, items=item_rows)
-    challenge_deltas = await _run_challenges_step(conn, user_id, receipt_detail)
-    league_rank_change = await _run_league_step(conn, user_id, receipt_detail)
-    domovoy_state = await _final_domovoy_state(conn, user_id)
+    domovoy_delta = await pipeline.run_domovoy_step(conn, user_id, receipt_row)
+    receipt_detail = _to_receipt_detail(receipt_row, store_name=store_name, items=item_rows)
+    challenge_deltas = await pipeline.run_challenges_step(conn, user_id, receipt_detail)
+    league_rank_change = await pipeline.run_league_step(conn, user_id, receipt_detail)
+    referral_status = await pipeline.run_referral_step(conn, user_id, receipt_detail)
+    achievements_unlocked = await pipeline.run_achievements_step(
+        conn,
+        user_id,
+        receipt=receipt_detail,
+        challenge_deltas=challenge_deltas,
+        referral_status=referral_status,
+    )
+    domovoy_state = await pipeline.final_domovoy_state(conn, user_id)
     return outcome.build_outcome(
         receipt_detail,
         decision,
@@ -74,6 +99,9 @@ async def process_receipt(
         domovoy_state,
         challenge_deltas,
         league_rank_change,
+        referral_status,
+        fraud_decision,
+        achievements_unlocked,
     )
 
 
@@ -145,6 +173,12 @@ async def list_counted_receipts_with_items(
     ]
 
 
+async def list_receipts_since(
+    conn: AsyncConnection, *, user_id: int, since: datetime
+) -> list[ReceiptRow]:
+    return await database.list_receipts_since(conn, user_id=user_id, since=since)
+
+
 async def _recompute_user_features(conn: AsyncConnection, user_id: int) -> None:
     # отложенный импорт разрывает цикл: user_features.service импортирует нас
     from app.features.user_features import service as user_features_service
@@ -154,48 +188,6 @@ async def _recompute_user_features(conn: AsyncConnection, user_id: int) -> None:
 
 def _draft_items(items: Sequence[ReceiptItemInputLike]) -> list[ReceiptItemDraft]:
     return [ReceiptItemDraft.model_validate(item) for item in items]
-
-
-async def _run_domovoy_step(
-    conn: AsyncConnection, user_id: int, receipt: ReceiptRow
-) -> DomovoyDelta:
-    # отложенный импорт разрывает цикл: domovoy.service импортирует нас
-    from app.features.domovoy import service as domovoy_service
-
-    return await domovoy_service.on_receipt(conn, user_id, receipt)
-
-
-async def _run_challenges_step(
-    conn: AsyncConnection, user_id: int, receipt: ReceiptDetail
-) -> list[ChallengeProgressDelta]:
-    # отложенный импорт: challenges тянет user_features, который тянет нас
-    from app.features.challenges import service as challenges_service
-
-    return await challenges_service.on_receipt(conn, user_id, receipt)
-
-
-async def _run_league_step(
-    conn: AsyncConnection, user_id: int, receipt: ReceiptDetail
-) -> LeagueRankChange:
-    # отложенный импорт разрывает цикл: league.service импортирует нас
-    from app.features.league import service as league_service
-
-    return await league_service.on_receipt(conn, user_id, receipt)
-
-
-async def _final_domovoy_state(conn: AsyncConnection, user_id: int) -> DomovoyStateStub:
-    from app.features.domovoy import service as domovoy_service
-
-    state: DomovoyStateRow = await domovoy_service.get_state(conn, user_id)
-    return DomovoyStateStub(
-        xp=state.xp,
-        level=level_for_xp(state.xp),
-        xp_to_next_level=xp_to_next_level(state.xp),
-        mood=state.mood,
-        mood_reason=state.mood_reason,
-        streak_weeks=state.streak_weeks,
-        items=state.items,
-    )
 
 
 async def _decide_counted(
@@ -217,6 +209,21 @@ async def _decide_counted(
     if today_count >= RECEIPTS_PER_DAY_MAX:
         return CountedDecision(counted=False, counted_reason="daily_limit")
     return CountedDecision(counted=True, counted_reason=None)
+
+
+async def _apply_fraud_decision(
+    conn: AsyncConnection,
+    *,
+    receipt_row: ReceiptRow,
+    decision: CountedDecision,
+    fraud_decision: FraudDecision,
+) -> tuple[ReceiptRow, CountedDecision]:
+    if fraud_decision.decision != "block" or not decision.counted:
+        return receipt_row, decision
+    updated_row = await database.update_receipt_counted(
+        conn, receipt_id=receipt_row.id, counted=False
+    )
+    return updated_row, CountedDecision(counted=False, counted_reason="fraud_block")
 
 
 async def _insert_receipt(

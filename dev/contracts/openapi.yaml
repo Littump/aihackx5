@@ -213,6 +213,18 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
 
+  /api/v1/league/rollover:
+    post:
+      tags: [league]
+      operationId: rolloverLeague
+      responses:
+        "200":
+          description: Итоги закрытия лиг прошедшей недели
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RolloverResult"
+
   /api/v1/users/{user_id}/referral:
     get:
       tags: [referrals]
@@ -685,6 +697,15 @@ components:
             avg_savings_rate: { type: number }
             district_rank: { type: integer }
             district_size: { type: integer }
+
+    RolloverResult:
+      type: object
+      required: [leagues_closed, users_promoted, users_demoted, week_start]
+      properties:
+        leagues_closed: { type: integer }
+        users_promoted: { type: integer }
+        users_demoted: { type: integer }
+        week_start: { type: string, format: date }
 
     ReferralInvitee:
       type: object

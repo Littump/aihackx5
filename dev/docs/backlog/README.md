@@ -33,16 +33,16 @@
 | FE-002 | E6 | Home: Домовой, XP, настроение, savings, insight, hero challenge, «Почему это мне?», кнопка Simulate | R | FE-001 | done | 2026-09-03 |
 | FE-003 | E6 | Challenge: hero + side, прогресс, дедлайн, награда, explanation, история | R | FE-001 | done | 2026-09-03 |
 | BE-016 | E7 | `league`: формирование лиг по дому и дивизиону, `scoring.py`, on_receipt, `GET /users/{id}/league` | R | BE-013 | done | 2026-09-03 |
-| BE-017 | E7 | `POST /league/rollover`: недельный сброс, зоны, повышение/понижение, XP | R | BE-016 | todo | |
-| BE-018 | E8 | `antifraud/scoring.py`: сигналы чека и реферала по §11, решение, `fraud_checks` | R | BE-013 | todo | |
-| BE-019 | E8 | `referrals`: код, `redeem`, referee_kind, qualifying purchases, награда после антифрода, лимиты, `GET /users/{id}/referral` | R | BE-018 | todo | |
-| BE-020 | E8 | Антифрод в pipeline чека: block → counted=false, hold → отложенная награда | R | BE-018 | todo | |
-| BE-021 | E8 | `achievements`: правила §12, on_receipt, `GET` | R | BE-013 | todo | |
+| BE-017 | E7 | `POST /league/rollover`: недельный сброс, зоны, повышение/понижение, XP | R | BE-016 | done | 2026-09-03 |
+| BE-018 | E8 | `antifraud/scoring.py`: сигналы чека и реферала по §11, решение, `fraud_checks` | R | BE-013 | done | 2026-09-03 |
+| BE-019 | E8 | `referrals`: код, `redeem`, referee_kind, qualifying purchases, награда после антифрода, лимиты, `GET /users/{id}/referral` | R | BE-018 | done | 2026-09-03 |
+| BE-020 | E8 | Антифрод в pipeline чека: block → counted=false, hold → отложенная награда | R | BE-018 | done | 2026-09-03 |
+| BE-021 | E8 | `achievements`: правила §12, on_receipt, `GET` | R | BE-013 | done | 2026-09-03 |
 | FE-004 | E9 | League: дивизион, список под псевдонимами, моё место, зоны, дельта после покупки, «дом vs район» | R | FE-001, BE-016 | done | 2026-09-03 |
-| FE-005 | E9 | Referral: код/QR, правила, приглашённые со статусами, лимиты | R | FE-001, BE-019 | todo | |
-| BE-022 | E10 | `pm`: `GET /pm/users/{id}`, `GET /pm/fraud`, `mechanic_decisions` | R | BE-019, BE-021 | todo | |
-| BE-023 | E10 | `GET /pm/simulation/latest`, `GET /pm/eval/latest` | R | BE-002 | todo | |
-| FE-006 | E10 | PM view: features, механика + причины, челлендж + экономика, фрод, ledger, симуляция, eval | R | FE-001, BE-022, BE-023 | todo | |
+| FE-005 | E9 | Referral: код/QR, правила, приглашённые со статусами, лимиты | R | FE-001, BE-019 | done | 2026-09-03 |
+| BE-022 | E10 | `pm`: `GET /pm/users/{id}`, `GET /pm/fraud`, `mechanic_decisions` | R | BE-019, BE-021 | done | 2026-09-03 |
+| BE-023 | E10 | `GET /pm/simulation/latest`, `GET /pm/eval/latest` | R | BE-002 | done | 2026-09-03 |
+| FE-006 | E10 | PM view: features, механика + причины, челлендж + экономика, фрод, ledger, симуляция, eval | R | FE-001, BE-022, BE-023 | done | 2026-09-03 |
 | AI-005 | E11 | `app/eval`: relevance по §14 на 30–50 профилях, запись в eval_runs | T | BE-011, AI-003 | todo | |
 | AI-006 | E11 | `app/simulation`: control vs treatment по §13, запись в simulation_runs | T | AI-003, BE-013 | todo | |
 | AI-007 | E11 | Промпт-тюнинг и проверка, что LLM-тексты содержат числа из features (fallback rate < 20 %) | T | AI-004, AI-005 | todo | |
@@ -64,10 +64,10 @@
 | FE-007 | E14 | PM view: показать план LLM (insight_used, reward_level, sku_refs, plan_source, fallback) | R | FE-006, BE-033 | todo | |
 | DOC-001 | E12 | Демо-сценарий по §17 PRD с конкретными user_id и ожидаемыми цифрами | A | FE-006 | todo | |
 | INF-005 | E12 | `make demo`: поднять всё, засеять, прогнать eval и simulation одной командой | R | AI-005, AI-006 | todo | |
-| INF-006 | E13 | Dockerfile backend/frontend, nginx.conf, docker-compose.prod.yml, .env.prod.example | R | INF-001, INF-002 | todo | |
-| INF-009 | E13 | Миграции как одноразовый сервис перед backend, rollback.sh, правило откатов | R | INF-006 | todo | |
-| INF-007 | E13 | setup-vm.sh: docker, ufw, пользователь деплоя, pg_dump по cron | R | INF-006 | blocked: нужна VM | |
-| INF-008 | E13 | CD workflow: сборка образов в ghcr, деплой на VM по SSH после зелёного CI | R | INF-007, INF-009 | blocked: нужны secrets | |
+| INF-006 | E13 | Dockerfile backend/frontend, nginx.conf, docker-compose.prod.yml, .env.prod.example | R | INF-001, INF-002 | done | 2026-09-03 |
+| INF-009 | E13 | Миграции как одноразовый сервис перед backend, rollback.sh, правило откатов | R | INF-006 | done | 2026-09-03 |
+| INF-007 | E13 | setup-vm.sh: docker, ufw, пользователь деплоя, pg_dump по cron | R | INF-006 | done | 2026-09-03 |
+| INF-008 | E13 | CD workflow: сборка образов в ghcr, деплой на VM по SSH после зелёного CI | R | INF-007, INF-009 | done | 2026-09-03 |
 | INF-011 | E13 | Демо-данные на VM: синтетика, DEMO_NOW, eval и simulation | R | INF-008, AI-003 | blocked: нужна VM | |
 | INF-010 | E13 | Домен и TLS, если будет домен | R | INF-008 | blocked: нужен домен | |
 | DOC-002 | E12 | Одностраничник пилота и README для жюри | A | DOC-001 | todo | |

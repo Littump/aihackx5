@@ -49,3 +49,8 @@ def zone_for_rank(*, rank: int, size: int, division: int) -> LeagueZone:
     if rank >= demotion_cutoff(size) and can_demote:
         return "demotion"
     return "safe"
+
+
+def next_division(*, division: int, zone: LeagueZone) -> int:
+    delta = {"promotion": 1, "demotion": -1, "safe": 0}[zone]
+    return min(max(division + delta, 1), game_rules.LEAGUE_DIVISIONS_COUNT)

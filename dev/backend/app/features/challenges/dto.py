@@ -4,7 +4,7 @@ from typing import Literal
 from pydantic import Field
 
 from app.core.models import AppModel
-from app.features.challenges.models import ChallengeEconomics, ChallengeListResult
+from app.features.challenges.models import ChallengeEconomics, ChallengeListResult, RewardKind
 
 
 class Challenge(AppModel):
@@ -29,6 +29,15 @@ class ChallengeDetail(Challenge):
     rationale_features: dict[str, float]
     economics: ChallengeEconomics
     copy_source: Literal["llm", "template"]
+
+
+class RewardLedgerEntry(AppModel):
+    kind: RewardKind
+    xp_delta: int
+    points_delta: int
+    ref_type: str | None
+    ref_id: int | None
+    created_at: datetime
 
 
 class ChallengeListResponse(AppModel):
