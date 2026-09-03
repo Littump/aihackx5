@@ -14,6 +14,7 @@
 | Максимум учтённых чеков в день | 3 | `RECEIPTS_PER_DAY_MAX = 3` |
 | Окно features | 8–12 недель, по умолчанию 10 | `FEATURES_WINDOW_WEEKS = 10` |
 | Возврат чека | откатывает прогресс челленджа и награду, если чек его закрыл | — |
+| Прогресс челленджа за один зачтённый чек в периоде | +1 (frequency — за любой; category — если категория есть в позициях) | `CHALLENGE_PROGRESS_STEP = 1` |
 
 Категории (12 макро): `dairy, bakery, fruits_veg, meat_fish, grocery, snacks, drinks, alcohol, household, beauty, ready_food, other`. Алкоголь и табак в челленджи не попадают: `CHALLENGE_EXCLUDED_CATEGORIES = {"alcohol"}`.
 

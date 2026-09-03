@@ -1,10 +1,27 @@
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from app.features.domovoy.models import Mood
+from app.features.domovoy.models import DomovoyStateRow, Mood
 from app.features.receipts.models import ReceiptItemRow, ReceiptWithItems
 
 PURCHASED_AT = datetime(2026, 9, 1, 12, 0, tzinfo=UTC)
+
+
+def make_domovoy_state_row(**overrides: object) -> DomovoyStateRow:
+    base: dict[str, object] = {
+        "user_id": 1,
+        "xp": 0,
+        "level": 1,
+        "mood": "bored",
+        "mood_reason": "",
+        "streak_weeks": 0,
+        "streak_freeze_available": True,
+        "items": [],
+        "last_fed_at": None,
+        "updated_at": PURCHASED_AT,
+    }
+    base.update(overrides)
+    return DomovoyStateRow.model_validate(base)
 
 
 def _item(category: str, item_id: int) -> ReceiptItemRow:

@@ -8,7 +8,7 @@ from app.features.challenges import service as challenges_service
 from app.features.challenges.models import RewardKind
 from app.features.domovoy import database
 from app.features.domovoy.models import DomovoyDelta, DomovoyLevelRow, DomovoyStateRow, Mood
-from app.features.domovoy.progression import level_for_xp, mood_for_week
+from app.features.domovoy.progression import level_for_xp, mood_for_week, next_streak
 from app.features.receipts import service as receipts_service
 from app.features.receipts.models import ReceiptRow
 from app.game_rules import MOOD_SLEEPY_INACTIVITY_DAYS, XP_RECEIPT
@@ -48,6 +48,7 @@ async def add_xp(
     kind: RewardKind,
     ref_type: str | None,
     ref_id: int | None,
+    points_delta: int = 0,
 ) -> DomovoyStateRow:
     state = await get_state(conn, user_id)
     await challenges_service.record_reward(
@@ -55,13 +56,28 @@ async def add_xp(
         user_id=user_id,
         kind=kind,
         xp_delta=xp,
-        points_delta=0,
+        points_delta=points_delta,
         ref_type=ref_type,
         ref_id=ref_id,
     )
     new_xp = state.xp + xp
     return await database.update_domovoy_xp(
         conn, user_id=user_id, xp=new_xp, level=level_for_xp(new_xp)
+    )
+
+
+async def advance_streak(
+    conn: AsyncConnection, user_id: int, *, completed_this_week: bool
+) -> DomovoyStateRow:
+    state = await get_state(conn, user_id)
+    streak_weeks, streak_freeze_available = next_streak(
+        state.streak_weeks, completed_this_week, state.streak_freeze_available
+    )
+    return await database.update_streak(
+        conn,
+        user_id=user_id,
+        streak_weeks=streak_weeks,
+        streak_freeze_available=streak_freeze_available,
     )
 
 

@@ -46,6 +46,21 @@ CHALLENGE_LIST_BY_USER = (
 CHALLENGE_GET_BY_ID = (
     f"SELECT {CHALLENGE_SELECT_COLUMNS} FROM challenges WHERE id = %(challenge_id)s"
 )
+CHALLENGE_LIST_ACTIVE_FOR_PERIOD = (
+    f"SELECT {CHALLENGE_SELECT_COLUMNS} FROM challenges "
+    "WHERE user_id = %(user_id)s AND status = 'active' "
+    "AND period_start <= %(purchased_at)s AND period_end > %(purchased_at)s"
+)
+CHALLENGE_LIST_FOR_PERIOD_BY_STATUSES = (
+    f"SELECT {CHALLENGE_SELECT_COLUMNS} FROM challenges "
+    "WHERE user_id = %(user_id)s AND status = ANY(%(statuses)s) "
+    "AND period_start <= %(purchased_at)s AND period_end > %(purchased_at)s"
+)
+CHALLENGE_UPDATE_PROGRESS = (
+    "UPDATE challenges SET progress = %(progress)s, status = %(status)s, "
+    "completed_at = %(completed_at)s WHERE id = %(challenge_id)s "
+    f"RETURNING {CHALLENGE_SELECT_COLUMNS}"
+)
 
 
 async def insert_challenge(
@@ -138,3 +153,42 @@ async def get_challenge_by_id(conn: AsyncConnection, *, challenge_id: int) -> Ch
     async with conn.cursor(row_factory=class_row(ChallengeRow)) as cur:
         await cur.execute(CHALLENGE_GET_BY_ID, {"challenge_id": challenge_id})
         return await cur.fetchone()
+
+
+async def list_active_challenges_for_period(
+    conn: AsyncConnection, *, user_id: int, purchased_at: datetime
+) -> list[ChallengeRow]:
+    async with conn.cursor(row_factory=class_row(ChallengeRow)) as cur:
+        params = {"user_id": user_id, "purchased_at": purchased_at}
+        await cur.execute(CHALLENGE_LIST_ACTIVE_FOR_PERIOD, params)
+        return await cur.fetchall()
+
+
+async def list_challenges_for_period(
+    conn: AsyncConnection, *, user_id: int, purchased_at: datetime, statuses: list[str]
+) -> list[ChallengeRow]:
+    async with conn.cursor(row_factory=class_row(ChallengeRow)) as cur:
+        params = {"user_id": user_id, "purchased_at": purchased_at, "statuses": statuses}
+        await cur.execute(CHALLENGE_LIST_FOR_PERIOD_BY_STATUSES, params)
+        return await cur.fetchall()
+
+
+async def update_progress(
+    conn: AsyncConnection,
+    *,
+    challenge_id: int,
+    progress: Decimal,
+    status: Literal["active", "completed", "failed", "expired"],
+    completed_at: datetime | None,
+) -> ChallengeRow:
+    params: dict[str, object] = {
+        "challenge_id": challenge_id,
+        "progress": progress,
+        "status": status,
+        "completed_at": completed_at,
+    }
+    async with conn.cursor(row_factory=class_row(ChallengeRow)) as cur:
+        await cur.execute(CHALLENGE_UPDATE_PROGRESS, params)
+        row = await cur.fetchone()
+        assert row is not None
+        return row
