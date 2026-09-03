@@ -145,6 +145,12 @@ async def list_counted_receipts_with_items(
     ]
 
 
+async def list_receipts_since(
+    conn: AsyncConnection, *, user_id: int, since: datetime
+) -> list[ReceiptRow]:
+    return await database.list_receipts_since(conn, user_id=user_id, since=since)
+
+
 async def _recompute_user_features(conn: AsyncConnection, user_id: int) -> None:
     # отложенный импорт разрывает цикл: user_features.service импортирует нас
     from app.features.user_features import service as user_features_service
