@@ -64,6 +64,10 @@ CHALLENGE_UPDATE_PROGRESS = (
 CHALLENGE_COUNT_COMPLETED = (
     "SELECT count(*) FROM challenges WHERE user_id = %(user_id)s AND status = 'completed'"
 )
+CHALLENGE_COUNT_COMPLETED_IN_PERIOD = (
+    "SELECT count(*) FROM challenges WHERE user_id = %(user_id)s AND status = 'completed' "
+    "AND completed_at >= %(start)s AND completed_at < %(end)s"
+)
 
 
 async def insert_challenge(
@@ -179,6 +183,17 @@ async def list_challenges_for_period(
 async def count_completed_challenges(conn: AsyncConnection, *, user_id: int) -> int:
     async with conn.cursor() as cur:
         await cur.execute(CHALLENGE_COUNT_COMPLETED, {"user_id": user_id})
+        row = await cur.fetchone()
+        assert row is not None
+        return int(row[0])
+
+
+async def count_completed_challenges_in_period(
+    conn: AsyncConnection, *, user_id: int, start: datetime, end: datetime
+) -> int:
+    params = {"user_id": user_id, "start": start, "end": end}
+    async with conn.cursor() as cur:
+        await cur.execute(CHALLENGE_COUNT_COMPLETED_IN_PERIOD, params)
         row = await cur.fetchone()
         assert row is not None
         return int(row[0])

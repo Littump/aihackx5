@@ -1,4 +1,5 @@
 from app.features.challenges.models import ChallengeProgressDelta
+from app.features.league.models import LeagueRankChange
 from app.features.receipts.models import (
     ChallengeProgressDeltaStub,
     CountedDecision,
@@ -16,6 +17,7 @@ def build_outcome(
     domovoy_xp_delta: int,
     domovoy_state: DomovoyStateStub,
     challenge_deltas: list[ChallengeProgressDelta],
+    league_rank_change: LeagueRankChange,
 ) -> ReceiptProcessingOutcome:
     xp_delta = domovoy_xp_delta + _completed_challenges_xp(challenge_deltas)
     return ReceiptProcessingOutcome(
@@ -26,8 +28,8 @@ def build_outcome(
         domovoy=domovoy_state,
         savings_delta=savings_calc.receipt_savings(receipt),
         challenges=_map_challenge_deltas(challenge_deltas),
-        league_rank_before=None,
-        league_rank_after=None,
+        league_rank_before=league_rank_change.rank_before,
+        league_rank_after=league_rank_change.rank_after,
         referral_status=None,
         fraud=_stub_fraud_decision(),
         achievements_unlocked=[],

@@ -10,6 +10,8 @@ from app.features.challenges import database as challenges_db
 from app.features.challenges.models import ChallengeRow
 from app.features.domovoy import database as domovoy_db
 from app.features.domovoy.models import DomovoyStateRow
+from app.features.league import database as league_db
+from app.features.league.models import LeagueMemberRow, LeagueRow
 from app.features.receipts import database as receipts_db
 from app.features.receipts.models import ReceiptItemRow, ReceiptRow
 from app.features.user_features import database as user_features_db
@@ -175,6 +177,32 @@ async def make_domovoy_state(
     }
     params.update(overrides)
     return await domovoy_db.insert_domovoy_state(conn, params)
+
+
+async def make_league(
+    conn: AsyncConnection, *, store_id: int | None = None, **overrides: object
+) -> LeagueRow:
+    if store_id is None:
+        store_id = (await make_store(conn)).id
+    params: dict[str, object] = {
+        "store_id": store_id,
+        "division": 1,
+        "week_start": week_start().date(),
+        "status": "open",
+    }
+    params.update(overrides)
+    return await league_db.insert_league_row(conn, params)
+
+
+async def make_league_member(
+    conn: AsyncConnection, league_id: int, user_id: int, *, score: int = 0
+) -> LeagueMemberRow:
+    member = await league_db.insert_member(conn, league_id=league_id, user_id=user_id)
+    if score:
+        member = await league_db.update_member_score(
+            conn, league_id=league_id, user_id=user_id, score=score
+        )
+    return member
 
 
 async def make_user_features(

@@ -27,7 +27,7 @@ PostgreSQL 16. Все таблицы создаются SQL-миграциями
 | id | BIGSERIAL PK | |
 | pseudonym | TEXT NOT NULL UNIQUE | имя Домового, единственное, что видят другие |
 | segment | TEXT NOT NULL CHECK IN ('regular_mid','light','heavy','dormant') | |
-| favourite_store_id | BIGINT NULL FK stores ON DELETE SET NULL | пересчитывается в user_features, здесь — кэш для лиги |
+| favourite_store_id | BIGINT NULL FK stores ON DELETE SET NULL | ставится только при создании пользователя; актуальный магазин — в user_features.favourite_store_id, его и использует league |
 | referral_code | TEXT NOT NULL UNIQUE | |
 | referred_by_user_id | BIGINT NULL FK users ON DELETE SET NULL | |
 | device_fingerprint | TEXT NULL | синтетический, для антифрода |
