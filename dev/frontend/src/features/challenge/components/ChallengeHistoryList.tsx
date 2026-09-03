@@ -21,7 +21,7 @@ export function ChallengeHistoryList({ items }: ChallengeHistoryListProps) {
             <p className="text-sm font-medium text-text">{item.title}</p>
             <p className="text-xs text-text-secondary">{formatDeadline(item.period_end)}</p>
           </div>
-          <span className="text-xs font-medium text-accent-600">
+          <span className="text-xs font-medium text-legacy-accent-600">
             {formatReward(item.reward_xp, item.reward_points)}
           </span>
         </li>

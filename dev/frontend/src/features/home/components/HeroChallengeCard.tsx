@@ -18,7 +18,7 @@ export function HeroChallengeCard({
 }: HeroChallengeCardProps) {
   return (
     <Card>
-      <p className="text-xs font-medium uppercase text-accent-600">Цель недели</p>
+      <p className="text-xs font-medium uppercase text-legacy-accent-600">Цель недели</p>
       <h2 className="mt-1 text-lg font-semibold text-text">{challenge.title}</h2>
       <p className="mt-1 text-sm text-text-secondary">{challenge.body}</p>
       <div className="mt-3 flex items-center justify-between text-sm text-text">
@@ -28,21 +28,21 @@ export function HeroChallengeCard({
         <span className="text-text-secondary">до {formatDeadline(challenge.period_end)}</span>
       </div>
       <div className="mt-2">
-        <ProgressBar value={challenge.progress} max={challenge.target} tone="accent" />
+        <ProgressBar value={challenge.progress} max={challenge.target} />
       </div>
-      <p className="mt-2 text-sm font-medium text-brand-600">
+      <p className="mt-2 text-sm font-medium text-legacy-brand-600">
         +{challenge.reward_xp} XP + {challenge.reward_points} баллов
       </p>
       <button
         type="button"
         onClick={onToggleExplanation}
         aria-expanded={explanationOpen}
-        className="mt-3 text-sm font-medium text-brand-600 underline"
+        className="mt-3 text-sm font-medium text-legacy-brand-600 underline"
       >
         Почему это мне?
       </button>
       {explanationOpen && (
-        <p className="mt-2 rounded-lg bg-brand-100 p-3 text-sm text-text">
+        <p className="mt-2 rounded-lg bg-legacy-brand-100 p-3 text-sm text-text">
           {challenge.explanation}
         </p>
       )}

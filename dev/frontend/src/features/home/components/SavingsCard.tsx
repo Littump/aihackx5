@@ -18,7 +18,7 @@ export function SavingsCard({ savings, flash }: SavingsCardProps) {
       <p className="text-sm text-text-secondary">Экономия за месяц</p>
       <p className="text-2xl font-semibold text-text">{formatMoney(savings.amount)}</p>
       <p
-        className={`text-sm font-medium ${isPositiveDelta ? "text-brand-600" : "text-accent-600"}`}
+        className={`text-sm font-medium ${isPositiveDelta ? "text-legacy-brand-600" : "text-legacy-accent-600"}`}
       >
         {formatSignedMoney(savings.delta)} к прошлому месяцу
       </p>

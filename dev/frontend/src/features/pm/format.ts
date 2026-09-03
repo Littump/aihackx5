@@ -24,9 +24,9 @@ export function decisionLabel(decision: FraudDecision): string {
 }
 
 const DECISION_BADGE_CLASSES: Record<FraudDecision, string> = {
-  approve: "bg-brand-100 text-brand-600",
-  hold: "bg-accent-100 text-accent-600",
-  block: "bg-accent-600 text-white",
+  approve: "bg-legacy-brand-100 text-legacy-brand-600",
+  hold: "bg-accent-100 text-legacy-accent-600",
+  block: "bg-legacy-accent-600 text-white",
 };
 
 export function decisionBadgeClass(decision: FraudDecision): string {

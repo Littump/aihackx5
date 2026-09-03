@@ -69,11 +69,11 @@ describe("LeagueScreen", () => {
     const rows = screen.getAllByTestId("league-row");
     expect(rows).toHaveLength(24);
 
-    expect(rows[0].className).toContain("border-brand-600");
+    expect(rows[0].className).toContain("border-legacy-brand-600");
     expect(rows[9].className).toContain("border-border");
-    expect(rows[9].className).not.toContain("border-brand-600");
-    expect(rows[9].className).not.toContain("border-accent-600");
-    expect(rows[21].className).toContain("border-accent-600");
+    expect(rows[9].className).not.toContain("border-legacy-brand-600");
+    expect(rows[9].className).not.toContain("border-legacy-accent-600");
+    expect(rows[21].className).toContain("border-legacy-accent-600");
   });
 
   it("показывает состояние загрузки, пока лига ещё не пришла", () => {
@@ -124,7 +124,7 @@ describe("LeagueScreen", () => {
 
     const message = await screen.findByText(/Место изменилось: 5 → 8/);
     expect(message.textContent).toContain("▼");
-    expect(message.className).toContain("text-accent-600");
+    expect(message.className).toContain("text-legacy-accent-600");
   });
 
   it("не показывает изменение места, если ранг до и после совпадает", async () => {

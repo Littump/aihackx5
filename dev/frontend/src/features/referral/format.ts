@@ -15,8 +15,8 @@ const STATUS_LABELS: Record<ReferralStatus, string> = {
 const STATUS_BADGE_CLASSES: Record<ReferralStatus, string> = {
   pending: "bg-bg text-text-secondary border border-border",
   first_purchase: "bg-bg text-text-secondary border border-border",
-  qualified: "bg-brand-100 text-brand-600",
-  rewarded: "bg-brand-100 text-brand-600",
+  qualified: "bg-legacy-brand-100 text-legacy-brand-600",
+  rewarded: "bg-legacy-brand-100 text-legacy-brand-600",
   on_review: "bg-bg text-text-secondary border border-border",
   blocked: "bg-bg text-text-secondary border border-border",
 };

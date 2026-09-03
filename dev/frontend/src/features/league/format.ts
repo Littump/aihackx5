@@ -9,15 +9,15 @@ const ZONE_LABELS: Record<LeagueZone, string> = {
 };
 
 const ZONE_BADGE_CLASSES: Record<LeagueZone, string> = {
-  promotion: "bg-brand-100 text-brand-600",
+  promotion: "bg-legacy-brand-100 text-legacy-brand-600",
   safe: "bg-bg text-text-secondary border border-border",
-  demotion: "bg-accent-100 text-accent-600",
+  demotion: "bg-accent-100 text-legacy-accent-600",
 };
 
 const ZONE_ROW_CLASSES: Record<LeagueZone, string> = {
-  promotion: "border-l-4 border-brand-600",
+  promotion: "border-l-4 border-legacy-brand-600",
   safe: "border-l-4 border-border",
-  demotion: "border-l-4 border-accent-600",
+  demotion: "border-l-4 border-legacy-accent-600",
 };
 
 export function zoneForRank(

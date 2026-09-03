@@ -12,7 +12,7 @@ export function UserSwitcher() {
   const options = users.data?.items ?? [];
 
   return (
-    <div className="flex items-center gap-2 border-b border-border bg-brand-100 px-4 py-2">
+    <div className="flex items-center gap-2 border-b border-border bg-legacy-brand-100 px-4 py-2">
       <label htmlFor="user-switcher" className="text-xs text-text-secondary">
         Пользователь
       </label>

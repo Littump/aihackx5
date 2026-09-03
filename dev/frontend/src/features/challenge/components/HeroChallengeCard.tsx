@@ -10,9 +10,9 @@ type HeroChallengeCardProps = {
 
 export function HeroChallengeCard({ challenge }: HeroChallengeCardProps) {
   return (
-    <Card className="border-brand-600 bg-brand-100">
+    <Card className="border-legacy-brand-600 bg-legacy-brand-100">
       <div className="flex items-center justify-between">
-        <span className="rounded-full bg-brand-600 px-2 py-0.5 text-xs font-semibold text-white">
+        <span className="rounded-full bg-legacy-brand-600 px-2 py-0.5 text-xs font-semibold text-white">
           Главный челлендж
         </span>
         <span className="text-xs text-text-secondary">{formatChallengeType(challenge.type)}</span>
@@ -31,7 +31,7 @@ export function HeroChallengeCard({ challenge }: HeroChallengeCardProps) {
       <p className="mt-2 text-xs text-text-secondary">
         Дедлайн: {formatDeadline(challenge.period_end)}
       </p>
-      <p className="mt-1 text-sm font-medium text-accent-600">
+      <p className="mt-1 text-sm font-medium text-legacy-accent-600">
         {formatReward(challenge.reward_xp, challenge.reward_points)}
       </p>
       <div className="mt-3">

@@ -2,15 +2,84 @@
 
 @theme {
   --color-brand-900: #0b3b2e;
-  --color-brand-600: #178a5b;
-  --color-brand-100: #e3f3ea;
-  --color-accent-600: #e8752c;
+  --color-legacy-brand-600: #178a5b;
+  --color-legacy-brand-100: #e3f3ea;
+  --color-legacy-accent-600: #e8752c;
   --color-accent-100: #fbeadc;
   --color-bg: #faf9f5;
-  --color-surface: #ffffff;
   --color-text: #16261f;
   --color-text-secondary: #5b6b62;
   --color-border: #e5e1d8;
+}
+
+@theme static {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --color-brand-50: #eaf7ef;
+  --color-brand-100: #d3efdd;
+  --color-brand-300: #7acb99;
+  --color-brand-500: #10a64a;
+  --color-brand-600: #00923b;
+  --color-brand-700: #04722f;
+  --color-brand-800: #04581f;
+  --color-ink-900: #0b3b2e;
+  --color-ink-700: #33544a;
+  --color-ink-500: #5a6862;
+  --color-accent-50: #fff0e6;
+  --color-accent-300: #ffa46b;
+  --color-accent-500: #ff5c00;
+  --color-accent-600: #f26722;
+  --color-accent-700: #a83e00;
+  --color-surface: #ffffff;
+  --color-canvas: #f5f5f5;
+  --color-line: #e5e8e6;
+  --color-desk: #dfe3e1;
+  --color-fur-100: #f7efe1;
+  --color-fur-200: #e9dac2;
+  --color-fur-300: #d3be9e;
+
+  --radius-tile: 16px;
+  --radius-card: 20px;
+  --radius-sheet: 28px;
+
+  --shadow-card: 0 2px 8px rgba(11, 59, 46, 0.06);
+  --shadow-lift: 0 10px 28px rgba(11, 59, 46, 0.12);
+  --shadow-nav: 0 -2px 12px rgba(11, 59, 46, 0.06);
+
+  --text-caption: 14px;
+  --text-body: 16px;
+  --text-lead: 18px;
+  --text-title: 22px;
+  --text-hero: 40px;
+
+  --spacing-frame: 390px;
+  --spacing-frameh: 844px;
+  --spacing-pm: 960px;
+
+  --animate-popin: popin 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-glow: glow 1.6s ease-in-out 2;
+}
+
+@keyframes popin {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 92, 0, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 92, 0, 0.18);
+  }
 }
 
 :root {

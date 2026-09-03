@@ -43,7 +43,7 @@ export function LeagueHeader({ league, rankChange }: LeagueHeaderProps) {
       <p className="text-sm text-text-secondary">Очки: {league.my_score}</p>
       {changed && (
         <p
-          className={`mt-2 text-sm font-medium ${improved ? "text-brand-600" : "text-accent-600"}`}
+          className={`mt-2 text-sm font-medium ${improved ? "text-legacy-brand-600" : "text-legacy-accent-600"}`}
         >
           {improved ? "▲" : "▼"} Место изменилось: {rankChange.before} → {rankChange.after}
         </p>

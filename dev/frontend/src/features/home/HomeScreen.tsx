@@ -37,7 +37,9 @@ export function HomeScreen() {
   if (homeQuery.isError) {
     return (
       <section className="flex flex-1 flex-col gap-4 p-5">
-        <p className="text-accent-600">Не получилось загрузить Home: {homeQuery.error.message}</p>
+        <p className="text-legacy-accent-600">
+          Не получилось загрузить Home: {homeQuery.error.message}
+        </p>
       </section>
     );
   }
@@ -67,7 +69,7 @@ export function HomeScreen() {
         {simulate.isPending ? "Симулируем покупку…" : "Simulate new purchase"}
       </Button>
       {simulate.isError && (
-        <p role="alert" className="text-sm text-accent-600">
+        <p role="alert" className="text-sm text-legacy-accent-600">
           Не получилось: {simulate.error.message}
         </p>
       )}

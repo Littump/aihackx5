@@ -12,7 +12,9 @@ export function EvalBlock() {
       {evalQuery.isPending && <p className="mt-2 text-text-secondary">Загрузка…</p>}
       {isNotFoundError(evalQuery) && <p className="mt-2 text-text-secondary">Ещё не запускали.</p>}
       {evalQuery.isError && !isNotFoundError(evalQuery) && (
-        <p className="mt-2 text-accent-600">Не удалось загрузить eval: {evalQuery.error.message}</p>
+        <p className="mt-2 text-legacy-accent-600">
+          Не удалось загрузить eval: {evalQuery.error.message}
+        </p>
       )}
       {evalQuery.data && <EvalResults run={evalQuery.data} />}
     </Card>
@@ -36,7 +38,7 @@ function EvalResults({ run }: { run: EvalRun }) {
 
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-brand-100 p-3">
+    <div className="rounded-xl bg-legacy-brand-100 p-3">
       <p className="text-xs text-text-secondary">{label}</p>
       <p className="mt-1 text-lg font-semibold text-text">{value}</p>
     </div>

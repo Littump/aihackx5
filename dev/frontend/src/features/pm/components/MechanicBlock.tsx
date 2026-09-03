@@ -11,7 +11,7 @@ export function MechanicBlock({ recommendedMechanic }: MechanicBlockProps) {
     <Card>
       <h2 className="text-lg font-semibold text-text">Механика и почему</h2>
       <p className="mt-2 text-sm text-text-secondary">Рекомендованная механика</p>
-      <span className="mt-1 inline-block rounded-full bg-brand-100 px-3 py-1 text-sm font-semibold text-brand-600">
+      <span className="mt-1 inline-block rounded-full bg-legacy-brand-100 px-3 py-1 text-sm font-semibold text-legacy-brand-600">
         {mechanicLabel(recommendedMechanic.mechanic)}
       </span>
       <p className="mt-3 text-xs font-medium uppercase text-text-secondary">Причины</p>

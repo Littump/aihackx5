@@ -40,7 +40,7 @@ export function FraudBlock() {
 
       {fraudQuery.isPending && <p className="mt-2 text-text-secondary">Загрузка…</p>}
       {fraudQuery.isError && (
-        <p className="mt-2 text-accent-600">
+        <p className="mt-2 text-legacy-accent-600">
           Не удалось загрузить проверки: {fraudQuery.error.message}
         </p>
       )}

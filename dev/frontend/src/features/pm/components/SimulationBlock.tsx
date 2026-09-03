@@ -15,7 +15,7 @@ export function SimulationBlock() {
         <p className="mt-2 text-text-secondary">Ещё не запускали.</p>
       )}
       {simulationQuery.isError && !isNotFoundError(simulationQuery) && (
-        <p className="mt-2 text-accent-600">
+        <p className="mt-2 text-legacy-accent-600">
           Не удалось загрузить симуляцию: {simulationQuery.error.message}
         </p>
       )}
@@ -58,7 +58,7 @@ function SimulationResults({ run }: { run: SimulationRun }) {
 
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-brand-100 p-3">
+    <div className="rounded-xl bg-legacy-brand-100 p-3">
       <p className="text-xs text-text-secondary">{label}</p>
       <p className="mt-1 text-lg font-semibold text-text">{value}</p>
     </div>

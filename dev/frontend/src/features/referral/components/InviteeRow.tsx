@@ -24,7 +24,7 @@ export function InviteeRow({ invitee }: InviteeRowProps) {
       <div className="flex items-center justify-between text-xs text-text-secondary">
         <span>{purchasesProgressText(invitee.purchases_done, invitee.purchases_required)}</span>
         {invitee.status === "rewarded" && (
-          <span className="font-medium text-brand-600">+{invitee.reward_points} баллов</span>
+          <span className="font-medium text-legacy-brand-600">+{invitee.reward_points} баллов</span>
         )}
       </div>
     </div>

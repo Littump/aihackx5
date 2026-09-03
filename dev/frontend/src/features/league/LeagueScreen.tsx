@@ -20,7 +20,9 @@ export function LeagueScreen() {
   if (leagueQuery.isError) {
     return (
       <section className="flex flex-1 flex-col gap-4 p-5">
-        <p className="text-accent-600">Не получилось загрузить лигу: {leagueQuery.error.message}</p>
+        <p className="text-legacy-accent-600">
+          Не получилось загрузить лигу: {leagueQuery.error.message}
+        </p>
       </section>
     );
   }

@@ -20,12 +20,12 @@ export function SideChallengeCard({ challenge }: SideChallengeCardProps) {
         {challenge.baseline} → <span className="font-semibold">{challenge.target}</span>
       </p>
       <div className="mt-2">
-        <ProgressBar value={challenge.progress} max={challenge.target} tone="accent" />
+        <ProgressBar value={challenge.progress} max={challenge.target} />
         <p className="mt-1 text-xs text-text-secondary">
           {challenge.progress} / {challenge.target} · до {formatDeadline(challenge.period_end)}
         </p>
       </div>
-      <p className="mt-1 text-xs font-medium text-accent-600">
+      <p className="mt-1 text-xs font-medium text-legacy-accent-600">
         {formatReward(challenge.reward_xp, challenge.reward_points)}
       </p>
       <div className="mt-2">

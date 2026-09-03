@@ -25,7 +25,7 @@ export function PmScreen() {
 
       {pmUserQuery.isError && (
         <Card>
-          <p className="text-accent-600">
+          <p className="text-legacy-accent-600">
             Не удалось загрузить PM-карточку: {pmUserQuery.error.message}
           </p>
         </Card>

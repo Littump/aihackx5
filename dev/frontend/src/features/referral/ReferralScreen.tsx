@@ -20,7 +20,7 @@ export function ReferralScreen() {
   if (referralQuery.isError) {
     return (
       <section className="flex flex-1 flex-col gap-4 p-5">
-        <p className="text-accent-600">
+        <p className="text-legacy-accent-600">
           Не получилось загрузить приглашения: {referralQuery.error.message}
         </p>
       </section>

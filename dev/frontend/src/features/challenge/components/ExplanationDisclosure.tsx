@@ -12,7 +12,7 @@ export function ExplanationDisclosure({ explanation }: ExplanationDisclosureProp
       <button
         type="button"
         aria-expanded={open}
-        className="text-sm font-medium text-brand-600"
+        className="text-sm font-medium text-legacy-brand-600"
         onClick={() => setOpen((value) => !value)}
       >
         Почему это мне?
