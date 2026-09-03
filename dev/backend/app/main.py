@@ -9,6 +9,7 @@ from app.core.db import create_pool
 from app.core.errors import register_exception_handlers
 from app.core.logging import configure_logging
 from app.features.health.router import router as health_router
+from app.features.receipts.router import router as receipts_router
 from app.features.users.router import router as users_router
 
 API_PREFIX = "/api/v1"
@@ -38,6 +39,7 @@ def create_app(database_url: str | None = None) -> FastAPI:
     register_exception_handlers(app)
     app.include_router(health_router, prefix=API_PREFIX)
     app.include_router(users_router, prefix=API_PREFIX)
+    app.include_router(receipts_router, prefix=API_PREFIX)
     return app
 
 

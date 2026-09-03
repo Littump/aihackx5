@@ -30,6 +30,15 @@ def week_end(moment: datetime | None = None) -> datetime:
     return week_start(moment) + timedelta(days=7) - timedelta(microseconds=1)
 
 
+def day_start(moment: datetime | None = None) -> datetime:
+    local = (moment or now()).astimezone(TZ)
+    return datetime.combine(local.date(), datetime.min.time(), tzinfo=TZ)
+
+
+def day_end(moment: datetime | None = None) -> datetime:
+    return day_start(moment) + timedelta(days=1) - timedelta(microseconds=1)
+
+
 def set_override(moment: datetime | None) -> None:
     global _override
     if moment is not None and moment.tzinfo is None:

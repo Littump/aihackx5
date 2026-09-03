@@ -171,3 +171,13 @@ LEVEL_FOR_XP_CASES: list[tuple[int, int]] = [
     (4499, 9),
     (4500, 10),
 ]
+
+XP_TO_NEXT_LEVEL_CASES: list[tuple[int, int]] = [
+    (0, 100),
+    (50, 50),
+    (99, 1),
+    (100, 200),
+    (300, 300),
+    (4500, 0),
+    (5000, 0),
+]

@@ -18,7 +18,7 @@
 | AI-002 | E1 | Фрод-паттерны в синтетике: кассир, дробление, ферма рефералов, самореферал (3 %) | T | AI-001, BE-002 | todo | |
 | AI-003 | E1 | `make synth` и seed 300 пользователей для dev | T | AI-001 | todo | |
 | BE-005 | E2 | `users`: список демо-пользователей, `GET /users`, псевдонимы | R | BE-004 | done | 2026-09-03 |
-| BE-006 | E2 | `receipts`: приём чека, дедуп 30 мин, дневной лимит, `POST /receipts`, `GET /users/{id}/receipts` | R | BE-005 | todo | |
+| BE-006 | E2 | `receipts`: приём чека, дедуп 30 мин, дневной лимит, `POST /receipts`, `GET /users/{id}/receipts` | R | BE-005 | done | 2026-09-03 |
 | BE-007 | E2 | `user_features`: расчёт всех features по §3 domain-rules, пересчёт после чека | R | BE-006 | todo | |
 | BE-008 | E3 | `savings`: расчёт по §2, `GET /users/{id}/savings` | R | BE-006 | todo | |
 | BE-009 | E4 | `domovoy`: XP, уровень, настроение, streak, `progression.py`, on_receipt | R | BE-007 | todo | |
