@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 from app.core.clock import day_start
 from app.features.receipts.models import ReceiptWithItems
-from app.features.savings.models import SavingsCategory, SavingsPeriodRange
+from app.features.savings.models import ReceiptSavingsLike, SavingsCategory, SavingsPeriodRange
 from app.game_rules import SAVINGS_TOP_CATEGORIES_LIMIT, SAVINGS_WEEK_WINDOW_DAYS, TIMEZONE
 
 MONEY_PRECISION = Decimal("0.01")
@@ -18,7 +18,7 @@ def period_range(period: Literal["week", "month"], moment: datetime) -> SavingsP
     return _month_range(moment)
 
 
-def receipt_savings(receipt: ReceiptWithItems) -> Decimal:
+def receipt_savings(receipt: ReceiptSavingsLike) -> Decimal:
     return (
         (receipt.regular_total - receipt.paid_total) + receipt.points_earned + receipt.points_spent
     )

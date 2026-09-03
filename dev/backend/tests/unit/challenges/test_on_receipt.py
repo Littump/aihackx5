@@ -9,7 +9,7 @@ from app.features.challenges import database, service
 from app.features.challenges.models import ChallengeRow
 from app.features.domovoy import service as domovoy_service
 from app.features.domovoy.models import DomovoyStateRow
-from tests.unit.challenges.data import COMPUTED_AT, make_challenge_row, make_receipt_with_items
+from tests.unit.challenges.data import COMPUTED_AT, make_challenge_row, make_receipt_detail
 
 Status = Literal["active", "completed", "failed", "expired"]
 
@@ -51,8 +51,7 @@ async def test_on_receipt_not_counted_skips_lookup(monkeypatch: pytest.MonkeyPat
     deltas = await service.on_receipt(
         None,  # type: ignore[arg-type]
         1,
-        make_receipt_with_items(),
-        counted=False,
+        make_receipt_detail(counted=False),
     )
 
     assert deltas == []
@@ -80,8 +79,7 @@ async def test_on_receipt_frequency_challenge_moves_on_any_counted_receipt(
     deltas = await service.on_receipt(
         None,  # type: ignore[arg-type]
         1,
-        make_receipt_with_items(categories=["bakery"]),
-        counted=True,
+        make_receipt_detail(categories=["bakery"]),
     )
 
     assert len(deltas) == 1
@@ -117,8 +115,7 @@ async def test_on_receipt_category_challenge_matches_only_with_category(
     deltas = await service.on_receipt(
         None,  # type: ignore[arg-type]
         1,
-        make_receipt_with_items(categories=categories),
-        counted=True,
+        make_receipt_detail(categories=categories),
     )
 
     assert (len(deltas) == 1) is moves
@@ -174,8 +171,7 @@ async def test_on_receipt_completion_rewards_hero_and_advances_streak(
     deltas = await service.on_receipt(
         None,  # type: ignore[arg-type]
         1,
-        make_receipt_with_items(),
-        counted=True,
+        make_receipt_detail(),
     )
 
     assert deltas[0].completed is True
@@ -220,8 +216,7 @@ async def test_on_receipt_completion_for_side_challenge_skips_streak(
     deltas = await service.on_receipt(
         None,  # type: ignore[arg-type]
         1,
-        make_receipt_with_items(),
-        counted=True,
+        make_receipt_detail(),
     )
 
     assert deltas[0].completed is True

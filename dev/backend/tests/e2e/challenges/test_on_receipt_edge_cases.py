@@ -10,21 +10,25 @@ from app.features.challenges import database as challenges_db
 from app.features.challenges import service as challenges_service
 from app.features.domovoy import database as domovoy_db
 from app.features.receipts import database as receipts_db
-from app.features.receipts.models import ReceiptRow, ReceiptWithItems
+from app.features.receipts.models import ReceiptDetail, ReceiptRow
 from tests.e2e.challenges.data import DAIRY_ITEM, MULTI_CATEGORY_NO_DAIRY_ITEMS, NOW
 from tests.factories import make_challenge, make_receipt, make_user
 
 
-async def _with_items(conn: AsyncConnection, receipt: ReceiptRow) -> ReceiptWithItems:
+async def _receipt_detail(conn: AsyncConnection, receipt: ReceiptRow) -> ReceiptDetail:
     items = await receipts_db.list_receipt_items_for_receipts(conn, receipt_ids=[receipt.id])
-    return ReceiptWithItems(
+    return ReceiptDetail(
         id=receipt.id,
         store_id=receipt.store_id,
+        store_name="Тестовый магазин",
         purchased_at=receipt.purchased_at,
         regular_total=receipt.regular_total,
         paid_total=receipt.paid_total,
+        discount_total=receipt.discount_total,
         points_earned=receipt.points_earned,
         points_spent=receipt.points_spent,
+        counted=receipt.counted,
+        is_returned=receipt.is_returned,
         items=items,
     )
 
@@ -54,7 +58,7 @@ async def test_receipt_outside_the_challenge_period_does_not_move_progress(
     receipt = await make_receipt(conn, user.id, items=DAIRY_ITEM, purchased_at=purchased_at)
 
     deltas = await challenges_service.on_receipt(
-        conn, user.id, await _with_items(conn, receipt), counted=True
+        conn, user.id, await _receipt_detail(conn, receipt)
     )
 
     assert deltas == []
@@ -83,7 +87,7 @@ async def test_category_challenge_ignores_multi_category_receipt_without_dairy(
     )
 
     deltas = await challenges_service.on_receipt(
-        conn, user.id, await _with_items(conn, receipt), counted=True
+        conn, user.id, await _receipt_detail(conn, receipt)
     )
 
     assert deltas == []
@@ -112,7 +116,7 @@ async def test_completion_with_zero_reward_points_still_grants_xp(
     receipt = await make_receipt(conn, user.id, items=DAIRY_ITEM, purchased_at=NOW)
 
     deltas = await challenges_service.on_receipt(
-        conn, user.id, await _with_items(conn, receipt), counted=True
+        conn, user.id, await _receipt_detail(conn, receipt)
     )
 
     assert deltas[0].completed is True
@@ -151,7 +155,7 @@ async def test_side_challenge_completion_does_not_advance_streak(
     receipt = await make_receipt(conn, user.id, items=DAIRY_ITEM, purchased_at=NOW)
 
     deltas = await challenges_service.on_receipt(
-        conn, user.id, await _with_items(conn, receipt), counted=True
+        conn, user.id, await _receipt_detail(conn, receipt)
     )
 
     assert deltas[0].completed is True

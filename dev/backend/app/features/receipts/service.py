@@ -1,12 +1,14 @@
 from collections.abc import Sequence
 from datetime import datetime, timedelta
-from decimal import Decimal
 
 from psycopg import AsyncConnection
 
 from app.core.clock import day_start
+from app.features.challenges.models import ChallengeProgressDelta
+from app.features.domovoy.models import DomovoyDelta, DomovoyStateRow
 from app.features.receipts import database
 from app.features.receipts.models import (
+    ChallengeProgressDeltaStub,
     CountedDecision,
     DomovoyStateStub,
     FraudDecisionStub,
@@ -20,6 +22,7 @@ from app.features.receipts.models import (
     ReceiptWithItems,
 )
 from app.features.receipts.totals import compute_totals
+from app.features.savings import calc as savings_calc
 from app.features.users import service as users_service
 from app.game_rules import (
     RECEIPT_DEDUP_WINDOW_MIN,
@@ -29,7 +32,7 @@ from app.game_rules import (
 )
 
 
-async def ingest_receipt(
+async def process_receipt(
     conn: AsyncConnection,
     *,
     user_id: int,
@@ -60,8 +63,35 @@ async def ingest_receipt(
     )
     item_rows = await _insert_items(conn, receipt_id=receipt_row.id, items=drafts)
     await _recompute_user_features(conn, user_id)
+    domovoy_delta = await _run_domovoy_step(conn, user_id, receipt_row)
     receipt_detail = _to_receipt_detail(receipt_row, store_name=store.name, items=item_rows)
-    return _build_stub_outcome(receipt_detail, decision)
+    challenge_deltas = await _run_challenges_step(conn, user_id, receipt_detail)
+    domovoy_state = await _final_domovoy_state(conn, user_id)
+    xp_delta = domovoy_delta.xp_delta + _completed_challenges_xp(challenge_deltas)
+    return _build_outcome(receipt_detail, decision, xp_delta, domovoy_state, challenge_deltas)
+
+
+def _build_outcome(
+    receipt: ReceiptDetail,
+    decision: CountedDecision,
+    xp_delta: int,
+    domovoy_state: DomovoyStateStub,
+    challenge_deltas: list[ChallengeProgressDelta],
+) -> ReceiptProcessingOutcome:
+    return ReceiptProcessingOutcome(
+        receipt=receipt,
+        counted=decision.counted,
+        counted_reason=decision.counted_reason,
+        xp_delta=xp_delta,
+        domovoy=domovoy_state,
+        savings_delta=savings_calc.receipt_savings(receipt),
+        challenges=_map_challenge_deltas(challenge_deltas),
+        league_rank_before=None,
+        league_rank_after=None,
+        referral_status=None,
+        fraud=_stub_fraud_decision(),
+        achievements_unlocked=[],
+    )
 
 
 async def list_receipts(conn: AsyncConnection, *, user_id: int, limit: int) -> list[ReceiptDetail]:
@@ -128,23 +158,47 @@ def _draft_items(items: Sequence[ReceiptItemInputLike]) -> list[ReceiptItemDraft
     return [ReceiptItemDraft.model_validate(item) for item in items]
 
 
-def _build_stub_outcome(
-    receipt: ReceiptDetail, decision: CountedDecision
-) -> ReceiptProcessingOutcome:
-    return ReceiptProcessingOutcome(
-        receipt=receipt,
-        counted=decision.counted,
-        counted_reason=decision.counted_reason,
-        xp_delta=0,
-        domovoy=_stub_domovoy_state(),
-        savings_delta=Decimal("0"),
-        challenges=[],
-        league_rank_before=None,
-        league_rank_after=None,
-        referral_status=None,
-        fraud=_stub_fraud_decision(),
-        achievements_unlocked=[],
+async def _run_domovoy_step(
+    conn: AsyncConnection, user_id: int, receipt: ReceiptRow
+) -> DomovoyDelta:
+    # отложенный импорт разрывает цикл: domovoy.service импортирует нас
+    from app.features.domovoy import service as domovoy_service
+
+    return await domovoy_service.on_receipt(conn, user_id, receipt)
+
+
+async def _run_challenges_step(
+    conn: AsyncConnection, user_id: int, receipt: ReceiptDetail
+) -> list[ChallengeProgressDelta]:
+    # отложенный импорт: challenges тянет user_features, который тянет нас
+    from app.features.challenges import service as challenges_service
+
+    return await challenges_service.on_receipt(conn, user_id, receipt)
+
+
+async def _final_domovoy_state(conn: AsyncConnection, user_id: int) -> DomovoyStateStub:
+    from app.features.domovoy import service as domovoy_service
+
+    state: DomovoyStateRow = await domovoy_service.get_state(conn, user_id)
+    return DomovoyStateStub(
+        xp=state.xp,
+        level=level_for_xp(state.xp),
+        xp_to_next_level=xp_to_next_level(state.xp),
+        mood=state.mood,
+        mood_reason=state.mood_reason,
+        streak_weeks=state.streak_weeks,
+        items=state.items,
     )
+
+
+def _completed_challenges_xp(deltas: list[ChallengeProgressDelta]) -> int:
+    return sum(delta.reward_xp for delta in deltas if delta.completed)
+
+
+def _map_challenge_deltas(
+    deltas: list[ChallengeProgressDelta],
+) -> list[ChallengeProgressDeltaStub]:
+    return [ChallengeProgressDeltaStub.model_validate(delta) for delta in deltas]
 
 
 async def _decide_counted(
@@ -238,19 +292,6 @@ def _to_receipt_detail(
         counted=row.counted,
         is_returned=row.is_returned,
         items=items,
-    )
-
-
-def _stub_domovoy_state() -> DomovoyStateStub:
-    xp = 0
-    return DomovoyStateStub(
-        xp=xp,
-        level=level_for_xp(xp),
-        xp_to_next_level=xp_to_next_level(xp),
-        mood="bored",
-        mood_reason="",
-        streak_weeks=0,
-        items=[],
     )
 
 
