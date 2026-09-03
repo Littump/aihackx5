@@ -143,7 +143,7 @@ async def test_process_receipt_completing_hero_challenge_combines_xp_and_streak(
 
     ledger_cursor = await conn.execute(
         "SELECT kind, xp_delta, points_delta FROM reward_ledger "
-        "WHERE user_id = %s ORDER BY created_at ASC",
+        "WHERE user_id = %s ORDER BY created_at ASC, id ASC",
         (user.id,),
     )
     ledger_rows = await ledger_cursor.fetchall()

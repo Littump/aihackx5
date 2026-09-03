@@ -27,6 +27,7 @@ class LeagueMembership(AppModel):
     league_id: int
     division: int
     store_id: int
+    score: int
 
 
 class LeagueRankChange(AppModel):
@@ -66,6 +67,18 @@ class LeagueHouseView(AppModel):
     avg_savings_rate: Decimal
     district_rank: int
     district_size: int
+
+
+class MemberRolloverOutcome(AppModel):
+    promoted: bool
+    demoted: bool
+
+
+class RolloverSummary(AppModel):
+    leagues_closed: int
+    users_promoted: int
+    users_demoted: int
+    week_start: date
 
 
 class LeagueView(AppModel):

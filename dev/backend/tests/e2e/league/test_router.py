@@ -1,10 +1,11 @@
 from collections.abc import Callable
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytest
 from httpx import AsyncClient
 from psycopg import AsyncConnection
 
+from app.core.clock import week_start
 from app.game_rules import DIVISION_NAMES
 from tests.e2e.league.data import (
     HIGH_DISCOUNT_ITEM,
@@ -13,10 +14,12 @@ from tests.e2e.league.data import (
     LEAGUE_RESPONSE_FIELDS,
     LOW_DISCOUNT_ITEM,
     NOW,
+    ROLLOVER_RESULT_FIELDS,
 )
 from tests.factories import make_league, make_league_member, make_receipt, make_store, make_user
 
 DIVISION_MIDDLE = 3
+PREVIOUS_WEEK = week_start(NOW - timedelta(weeks=1)).date()
 
 
 async def _seed_scored_league(
@@ -219,3 +222,25 @@ async def test_get_league_new_user_gets_solo_league_with_zero_score(
     assert set(body["members"][0].keys()) == LEAGUE_MEMBER_FIELDS
     assert body["members"][0]["is_me"] is True
     assert body["members"][0]["score"] == 0
+
+
+async def test_rollover_endpoint_returns_summary_matching_contract(
+    client: AsyncClient, conn: AsyncConnection, freeze_time: Callable[[datetime], None]
+) -> None:
+    freeze_time(NOW)
+    store = await make_store(conn)
+    league = await make_league(
+        conn, store_id=store.id, division=DIVISION_MIDDLE, week_start=PREVIOUS_WEEK
+    )
+    member = await make_user(conn)
+    await make_league_member(conn, league.id, member.id, score=1)
+
+    response = await client.post("/api/v1/league/rollover")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert set(body.keys()) == ROLLOVER_RESULT_FIELDS
+    assert body["leagues_closed"] == 1
+    assert body["users_promoted"] == 1
+    assert body["users_demoted"] == 0
+    assert body["week_start"] == week_start(NOW).date().isoformat()

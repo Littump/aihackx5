@@ -19,6 +19,13 @@ class LeagueHouse(AppModel):
     district_size: int
 
 
+class RolloverResult(AppModel):
+    leagues_closed: int
+    users_promoted: int
+    users_demoted: int
+    week_start: date
+
+
 class LeagueResponse(AppModel):
     division: int
     division_name: str
