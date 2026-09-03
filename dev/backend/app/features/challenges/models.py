@@ -72,3 +72,13 @@ class ChallengeListResult(AppModel):
     hero: ChallengeRow | None
     side: list[ChallengeRow]
     history: list[ChallengeRow]
+
+
+class ChallengeProgressDelta(AppModel):
+    challenge_id: int
+    progress_before: Decimal
+    progress_after: Decimal
+    target: Decimal
+    completed: bool
+    reward_points: int
+    reward_xp: int

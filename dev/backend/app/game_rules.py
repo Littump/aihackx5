@@ -21,6 +21,7 @@ CATEGORIES: tuple[str, ...] = (
     "other",
 )
 CHALLENGE_EXCLUDED_CATEGORIES: frozenset[str] = frozenset({"alcohol"})
+CHALLENGE_PROGRESS_STEP = 1
 
 SAVINGS_WEEK_WINDOW_DAYS = 7
 SAVINGS_TOP_CATEGORIES_LIMIT = 3

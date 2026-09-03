@@ -8,12 +8,14 @@ from app.features.challenges.models import (
     ChallengeRow,
     RationaleFeatures,
 )
+from app.features.receipts.models import ReceiptItemRow, ReceiptWithItems
 from app.features.user_features.models import CategoryAffinity, UserFeaturesRow
 from app.features.users.models import UserRow
 
 COMPUTED_AT = datetime(2026, 9, 1, 12, 0, tzinfo=UTC)
 DEFAULT_WINDOW_WEEKS = 10
 FREQUENCY_DISABLED = Decimal("6")
+RECEIPT_PURCHASED_AT = datetime(2026, 9, 2, 12, 0, tzinfo=UTC)
 
 
 def make_features(
@@ -144,6 +146,38 @@ def make_challenge_row(
         copy_source="template",
         created_at=COMPUTED_AT,
         completed_at=None,
+    )
+
+
+def make_receipt_with_items(
+    *,
+    receipt_id: int = 1,
+    purchased_at: datetime = RECEIPT_PURCHASED_AT,
+    categories: list[str] | None = None,
+) -> ReceiptWithItems:
+    picked = categories if categories is not None else ["dairy"]
+    items = [
+        ReceiptItemRow(
+            id=i,
+            receipt_id=receipt_id,
+            product_name=category,
+            category=category,
+            qty=Decimal("1"),
+            regular_price=Decimal("100.00"),
+            paid_price=Decimal("100.00"),
+            is_promo=False,
+        )
+        for i, category in enumerate(picked, start=1)
+    ]
+    return ReceiptWithItems(
+        id=receipt_id,
+        store_id=1,
+        purchased_at=purchased_at,
+        regular_total=Decimal("100.00"),
+        paid_total=Decimal("100.00"),
+        points_earned=0,
+        points_spent=0,
+        items=items,
     )
 
 

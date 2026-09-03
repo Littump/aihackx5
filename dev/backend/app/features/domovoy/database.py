@@ -31,6 +31,11 @@ DOMOVOY_STATE_UPDATE_MOOD = (
     "last_fed_at = %(last_fed_at)s, updated_at = now() "
     f"WHERE user_id = %(user_id)s RETURNING {DOMOVOY_STATE_COLUMNS}"
 )
+DOMOVOY_STATE_UPDATE_STREAK = (
+    "UPDATE domovoy_states SET streak_weeks = %(streak_weeks)s, "
+    "streak_freeze_available = %(streak_freeze_available)s, updated_at = now() "
+    f"WHERE user_id = %(user_id)s RETURNING {DOMOVOY_STATE_COLUMNS}"
+)
 
 
 async def insert_domovoy_state(conn: AsyncConnection, params: dict[str, object]) -> DomovoyStateRow:
@@ -73,6 +78,21 @@ async def update_domovoy_mood(
     }
     async with conn.cursor(row_factory=class_row(DomovoyStateRow)) as cur:
         await cur.execute(DOMOVOY_STATE_UPDATE_MOOD, params)
+        row = await cur.fetchone()
+        assert row is not None
+        return row
+
+
+async def update_streak(
+    conn: AsyncConnection, *, user_id: int, streak_weeks: int, streak_freeze_available: bool
+) -> DomovoyStateRow:
+    params = {
+        "user_id": user_id,
+        "streak_weeks": streak_weeks,
+        "streak_freeze_available": streak_freeze_available,
+    }
+    async with conn.cursor(row_factory=class_row(DomovoyStateRow)) as cur:
+        await cur.execute(DOMOVOY_STATE_UPDATE_STREAK, params)
         row = await cur.fetchone()
         assert row is not None
         return row

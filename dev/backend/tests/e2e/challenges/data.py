@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from decimal import Decimal
 
 from psycopg.types.json import Jsonb
 
@@ -42,3 +43,38 @@ MULTI_CATEGORY_AFFINITY = Jsonb(
         "snacks": {"share": 0.15, "visits": 4, "cadence_days": 8.0},
     }
 )
+
+DAIRY_ITEM: list[dict[str, object]] = [
+    {
+        "product_name": "Молоко",
+        "category": "dairy",
+        "qty": Decimal("1"),
+        "regular_price": Decimal("100.00"),
+        "paid_price": Decimal("100.00"),
+    }
+]
+BAKERY_ITEM: list[dict[str, object]] = [
+    {
+        "product_name": "Багет",
+        "category": "bakery",
+        "qty": Decimal("1"),
+        "regular_price": Decimal("100.00"),
+        "paid_price": Decimal("100.00"),
+    }
+]
+MULTI_CATEGORY_NO_DAIRY_ITEMS: list[dict[str, object]] = [
+    {
+        "product_name": "Багет",
+        "category": "bakery",
+        "qty": Decimal("1"),
+        "regular_price": Decimal("100.00"),
+        "paid_price": Decimal("100.00"),
+    },
+    {
+        "product_name": "Сок",
+        "category": "drinks",
+        "qty": Decimal("1"),
+        "regular_price": Decimal("80.00"),
+        "paid_price": Decimal("80.00"),
+    },
+]
