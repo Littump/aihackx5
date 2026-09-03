@@ -23,3 +23,16 @@ class UserRow(AppModel):
     device_fingerprint: str | None
     social_propensity: Decimal
     created_at: datetime
+
+
+class UserBasicRow(AppModel):
+    id: int
+    pseudonym: str
+    segment: Literal["regular_mid", "light", "heavy", "dormant"]
+
+
+class UserSummary(AppModel):
+    id: int
+    pseudonym: str
+    segment: Literal["regular_mid", "light", "heavy", "dormant"]
+    level: int
