@@ -1,26 +1,31 @@
-import { Card } from "@/shared/ui/Card";
-import type { ReferralResponse } from "../api";
-import { limitText } from "../format";
-
 type RewardCardProps = {
-  referral: ReferralResponse;
+  referrerRewardPoints: number;
+  refereeRewardPointsNew: number;
+  refereeRewardPointsDormant: number;
 };
 
-export function RewardCard({ referral }: RewardCardProps) {
+export function RewardCard({
+  referrerRewardPoints,
+  refereeRewardPointsNew,
+  refereeRewardPointsDormant,
+}: RewardCardProps) {
   return (
-    <Card className="flex flex-col gap-2">
-      <h2 className="text-sm font-semibold text-text">Награда</h2>
-      <p className="text-sm text-text">
-        Вам — <span className="font-semibold">{referral.referrer_reward_points} баллов</span> после
-        выполнения условий приглашения
-      </p>
-      <p className="text-sm text-text-secondary">
-        Новому соседу — {referral.referee_reward_points_new} баллов, спящему —{" "}
-        {referral.referee_reward_points_dormant} баллов
-      </p>
-      <p className="text-xs text-text-secondary">
-        Лимит: {limitText(referral.paid_this_month, referral.paid_limit_month)}
-      </p>
-    </Card>
+    <section className="flex shrink-0 flex-col gap-3 rounded-card bg-brand-50 p-4">
+      <h3 className="text-lead font-bold">Награды</h3>
+      <dl className="m-0 flex flex-col gap-2">
+        <div className="flex justify-between text-body">
+          <dt className="text-ink-700">Вам</dt>
+          <dd className="m-0 font-semibold">{referrerRewardPoints} баллов</dd>
+        </div>
+        <div className="flex justify-between text-body">
+          <dt className="text-ink-700">Новому соседу</dt>
+          <dd className="m-0 font-semibold">{refereeRewardPointsNew} баллов</dd>
+        </div>
+        <div className="flex justify-between text-body">
+          <dt className="text-ink-700">Вернувшемуся</dt>
+          <dd className="m-0 font-semibold">{refereeRewardPointsDormant} баллов</dd>
+        </div>
+      </dl>
+    </section>
   );
 }

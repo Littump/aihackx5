@@ -1,4 +1,3 @@
-import { Card } from "@/shared/ui/Card";
 import type { ReferralResponse } from "../api";
 import { InviteeRow } from "./InviteeRow";
 
@@ -8,17 +7,15 @@ type InviteeListProps = {
 
 export function InviteeList({ invitees }: InviteeListProps) {
   return (
-    <Card className="flex flex-col gap-2">
-      <h2 className="text-sm font-semibold text-text">Приглашённые · {invitees.length}</h2>
+    <section className="flex shrink-0 flex-col divide-y divide-line rounded-card bg-surface shadow-card">
+      <h3 className="p-4 pb-3 text-lead font-bold">
+        Приглашённые{invitees.length > 0 ? ` · ${invitees.length}` : ""}
+      </h3>
       {invitees.length === 0 ? (
-        <p className="text-sm text-text-secondary">Пока никого не пригласили</p>
+        <p className="px-4 pb-4 text-body text-ink-500">Пока никого не пригласили</p>
       ) : (
-        <div className="flex flex-col gap-2">
-          {invitees.map((invitee) => (
-            <InviteeRow key={invitee.label} invitee={invitee} />
-          ))}
-        </div>
+        invitees.map((invitee) => <InviteeRow key={invitee.label} invitee={invitee} />)
       )}
-    </Card>
+    </section>
   );
 }

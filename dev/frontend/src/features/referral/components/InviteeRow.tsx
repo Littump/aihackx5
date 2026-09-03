@@ -1,32 +1,23 @@
-import { ProgressBar } from "@/shared/ui/ProgressBar";
 import type { ReferralInvitee } from "../format";
-import { purchasesProgressText, statusBadgeClass, statusLabel } from "../format";
+import { formatInviteeBadge, statusIconShape, statusToneClasses } from "../format";
+import { StatusIcon } from "./StatusIcon";
 
 type InviteeRowProps = {
   invitee: ReferralInvitee;
 };
 
 export function InviteeRow({ invitee }: InviteeRowProps) {
+  const tone = statusToneClasses(invitee.status);
+
   return (
-    <div
-      data-testid="referral-invitee-row"
-      className="flex flex-col gap-2 rounded-xl border border-border bg-surface px-3 py-2"
-    >
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-text">{invitee.label}</span>
-        <span
-          className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${statusBadgeClass(invitee.status)}`}
-        >
-          {statusLabel(invitee.status)}
-        </span>
-      </div>
-      <ProgressBar value={invitee.purchases_done} max={invitee.purchases_required} />
-      <div className="flex items-center justify-between text-xs text-text-secondary">
-        <span>{purchasesProgressText(invitee.purchases_done, invitee.purchases_required)}</span>
-        {invitee.status === "rewarded" && (
-          <span className="font-medium text-legacy-brand-600">+{invitee.reward_points} баллов</span>
-        )}
-      </div>
+    <div data-testid="referral-invitee-row" className="flex items-center gap-3 p-4">
+      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-tile ${tone}`}>
+        <StatusIcon shapes={statusIconShape(invitee.status)} />
+      </span>
+      <span className="flex-1 text-body font-semibold">{invitee.label}</span>
+      <span className={`rounded-tile px-3 py-1 text-caption font-semibold ${tone}`}>
+        {formatInviteeBadge(invitee)}
+      </span>
     </div>
   );
 }

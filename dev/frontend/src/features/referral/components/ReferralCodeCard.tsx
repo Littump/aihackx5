@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/shared/ui/Button";
-import { Card } from "@/shared/ui/Card";
 import { copyReferralLink } from "../clipboard";
 
 type ReferralCodeCardProps = {
@@ -20,17 +19,69 @@ export function ReferralCodeCard({ code, link }: ReferralCodeCardProps) {
     setTimeout(() => setCopied(false), COPIED_LABEL_MS);
   }
 
+  async function handleShare() {
+    if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+      try {
+        await navigator.share({ title: "Домовой", text: `Мой код: ${code}`, url: link });
+      } catch {
+        return;
+      }
+      return;
+    }
+    copyReferralLink(link);
+  }
+
   return (
-    <Card className="flex flex-col items-center gap-3 text-center">
-      <QRCodeSVG value={link} size={160} role="img" aria-label="QR-код приглашения" />
-      <div>
-        <p className="text-xs uppercase text-text-secondary">Ваш код</p>
-        <p className="text-2xl font-semibold tracking-wide text-text">{code}</p>
+    <section className="flex shrink-0 flex-col gap-4 rounded-card bg-surface p-4 shadow-card">
+      <div className="flex items-center gap-4">
+        <QRCodeSVG
+          value={link}
+          size={96}
+          role="img"
+          aria-label="QR-код приглашения"
+          className="h-24 w-24 shrink-0 rounded-tile"
+        />
+        <div className="flex min-w-0 flex-col gap-1">
+          <span className="text-caption text-ink-500">Ваш код</span>
+          <span className="text-title font-bold tracking-wide">{code}</span>
+          <span className="text-caption text-ink-500">Покажите QR или продиктуйте код</span>
+        </div>
       </div>
-      <p className="break-all text-xs text-text-secondary">{link}</p>
-      <Button onClick={handleCopy} className="w-full">
-        {copied ? "Скопировано" : "Скопировать"}
-      </Button>
-    </Card>
+      <div className="grid grid-cols-2 gap-3">
+        <Button onClick={handleCopy} className="flex items-center justify-center gap-2">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            className="h-6 w-6"
+            aria-hidden="true"
+          >
+            <rect x="9" y="9" width="11" height="11" rx="2" />
+            <path d="M15 5H6a1 1 0 0 0-1 1v9" />
+          </svg>
+          {copied ? "Скопировано" : "Скопировать"}
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={handleShare}
+          className="flex items-center justify-center gap-2"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            className="h-6 w-6"
+            aria-hidden="true"
+          >
+            <path d="M12 16V4M8 8l4-4 4 4M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5" />
+          </svg>
+          Поделиться
+        </Button>
+      </div>
+    </section>
   );
 }
