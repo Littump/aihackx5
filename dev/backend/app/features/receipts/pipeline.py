@@ -1,10 +1,20 @@
 from psycopg import AsyncConnection
 
+from app.features.antifraud.models import FraudDecision
 from app.features.challenges.models import ChallengeProgressDelta
 from app.features.domovoy.models import DomovoyDelta, DomovoyStateRow
 from app.features.league.models import LeagueRankChange
 from app.features.receipts.models import DomovoyStateStub, ReceiptDetail, ReceiptRow
 from app.game_rules import level_for_xp, xp_to_next_level
+
+
+async def run_antifraud_step(
+    conn: AsyncConnection, user_id: int, receipt: ReceiptRow
+) -> FraudDecision:
+    # отложенный импорт разрывает цикл: antifraud.service импортирует нас
+    from app.features.antifraud import service as antifraud_service
+
+    return await antifraud_service.check_receipt(conn, user_id, receipt)
 
 
 async def run_domovoy_step(

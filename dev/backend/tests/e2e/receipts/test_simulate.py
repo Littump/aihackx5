@@ -12,6 +12,7 @@ from app.game_rules import (
     SIMULATE_BASKET_VARIATION_MAX,
     SIMULATE_BASKET_VARIATION_MIN,
     SIMULATE_DEFAULT_AVG_BASKET,
+    SIMULATE_FRAUD_BURST_COUNT,
     SIMULATE_FRAUD_BURST_INTERVAL_MIN,
 )
 from tests.e2e.receipts.data import RECEIPT_FIELDS, RECEIPT_PROCESSING_RESULT_FIELDS
@@ -233,7 +234,7 @@ async def test_simulate_category_boost_without_any_active_challenges_behaves_lik
     assert body["challenges"] == []
 
 
-async def test_simulate_fraud_burst_creates_four_receipts_with_at_most_one_counted(
+async def test_simulate_fraud_burst_creates_expected_receipts_with_at_most_one_counted(
     client: AsyncClient, conn: AsyncConnection, freeze_time: Callable[[datetime], None]
 ) -> None:
     freeze_time(NOW)
@@ -250,13 +251,17 @@ async def test_simulate_fraud_burst_creates_four_receipts_with_at_most_one_count
     assert body["counted"] is False
     assert body["counted_reason"] == "dedup_window"
     assert body["receipt"]["purchased_at"] == NOW.isoformat().replace("+00:00", "Z")
+    # общий pos_id всех чеков burst добавляет same_pos_share, суммарно даёт hold/block
+    assert body["fraud"]["decision"] in {"hold", "block"}
+    codes = {s["code"] for s in body["fraud"]["signals"]}
+    assert {"burst_same_store", "same_pos_share"} <= codes
 
     total_cursor = await conn.execute(
         "SELECT count(*) FROM receipts WHERE user_id = %s", (user.id,)
     )
     total_row = await total_cursor.fetchone()
     assert total_row is not None
-    assert total_row[0] == 4
+    assert total_row[0] == SIMULATE_FRAUD_BURST_COUNT
 
     counted_cursor = await conn.execute(
         "SELECT count(*) FROM receipts WHERE user_id = %s AND counted = true", (user.id,)
@@ -271,7 +276,8 @@ async def test_simulate_fraud_burst_creates_four_receipts_with_at_most_one_count
     times = [row[0] for row in await times_cursor.fetchall()]
     assert times[-1] == NOW
     interval = timedelta(minutes=SIMULATE_FRAUD_BURST_INTERVAL_MIN)
-    assert [times[i + 1] - times[i] for i in range(3)] == [interval, interval, interval]
+    gaps = [times[i + 1] - times[i] for i in range(len(times) - 1)]
+    assert gaps == [interval] * (SIMULATE_FRAUD_BURST_COUNT - 1)
 
 
 async def test_simulate_unknown_user_returns_404(client: AsyncClient) -> None:

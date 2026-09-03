@@ -4,6 +4,8 @@ from decimal import Decimal
 import pytest
 from psycopg import AsyncConnection
 
+from app.features.antifraud import service as antifraud_service
+from app.features.antifraud.models import FraudDecision
 from app.features.challenges import service as challenges_service
 from app.features.challenges.models import ChallengeProgressDelta
 from app.features.domovoy import service as domovoy_service
@@ -136,6 +138,14 @@ async def _fake_insert_item(_: AsyncConnection, params: dict[str, object]) -> Re
     return _item_row()
 
 
+async def _fake_check_receipt(
+    _: AsyncConnection, user_id: int, receipt: ReceiptRow
+) -> FraudDecision:
+    assert user_id == 1
+    assert receipt.id == 10
+    return FraudDecision(score=0.0, decision="approve", signals=[])
+
+
 async def _fake_recompute_user_features(_: AsyncConnection, user_id: int) -> None:
     assert user_id == 1
 
@@ -186,6 +196,7 @@ def _patch_process_receipt(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(receipts_db, "count_counted_receipts_in_range", _fake_no_daily_limit)
     monkeypatch.setattr(receipts_db, "insert_receipt", _fake_insert_receipt)
     monkeypatch.setattr(receipts_db, "insert_receipt_item", _fake_insert_item)
+    monkeypatch.setattr(antifraud_service, "check_receipt", _fake_check_receipt)
     monkeypatch.setattr(service, "_recompute_user_features", _fake_recompute_user_features)
     monkeypatch.setattr(domovoy_service, "on_receipt", _fake_domovoy_on_receipt)
     monkeypatch.setattr(domovoy_service, "get_state", _fake_domovoy_get_state)

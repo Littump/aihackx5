@@ -181,11 +181,15 @@ Qualifying: 1-я покупка `≥ REFERRAL_MIN_FIRST_PURCHASE = 500 ₽`; 2-�
 | Скор | Решение |
 |---|---|
 | `< 0.5` | `approve` |
-| `0.5 – 0.8` | `hold`: награда откладывается, чек `counted` остаётся |
-| `≥ 0.8` **и ≥ 2 strong** | `block`: выплаты нет, чек `counted=false`, в PM view с причинами |
+| `0.5 – 0.8` | `hold`: чек `counted` остаётся как решил дедуп/лимит |
+| `≥ 0.8` **и ≥ 2 strong** | `block`: чек `counted=false`, в PM view с причинами |
 | `≥ 0.8`, но < 2 strong | `hold` — precision важнее recall |
 
 Каждая проверка сохраняется с полным списком сигналов и человеческим `detail`.
+
+### Эффект в пайплайне чека (BE-020)
+
+`block` переводит `counted` в `false` (`counted_reason=fraud_block`), если чек ещё не стал `counted=false` по другой причине. Если дедуп/лимит уже сделали чек `counted=false` раньше — причина остаётся исходной (`dedup_window`/`daily_limit`), не перезаписывается на `fraud_block`. `hold` не влияет на чек-награды: XP и прогресс челленджа начисляются нормально, единственный эффект `hold` в MVP — запись в `fraud_checks` для PM view. Реферальные награды регулируются отдельным независимым фрод-чеком в `referrals.service` (`score_referral` на реферальные сигналы), не этим шагом.
 
 ## 12. Ачивки (MVP)
 
@@ -234,7 +238,7 @@ Qualifying: 1-я покупка `≥ REFERRAL_MIN_FIRST_PURCHASE = 500 ₽`; 2-�
 | Дефолтные категории без affinity | `dairy, bakery, fruits_veg` | `SIMULATE_DEFAULT_CATEGORIES` |
 | Позиций-бустов в `category_boost` | 2 | `SIMULATE_CATEGORY_BOOST_ITEMS` |
 | Цена одной буст-позиции | 150 ₽ | `SIMULATE_BOOST_ITEM_PRICE` |
-| Чеков в `fraud_burst` | 4 по 100 ₽ с интервалом 3 мин | `SIMULATE_FRAUD_BURST_COUNT/AMOUNT/INTERVAL_MIN` |
+| Чеков в `fraud_burst` | 5 по 100 ₽ с интервалом 3 мин, один `pos_id` | `SIMULATE_FRAUD_BURST_COUNT/AMOUNT/INTERVAL_MIN/POS_ID` |
 | Категория позиции в `fraud_burst` | `grocery` | `SIMULATE_FRAUD_BURST_CATEGORY` |
 
 ## 16. Recommended mechanic (Home)

@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from psycopg import AsyncConnection
 
 from app.core.clock import day_start
+from app.features.antifraud.models import FraudDecision
 from app.features.receipts import database, outcome, pipeline
 from app.features.receipts.models import (
     CountedDecision,
@@ -52,9 +53,34 @@ async def process_receipt(
         counted=decision.counted,
     )
     item_rows = await _insert_items(conn, receipt_id=receipt_row.id, items=drafts)
+    fraud_decision = await pipeline.run_antifraud_step(conn, user_id, receipt_row)
+    receipt_row, decision = await _apply_fraud_decision(
+        conn, receipt_row=receipt_row, decision=decision, fraud_decision=fraud_decision
+    )
+    return await _apply_rewards(
+        conn,
+        user_id=user_id,
+        store_name=store.name,
+        receipt_row=receipt_row,
+        item_rows=item_rows,
+        decision=decision,
+        fraud_decision=fraud_decision,
+    )
+
+
+async def _apply_rewards(
+    conn: AsyncConnection,
+    *,
+    user_id: int,
+    store_name: str,
+    receipt_row: ReceiptRow,
+    item_rows: list[ReceiptItemRow],
+    decision: CountedDecision,
+    fraud_decision: FraudDecision,
+) -> ReceiptProcessingOutcome:
     await _recompute_user_features(conn, user_id)
     domovoy_delta = await pipeline.run_domovoy_step(conn, user_id, receipt_row)
-    receipt_detail = _to_receipt_detail(receipt_row, store_name=store.name, items=item_rows)
+    receipt_detail = _to_receipt_detail(receipt_row, store_name=store_name, items=item_rows)
     challenge_deltas = await pipeline.run_challenges_step(conn, user_id, receipt_detail)
     league_rank_change = await pipeline.run_league_step(conn, user_id, receipt_detail)
     referral_status = await pipeline.run_referral_step(conn, user_id, receipt_detail)
@@ -67,6 +93,7 @@ async def process_receipt(
         challenge_deltas,
         league_rank_change,
         referral_status,
+        fraud_decision,
     )
 
 
@@ -174,6 +201,21 @@ async def _decide_counted(
     if today_count >= RECEIPTS_PER_DAY_MAX:
         return CountedDecision(counted=False, counted_reason="daily_limit")
     return CountedDecision(counted=True, counted_reason=None)
+
+
+async def _apply_fraud_decision(
+    conn: AsyncConnection,
+    *,
+    receipt_row: ReceiptRow,
+    decision: CountedDecision,
+    fraud_decision: FraudDecision,
+) -> tuple[ReceiptRow, CountedDecision]:
+    if fraud_decision.decision != "block" or not decision.counted:
+        return receipt_row, decision
+    updated_row = await database.update_receipt_counted(
+        conn, receipt_id=receipt_row.id, counted=False
+    )
+    return updated_row, CountedDecision(counted=False, counted_reason="fraud_block")
 
 
 async def _insert_receipt(
