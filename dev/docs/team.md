@@ -35,3 +35,15 @@ async def render_insight(*, features: UserFeatures, savings: SavingsSummary) -> 
 ## Правило вежливости
 
 Нужно поменять что-то в чужой зоне — пишешь в чат и делаешь отдельным коммитом с ID задачи. Нашёл баг в чужом — заводишь задачу в backlog, не чинишь молча.
+
+### 4. LLM-планировщик → challenges (E14, proposal)
+
+После ML-rework LLM не только рендерит текст, но и **планирует** челлендж. Стык — ещё один фиксированный интерфейс:
+```python
+# app/llm/planner.py  (зона Татьяны)
+async def plan(*, planner_input: PlannerInput) -> ChallengePlan | None: ...  # None → детерминированный fallback
+```
+`PlannerInput` собирает `challenges/insight.py`, `ChallengePlan` валидирует `challenges/plan_validator.py`
+(зона Романа). LLM не возвращает рубли/баллы — только `promo_level`; деньги считает `economics.py`. Новая feature
+`catalog` (`sku_catalog`) — зона Романа; генерация каталога в `app/synthetic/catalog.py` — зона Татьяны.
+Полный дизайн и границы — `docs/ml-rework/`.

@@ -33,3 +33,11 @@
 - чек `counted=false` не двигает прогресс;
 - category-челлендж по `dairy` не двигается чеком без dairy;
 - возврат закрывшего чека → status active, progress −1, ledger −30 баллов, XP не отнимаем.
+
+## Связь с E14 (ML rework)
+
+Задачи выше остаются в силе и после переработки. `candidate.py` + `personalization.py` (BE-010/011) не удаляются —
+они становятся **fallback**-стратегией, когда LLM-план невалиден или нет ключа. Новый путь выбора челленджа —
+LLM-планировщик: см. эпик [E14-ml-planner.md](E14-ml-planner.md) (BE-027 Insight Builder, AI-008 planner, BE-029 validator,
+BE-030 новые типы, BE-031 новый `refresh_weekly`). `AI-004` (LLM copy) дополняется планированием, интерфейс
+`render_challenge` не ломается. Дизайн — `docs/ml-rework/ml-solution-architecture.md`.

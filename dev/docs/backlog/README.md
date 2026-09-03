@@ -46,6 +46,22 @@
 | AI-005 | E11 | `app/eval`: relevance по §14 на 30–50 профилях, запись в eval_runs | T | BE-011, AI-003 | todo | |
 | AI-006 | E11 | `app/simulation`: control vs treatment по §13, запись в simulation_runs | T | AI-003, BE-013 | todo | |
 | AI-007 | E11 | Промпт-тюнинг и проверка, что LLM-тексты содержат числа из features (fallback rate < 20 %) | T | AI-004, AI-005 | todo | |
+| BE-024 | E14 | Миграция 003: `sku_catalog`, `receipt_items.sku_id`, `challenges` (+sku_refs/promo_level/needs_promo/reward_kind/plan_step/unlocks_next/plan_source), `llm_plans`, типы basket/streak/winback | R | BE-002 | todo | |
+| BE-025 | E14 | Константы планировщика в `game_rules.py` (PROMO_LEVEL_SHARE, CHURN_RISK, CHALLENGE_LIBRARY, ladder) + зеркало domain-rules | R | BE-024, BE-003 | todo | |
+| BE-026 | E14 | Feature `catalog`: чтение `sku_catalog`, подсказки SKU, `GET /catalog` | R | BE-024 | todo | |
+| BE-027 | E14 | Insight Builder: `PlannerInput` (агрегаты + category timeseries + churn_risk) детерминированно | R | BE-007, BE-025 | todo | |
+| BE-028 | E14 | `economics.py`: `promo_level` → доля бюджета (формула §6 без изменений) | R | BE-025 | todo | |
+| AI-008 | E14 | `app/llm/planner.py`: tool `emit_challenge_plan`, tool-use forcing, `ChallengePlan` (steps[] + reward_kind), fallback без ключа | T | BE-027, BE-025 | todo | |
+| BE-029 | E14 | `plan_validator.py`: проверка SKU/target/типа/rationale, repair, fallback на rule-based | R | BE-027, AI-008 | todo | |
+| BE-030 | E14 | Библиотека челленджей: предикаты basket / streak / winback + target-правила | R | BE-012, BE-025 | todo | |
+| BE-031 | E14 | `refresh_weekly` через planner→validator→economics→ladder, запись `llm_plans`/`plan_source` | R | BE-029, BE-030, BE-028, BE-032 | todo | |
+| BE-032 | E14 | Reward Ladder: награда за опыт по XP/level+tenure, new-user буст, decay + XP за ladder-челленджи (вне LLM/Economics) | R | BE-009, BE-025 | todo | |
+| AI-009 | E14 | Каталог SKU в синтетике + LLM-персоны поверх числовых профилей | T | AI-001, BE-024 | todo | |
+| AI-010 | E14 | Eval: продолжение истории (counterfactual, без LLM-судьи) — incremental revenue/margin, net_effect | T | AI-005, AI-008 | todo | |
+| AI-011 | E14 | Simulation: 3 ветки (control_x5 / treatment_llm / treatment_rules) из точки T, per-user cap (без knapsack) | T | AI-006, BE-031 | todo | |
+| AI-012 | E14 | Промпт-тюнинг планировщика: fallback rate < 20 %, число из инсайта в rationale, отчёт | T | AI-008, AI-010 | todo | |
+| BE-033 | E14 | Контракт: `ChallengeDetail` (+sku_refs/promo_level/plan_source), PM `ChallengePlanAudit` | R | INF-004, BE-031 | todo | |
+| FE-007 | E14 | PM view: показать план LLM (insight_used, promo_level, sku_refs, plan_source, fallback) | R | FE-006, BE-033 | todo | |
 | DOC-001 | E12 | Демо-сценарий по §17 PRD с конкретными user_id и ожидаемыми цифрами | A | FE-006 | todo | |
 | INF-005 | E12 | `make demo`: поднять всё, засеять, прогнать eval и simulation одной командой | R | AI-005, AI-006 | todo | |
 | INF-006 | E13 | Dockerfile backend/frontend, nginx.conf, docker-compose.prod.yml, .env.prod.example | R | INF-001, INF-002 | todo | |
@@ -74,3 +90,4 @@
 | E11 Eval & Simulation | [E11-eval-simulation.md](E11-eval-simulation.md) | Числа для жюри |
 | E12 Demo | [E12-demo.md](E12-demo.md) | Сдача |
 | E13 Deploy | [E13-deploy.md](E13-deploy.md) | Yandex Cloud VM, образы, CD |
+| E14 ML Planner | [E14-ml-planner.md](E14-ml-planner.md) | LLM-планировщик, каталог SKU, reward ladder, синтет-eval |
