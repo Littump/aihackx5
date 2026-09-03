@@ -4,6 +4,19 @@ from typing import Literal
 
 from app.core.models import AppModel
 
+RewardKind = Literal["receipt_xp", "challenge", "streak", "league", "referral", "achievement"]
+
+
+class RewardLedgerEntry(AppModel):
+    id: int
+    user_id: int
+    kind: RewardKind
+    xp_delta: int
+    points_delta: int
+    ref_type: str | None
+    ref_id: int | None
+    created_at: datetime
+
 
 class ChallengeEconomics(AppModel):
     avg_basket: float

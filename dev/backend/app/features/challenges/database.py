@@ -1,8 +1,13 @@
 from psycopg import AsyncConnection
 from psycopg.rows import class_row
 
-from app.features.challenges.models import ChallengeRow
+from app.features.challenges.models import ChallengeRow, RewardLedgerEntry
 
+REWARD_LEDGER_INSERT = (
+    "INSERT INTO reward_ledger (user_id, kind, xp_delta, points_delta, ref_type, ref_id) "
+    "VALUES (%(user_id)s, %(kind)s, %(xp_delta)s, %(points_delta)s, %(ref_type)s, %(ref_id)s) "
+    "RETURNING id, user_id, kind, xp_delta, points_delta, ref_type, ref_id, created_at"
+)
 CHALLENGE_INSERT = (
     "INSERT INTO challenges (user_id, type, category, status, is_hero, baseline, target, "
     "progress, period_start, period_end, reward_xp, reward_points, economics, "
@@ -20,6 +25,16 @@ CHALLENGE_INSERT = (
 async def insert_challenge(conn: AsyncConnection, params: dict[str, object]) -> ChallengeRow:
     async with conn.cursor(row_factory=class_row(ChallengeRow)) as cur:
         await cur.execute(CHALLENGE_INSERT, params)
+        row = await cur.fetchone()
+        assert row is not None
+        return row
+
+
+async def insert_reward_ledger_entry(
+    conn: AsyncConnection, params: dict[str, object]
+) -> RewardLedgerEntry:
+    async with conn.cursor(row_factory=class_row(RewardLedgerEntry)) as cur:
+        await cur.execute(REWARD_LEDGER_INSERT, params)
         row = await cur.fetchone()
         assert row is not None
         return row
