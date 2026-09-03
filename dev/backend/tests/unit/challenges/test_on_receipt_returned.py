@@ -7,8 +7,8 @@ from psycopg import AsyncConnection
 
 from app.features.challenges import database, service
 from app.features.challenges.models import ChallengeRow, RewardLedgerEntry
-from app.features.receipts.models import ReceiptWithItems
-from tests.unit.challenges.data import COMPUTED_AT, make_challenge_row, make_receipt_with_items
+from app.features.receipts.models import ReceiptDetail
+from tests.unit.challenges.data import COMPUTED_AT, make_challenge_row, make_receipt_detail
 
 Status = Literal["active", "completed", "failed", "expired"]
 
@@ -75,7 +75,7 @@ async def test_on_receipt_returned_reopens_completed_challenge(
     deltas = await service.on_receipt_returned(
         None,  # type: ignore[arg-type]
         1,
-        make_receipt_with_items(),
+        make_receipt_detail(),
     )
 
     assert deltas[0].progress_before == Decimal("3")
@@ -115,7 +115,7 @@ async def test_on_receipt_returned_keeps_completed_above_target(
     deltas = await service.on_receipt_returned(
         None,  # type: ignore[arg-type]
         1,
-        make_receipt_with_items(),
+        make_receipt_detail(),
     )
 
     assert deltas[0].progress_after == Decimal("3")
@@ -145,7 +145,7 @@ async def test_on_receipt_returned_active_challenge_only_decrements(
     deltas = await service.on_receipt_returned(
         None,  # type: ignore[arg-type]
         1,
-        make_receipt_with_items(),
+        make_receipt_detail(),
     )
 
     assert deltas[0].progress_after == Decimal("1")
@@ -170,7 +170,21 @@ async def test_on_receipt_returned_ignores_non_matching_category(
     monkeypatch.setattr(database, "list_challenges_for_period", fake_list)
     monkeypatch.setattr(database, "update_progress", fail_update)
 
-    receipt: ReceiptWithItems = make_receipt_with_items(categories=["bakery"])
+    receipt: ReceiptDetail = make_receipt_detail(categories=["bakery"])
+    deltas = await service.on_receipt_returned(None, 1, receipt)  # type: ignore[arg-type]
+
+    assert deltas == []
+
+
+async def test_on_receipt_returned_not_counted_is_a_noop(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def fail_list(*args: object, **kwargs: object) -> list[ChallengeRow]:
+        raise AssertionError("a not counted receipt never moved progress, nothing to revert")
+
+    monkeypatch.setattr(database, "list_challenges_for_period", fail_list)
+
+    receipt: ReceiptDetail = make_receipt_detail(counted=False)
     deltas = await service.on_receipt_returned(None, 1, receipt)  # type: ignore[arg-type]
 
     assert deltas == []

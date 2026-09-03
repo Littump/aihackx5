@@ -32,7 +32,7 @@ def _payload(
     }
 
 
-async def test_ingest_receipt_computes_totals_and_matches_contract(
+async def test_process_receipt_computes_totals_and_matches_contract(
     client: AsyncClient, conn: AsyncConnection
 ) -> None:
     user = await make_user(conn)
@@ -53,9 +53,10 @@ async def test_ingest_receipt_computes_totals_and_matches_contract(
     assert body["receipt"]["discount_total"] == TWO_ITEM_DISCOUNT_TOTAL
     assert body["counted"] is True
     assert body["counted_reason"] is None
-    assert body["xp_delta"] == 0
+    assert body["xp_delta"] == 10
+    assert body["domovoy"]["xp"] == 10
     assert body["domovoy"]["level"] == 1
-    assert body["domovoy"]["xp_to_next_level"] == 100
+    assert body["domovoy"]["xp_to_next_level"] == 90
     assert body["fraud"]["decision"] == "approve"
     assert body["achievements_unlocked"] == []
 
@@ -144,7 +145,7 @@ async def test_fourth_receipt_same_day_hits_daily_limit(
     assert body["counted_reason"] == "daily_limit"
 
 
-async def test_ingest_receipt_empty_items_returns_422(
+async def test_process_receipt_empty_items_returns_422(
     client: AsyncClient, conn: AsyncConnection
 ) -> None:
     user = await make_user(conn)
@@ -158,7 +159,7 @@ async def test_ingest_receipt_empty_items_returns_422(
     assert set(response.json()["error"].keys()) == {"code", "message"}
 
 
-async def test_ingest_receipt_unknown_user_returns_404(
+async def test_process_receipt_unknown_user_returns_404(
     client: AsyncClient, conn: AsyncConnection
 ) -> None:
     store = await make_store(conn)
@@ -171,7 +172,7 @@ async def test_ingest_receipt_unknown_user_returns_404(
     assert response.json()["error"]["code"] == "user_not_found"
 
 
-async def test_ingest_receipt_unknown_store_returns_404(
+async def test_process_receipt_unknown_store_returns_404(
     client: AsyncClient, conn: AsyncConnection
 ) -> None:
     user = await make_user(conn)

@@ -15,8 +15,8 @@ router = APIRouter(tags=["receipts"])
 @router.post(
     "/receipts", response_model=ReceiptProcessingResult, status_code=status.HTTP_201_CREATED
 )
-async def ingest_receipt(payload: ReceiptInput, conn: Conn) -> ReceiptProcessingResult:
-    outcome = await service.ingest_receipt(
+async def create_receipt(payload: ReceiptInput, conn: Conn) -> ReceiptProcessingResult:
+    outcome = await service.process_receipt(
         conn,
         user_id=payload.user_id,
         store_id=payload.store_id,

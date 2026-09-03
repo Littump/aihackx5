@@ -45,3 +45,7 @@
 ## 11. Один VM в Yandex Cloud, docker compose, CD через GitHub Actions по SSH
 **Почему:** один хост держит Postgres, backend и frontend за nginx; сборка образов в Actions, на VM только `pull` и `up`. Kubernetes и managed-сервисы для четырёхдневного демо — лишние.
 **Платим:** нет отказоустойчивости; при падении VM демо не работает. Бэкап базы — `pg_dump` по cron в задаче деплоя.
+
+## 12. `domovoy.service` — лист графа кросс-feature импортов
+**Почему:** `domovoy.service` импортирует `challenges.service` и `receipts.service` на верхнем уровне модуля; любой сосед (`challenges`, `receipts`, `user_features`, будущие `league`/`antifraud`/`achievements`), которому нужен `domovoy.service`, обязан импортировать его лениво — внутри функции, не на верхнем уровне, иначе цикл импорта при старте приложения.
+**Платим:** повторяющийся шаблон отложенного импорта в нескольких сервисах вместо одного `import` наверху файла.

@@ -1,8 +1,15 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import Literal
+from typing import Literal, Protocol
 
 from app.core.models import AppModel
+
+
+class ReceiptSavingsLike(Protocol):
+    regular_total: Decimal
+    paid_total: Decimal
+    points_earned: int
+    points_spent: int
 
 
 class SavingsPeriodRange(AppModel):

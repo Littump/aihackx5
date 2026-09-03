@@ -95,7 +95,7 @@ async def test_list_receipts_limit_truncates_to_most_recent(
     assert [item["id"] for item in items] == [receipts[4].id, receipts[3].id]
 
 
-async def test_ingest_receipt_numeric_field_types_match_contract(
+async def test_process_receipt_numeric_field_types_match_contract(
     client: AsyncClient, conn: AsyncConnection
 ) -> None:
     user = await make_user(conn)

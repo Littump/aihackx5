@@ -15,7 +15,7 @@ from app.features.challenges.models import (
     RewardKind,
     RewardLedgerEntry,
 )
-from app.features.receipts.models import ReceiptWithItems
+from app.features.receipts.models import ReceiptDetail
 from app.features.user_features import service as user_features_service
 from app.features.user_features.models import UserFeaturesRow
 from app.features.users import service as users_service
@@ -47,9 +47,9 @@ async def record_reward(
 
 
 async def on_receipt(
-    conn: AsyncConnection, user_id: int, receipt: ReceiptWithItems, *, counted: bool
+    conn: AsyncConnection, user_id: int, receipt: ReceiptDetail
 ) -> list[ChallengeProgressDelta]:
-    if not counted:
+    if not receipt.counted:
         return []
     challenges = await database.list_active_challenges_for_period(
         conn, user_id=user_id, purchased_at=receipt.purchased_at
@@ -62,8 +62,10 @@ async def on_receipt(
 
 
 async def on_receipt_returned(
-    conn: AsyncConnection, user_id: int, receipt: ReceiptWithItems
+    conn: AsyncConnection, user_id: int, receipt: ReceiptDetail
 ) -> list[ChallengeProgressDelta]:
+    if not receipt.counted:
+        return []
     challenges = await database.list_challenges_for_period(
         conn, user_id=user_id, purchased_at=receipt.purchased_at, statuses=RETURN_LOOKUP_STATUSES
     )
@@ -74,7 +76,7 @@ async def on_receipt_returned(
     return deltas
 
 
-def _matches_receipt(challenge: ChallengeRow, receipt: ReceiptWithItems) -> bool:
+def _matches_receipt(challenge: ChallengeRow, receipt: ReceiptDetail) -> bool:
     if challenge.type == "frequency":
         return True
     categories = {item.category for item in receipt.items}

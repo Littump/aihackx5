@@ -8,7 +8,7 @@ from app.features.challenges.models import (
     ChallengeRow,
     RationaleFeatures,
 )
-from app.features.receipts.models import ReceiptItemRow, ReceiptWithItems
+from app.features.receipts.models import ReceiptDetail, ReceiptItemRow
 from app.features.user_features.models import CategoryAffinity, UserFeaturesRow
 from app.features.users.models import UserRow
 
@@ -149,12 +149,13 @@ def make_challenge_row(
     )
 
 
-def make_receipt_with_items(
+def make_receipt_detail(
     *,
     receipt_id: int = 1,
     purchased_at: datetime = RECEIPT_PURCHASED_AT,
     categories: list[str] | None = None,
-) -> ReceiptWithItems:
+    counted: bool = True,
+) -> ReceiptDetail:
     picked = categories if categories is not None else ["dairy"]
     items = [
         ReceiptItemRow(
@@ -169,14 +170,18 @@ def make_receipt_with_items(
         )
         for i, category in enumerate(picked, start=1)
     ]
-    return ReceiptWithItems(
+    return ReceiptDetail(
         id=receipt_id,
         store_id=1,
+        store_name="Тестовый магазин",
         purchased_at=purchased_at,
         regular_total=Decimal("100.00"),
         paid_total=Decimal("100.00"),
+        discount_total=Decimal("0.00"),
         points_earned=0,
         points_spent=0,
+        counted=counted,
+        is_returned=False,
         items=items,
     )
 
