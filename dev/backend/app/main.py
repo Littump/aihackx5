@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.core.db import create_pool
 from app.core.errors import register_exception_handlers
 from app.core.logging import configure_logging
+from app.features.achievements.router import router as achievements_router
 from app.features.challenges.router import router as challenges_router
 from app.features.health.router import router as health_router
 from app.features.league.router import router as league_router
@@ -48,6 +49,7 @@ def create_app(database_url: str | None = None) -> FastAPI:
     app.include_router(challenges_router, prefix=API_PREFIX)
     app.include_router(league_router, prefix=API_PREFIX)
     app.include_router(referrals_router, prefix=API_PREFIX)
+    app.include_router(achievements_router, prefix=API_PREFIX)
     return app
 
 

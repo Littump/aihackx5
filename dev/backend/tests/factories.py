@@ -6,6 +6,8 @@ from psycopg import AsyncConnection
 from psycopg.types.json import Jsonb
 
 from app.core.clock import now, week_end, week_start
+from app.features.achievements import database as achievements_db
+from app.features.achievements.models import AchievementRow
 from app.features.challenges import database as challenges_db
 from app.features.challenges.models import ChallengeRow
 from app.features.domovoy import database as domovoy_db
@@ -227,6 +229,12 @@ async def make_user_features(
     }
     params.update(overrides)
     return await user_features_db.insert_user_features(conn, params)
+
+
+async def make_achievement(conn: AsyncConnection, user_id: int, code: str) -> AchievementRow:
+    row = await achievements_db.insert_achievement(conn, user_id=user_id, code=code)
+    assert row is not None
+    return row
 
 
 async def make_referral(

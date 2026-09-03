@@ -178,4 +178,5 @@ async def test_fifth_paid_referral_in_month_still_gets_rewarded(
     assert updated.status == "rewarded"
     assert updated.decided_at == NOW
     assert updated.referrer_reward_points > 0
-    assert len(await reward_ledger_rows(conn, user_id=referrer.id)) == 1
+    # "rewarded" разблокирует рефереру ачивку neighbour отдельной строкой в ledger
+    assert len(await reward_ledger_rows(conn, user_id=referrer.id)) == 2

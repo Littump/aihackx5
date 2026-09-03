@@ -10,6 +10,7 @@ from app.features.receipts.models import (
     ReceiptProcessingOutcome,
 )
 from app.features.savings import calc as savings_calc
+from app.game_rules import XP_ACHIEVEMENT
 
 
 def build_outcome(
@@ -21,8 +22,13 @@ def build_outcome(
     league_rank_change: LeagueRankChange,
     referral_status: str | None,
     fraud_decision: FraudDecision,
+    achievements_unlocked: list[str],
 ) -> ReceiptProcessingOutcome:
-    xp_delta = domovoy_xp_delta + _completed_challenges_xp(challenge_deltas)
+    xp_delta = (
+        domovoy_xp_delta
+        + _completed_challenges_xp(challenge_deltas)
+        + len(achievements_unlocked) * XP_ACHIEVEMENT
+    )
     return ReceiptProcessingOutcome(
         receipt=receipt,
         counted=decision.counted,
@@ -35,7 +41,7 @@ def build_outcome(
         league_rank_after=league_rank_change.rank_after,
         referral_status=referral_status,
         fraud=FraudDecisionStub.model_validate(fraud_decision),
-        achievements_unlocked=[],
+        achievements_unlocked=achievements_unlocked,
     )
 
 

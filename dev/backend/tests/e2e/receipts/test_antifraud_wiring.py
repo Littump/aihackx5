@@ -6,6 +6,7 @@ from httpx import AsyncClient
 from psycopg import AsyncConnection
 
 from app.core.clock import week_end, week_start
+from app.game_rules import XP_ACHIEVEMENT, XP_RECEIPT
 from tests.e2e.receipts.antifraud_wiring_data import (
     BURST_HISTORY_OFFSETS_MIN,
     DAILY_LIMIT_HOUR_OFFSETS,
@@ -99,7 +100,9 @@ async def test_burst_and_daily_volume_hold_keeps_counted_and_awards_rewards(
     assert 0.5 <= body["fraud"]["score"] < 0.8
     assert body["counted"] is True
     assert body["counted_reason"] is None
-    assert body["xp_delta"] == 10
+    # первый счётный чек пользователя разблокирует first_receipt
+    assert body["xp_delta"] == XP_RECEIPT + XP_ACHIEVEMENT
+    assert body["achievements_unlocked"] == ["first_receipt"]
     assert body["challenges"][0]["progress_after"] == 1.0
 
     cursor = await conn.execute(

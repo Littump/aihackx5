@@ -193,15 +193,21 @@ Qualifying: 1-я покупка `≥ REFERRAL_MIN_FIRST_PURCHASE = 500 ₽`; 2-�
 
 ## 12. Ачивки (MVP)
 
-| code | Условие |
-|---|---|
-| `first_receipt` | первый counted-чек |
-| `first_challenge` | первый выполненный челлендж |
-| `streak_4` | streak 4 недели |
-| `saver_1000` | savings за месяц ≥ 1000 ₽ |
-| `explorer` | чеки в обеих сетях за 30 дней |
-| `neighbour` | первый успешный реферал |
-| `league_top3` | топ-3 недели |
+| code | Условие | Константа |
+|---|---|---|
+| `first_receipt` | первый counted-чек | — |
+| `first_challenge` | первый выполненный челлендж | — |
+| `streak_4` | streak_weeks ≥ 4 недель | `ACHIEVEMENT_STREAK_WEEKS = 4` |
+| `saver_1000` | savings за месяц ≥ 1000 ₽ | `SAVER_1000_THRESHOLD_RUB = 1000` |
+| `explorer` | counted-чеки в обеих сетях (pyaterochka и perekrestok) за 30 дней | `ACHIEVEMENT_EXPLORER_WINDOW_DAYS = 30` |
+| `neighbour` | первый успешный реферал (`referral.status` стал `rewarded`) | — |
+| `league_top3` | финальный ранг в закрывшейся лиге-неделе ≤ 3 (проверяется в `league.rollover`, не на каждом чеке) | `LEAGUE_TOP3_RANK = 3` |
+
+Награда за каждую разблокированную ачивку — `XP_ACHIEVEMENT = 25`, без баллов. Повторное срабатывание не начисляет награду и не создаёт вторую строку: `UNIQUE (user_id, code)`.
+
+`league_top3` намеренно не проверяется по живому рангу внутри `receipts.process_receipt`: соло-лига в начале недели тривиально даёт ранг 1, что обесценивало бы смысл «топ-3 недели». Ачивка разблокируется в `league.rollover.rollover_week` тем же условием (`rank ≤ LEAGUE_TOP3_RANK`), что уже определяет получателей `XP_LEAGUE_TOP3`.
+
+`achievements_unlocked` в ответе `POST /receipts` содержит только коды, разблокированные для пользователя ЭТОГО чека. `neighbour` начисляется рефереру (другому пользователю) и в этот список не попадает, хотя запись в `achievements` и XP рефереру создаются немедленно.
 
 ## 13. Симуляция (assumptions)
 

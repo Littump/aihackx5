@@ -4,6 +4,7 @@ import pytest
 from httpx import AsyncClient
 from psycopg import AsyncConnection
 
+from app.game_rules import XP_ACHIEVEMENT, XP_RECEIPT
 from tests.e2e.receipts.data import (
     DOMOVOY_STATE_FIELDS,
     FRAUD_DECISION_FIELDS,
@@ -53,12 +54,14 @@ async def test_process_receipt_computes_totals_and_matches_contract(
     assert body["receipt"]["discount_total"] == TWO_ITEM_DISCOUNT_TOTAL
     assert body["counted"] is True
     assert body["counted_reason"] is None
-    assert body["xp_delta"] == 10
-    assert body["domovoy"]["xp"] == 10
+    # первый счётный чек пользователя разблокирует first_receipt
+    expected_xp = XP_RECEIPT + XP_ACHIEVEMENT
+    assert body["xp_delta"] == expected_xp
+    assert body["domovoy"]["xp"] == expected_xp
     assert body["domovoy"]["level"] == 1
-    assert body["domovoy"]["xp_to_next_level"] == 90
+    assert body["domovoy"]["xp_to_next_level"] == 100 - expected_xp
     assert body["fraud"]["decision"] == "approve"
-    assert body["achievements_unlocked"] == []
+    assert body["achievements_unlocked"] == ["first_receipt"]
 
 
 async def test_second_receipt_same_store_within_dedup_window_is_not_counted(

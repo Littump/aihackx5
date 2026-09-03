@@ -5,7 +5,7 @@ from httpx import AsyncClient
 from psycopg import AsyncConnection
 
 from app.features.referrals import database as referrals_db
-from app.game_rules import REFERRAL_SECOND_PURCHASE_MIN_DAYS
+from app.game_rules import REFERRAL_SECOND_PURCHASE_MIN_DAYS, XP_ACHIEVEMENT
 from tests.e2e.receipts.referral_wiring_data import (
     AT_THRESHOLD,
     BELOW_THRESHOLD,
@@ -125,6 +125,8 @@ async def test_second_purchase_at_min_days_qualifies_and_rewards_referrer(
     assert updated.second_purchase_at == NOW
     assert updated.decided_at == NOW
     assert updated.referrer_reward_points == NEW_REWARD["referrer_reward_points"]
+    # "rewarded" разблокирует рефереру ачивку neighbour отдельной строкой в ledger
     assert await reward_ledger_rows(conn, user_id=referrer.id) == [
-        ("referral", NEW_REWARD["referrer_reward_xp"], NEW_REWARD["referrer_reward_points"])
+        ("referral", NEW_REWARD["referrer_reward_xp"], NEW_REWARD["referrer_reward_points"]),
+        ("achievement", XP_ACHIEVEMENT, 0),
     ]

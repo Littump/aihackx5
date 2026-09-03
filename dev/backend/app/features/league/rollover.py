@@ -43,6 +43,7 @@ async def _rollover_member(
     size: int,
     new_week: date,
 ) -> MemberRolloverOutcome:
+    from app.features.achievements import service as achievements_service
     from app.features.domovoy import service as domovoy_service
 
     zone = scoring.zone_for_rank(rank=row.rank, size=size, division=league.division)
@@ -66,6 +67,7 @@ async def _rollover_member(
             ref_id=league.id,
             points_delta=0,
         )
+        await achievements_service.unlock(conn, row.user_id, "league_top3")
     new_division = scoring.next_division(division=league.division, zone=zone)
     target = await membership.find_or_create_open_league(
         conn, store_id=league.store_id, division=new_division, week_start=new_week

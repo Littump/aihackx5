@@ -5,6 +5,7 @@ from app.features.antifraud.models import FraudDecision, FraudSignal
 from app.features.challenges.models import ChallengeProgressDelta
 from app.features.league.models import LeagueRankChange
 from app.features.receipts.models import CountedDecision, DomovoyStateStub, ReceiptDetail
+from app.game_rules import XP_ACHIEVEMENT
 
 PURCHASED_AT = datetime(2026, 9, 2, 12, 0, tzinfo=UTC)
 
@@ -78,4 +79,10 @@ XP_DELTA_CASES: list[tuple[str, list[ChallengeProgressDelta], int, int]] = [
         85,
     ),
     ("domovoy_delta_zero_and_no_challenges", [], 0, 0),
+]
+
+XP_DELTA_ACHIEVEMENTS_CASES: list[tuple[str, list[str], int]] = [
+    ("no_achievements", [], 0),
+    ("one_achievement_adds_xp", ["first_receipt"], XP_ACHIEVEMENT),
+    ("two_achievements_sum_xp", ["first_receipt", "streak_4"], XP_ACHIEVEMENT * 2),
 ]

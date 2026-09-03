@@ -127,7 +127,8 @@ async def test_process_receipt_numeric_field_types_match_contract(
     assert body["domovoy"]["items"] == []
     assert body["fraud"]["signals"] == []
     assert body["challenges"] == []
-    assert body["achievements_unlocked"] == []
+    # первый счётный чек пользователя разблокирует first_receipt
+    assert body["achievements_unlocked"] == ["first_receipt"]
     assert isinstance(body["league_rank_before"], int)
     assert isinstance(body["league_rank_after"], int)
     assert body["referral_status"] is None

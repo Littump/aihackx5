@@ -12,7 +12,7 @@ from app.features.challenges import service as challenges_service
 from app.features.domovoy import database as domovoy_db
 from app.features.domovoy import service as domovoy_service
 from app.features.user_features import database as user_features_db
-from app.game_rules import XP_CHALLENGE, XP_RECEIPT
+from app.game_rules import XP_ACHIEVEMENT, XP_CHALLENGE, XP_RECEIPT
 from tests.e2e.receipts.data import RECEIPT_FIELDS, RECEIPT_PROCESSING_RESULT_FIELDS
 from tests.factories import make_challenge, make_store, make_user
 
@@ -67,8 +67,11 @@ async def test_process_receipt_happy_path_moves_hero_challenge_and_domovoy(
     assert set(body.keys()) == RECEIPT_PROCESSING_RESULT_FIELDS
     assert set(body["receipt"].keys()) == RECEIPT_FIELDS
     assert body["counted"] is True
-    assert body["xp_delta"] == XP_RECEIPT
-    assert body["domovoy"]["xp"] == XP_RECEIPT
+    # первый счётный чек пользователя разблокирует first_receipt
+    expected_xp = XP_RECEIPT + XP_ACHIEVEMENT
+    assert body["xp_delta"] == expected_xp
+    assert body["domovoy"]["xp"] == expected_xp
+    assert body["achievements_unlocked"] == ["first_receipt"]
     assert body["savings_delta"] == EXPECTED_SAVINGS_DELTA
     assert len(body["challenges"]) == 1
     challenge_delta = body["challenges"][0]
@@ -90,7 +93,7 @@ async def test_process_receipt_happy_path_moves_hero_challenge_and_domovoy(
 
     state = await domovoy_db.get_domovoy_state(conn, user_id=user.id)
     assert state is not None
-    assert state.xp == XP_RECEIPT
+    assert state.xp == expected_xp
 
     challenge = await challenges_db.get_challenge_by_id(conn, challenge_id=hero.id)
     assert challenge is not None
@@ -121,9 +124,13 @@ async def test_process_receipt_completing_hero_challenge_combines_xp_and_streak(
 
     assert response.status_code == 201
     body = response.json()
-    assert body["xp_delta"] == XP_RECEIPT + XP_CHALLENGE
-    assert body["domovoy"]["xp"] == XP_RECEIPT + XP_CHALLENGE
+    # чек первый и завершает челлендж: first_challenge + first_receipt
+    expected_achievements_xp = 2 * XP_ACHIEVEMENT
+    expected_xp = XP_RECEIPT + XP_CHALLENGE + expected_achievements_xp
+    assert body["xp_delta"] == expected_xp
+    assert body["domovoy"]["xp"] == expected_xp
     assert body["domovoy"]["streak_weeks"] == 1
+    assert body["achievements_unlocked"] == ["first_challenge", "first_receipt"]
     assert len(body["challenges"]) == 1
     challenge_delta = body["challenges"][0]
     assert challenge_delta["challenge_id"] == hero.id
@@ -138,7 +145,7 @@ async def test_process_receipt_completing_hero_challenge_combines_xp_and_streak(
 
     state = await domovoy_db.get_domovoy_state(conn, user_id=user.id)
     assert state is not None
-    assert state.xp == XP_RECEIPT + XP_CHALLENGE
+    assert state.xp == expected_xp
     assert state.streak_weeks == 1
 
     ledger_cursor = await conn.execute(
@@ -147,7 +154,12 @@ async def test_process_receipt_completing_hero_challenge_combines_xp_and_streak(
         (user.id,),
     )
     ledger_rows = await ledger_cursor.fetchall()
-    assert ledger_rows == [("receipt_xp", XP_RECEIPT, 0), ("challenge", XP_CHALLENGE, 30)]
+    assert ledger_rows == [
+        ("receipt_xp", XP_RECEIPT, 0),
+        ("challenge", XP_CHALLENGE, 30),
+        ("achievement", XP_ACHIEVEMENT, 0),
+        ("achievement", XP_ACHIEVEMENT, 0),
+    ]
 
 
 async def test_failure_in_domovoy_step_leaves_nothing_written(

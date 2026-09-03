@@ -54,6 +54,26 @@ async def run_referral_step(
     return delta.status if delta is not None else None
 
 
+async def run_achievements_step(
+    conn: AsyncConnection,
+    user_id: int,
+    *,
+    receipt: ReceiptDetail,
+    challenge_deltas: list[ChallengeProgressDelta],
+    referral_status: str | None,
+) -> list[str]:
+    # отложенный импорт разрывает цикл: achievements.service тянет соседей
+    from app.features.achievements import service as achievements_service
+
+    return await achievements_service.on_receipt(
+        conn,
+        user_id,
+        receipt=receipt,
+        challenge_deltas=challenge_deltas,
+        referral_status=referral_status,
+    )
+
+
 async def final_domovoy_state(conn: AsyncConnection, user_id: int) -> DomovoyStateStub:
     # отложенный импорт разрывает цикл: domovoy.service импортирует нас
     from app.features.domovoy import service as domovoy_service

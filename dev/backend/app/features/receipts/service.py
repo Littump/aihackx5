@@ -84,6 +84,13 @@ async def _apply_rewards(
     challenge_deltas = await pipeline.run_challenges_step(conn, user_id, receipt_detail)
     league_rank_change = await pipeline.run_league_step(conn, user_id, receipt_detail)
     referral_status = await pipeline.run_referral_step(conn, user_id, receipt_detail)
+    achievements_unlocked = await pipeline.run_achievements_step(
+        conn,
+        user_id,
+        receipt=receipt_detail,
+        challenge_deltas=challenge_deltas,
+        referral_status=referral_status,
+    )
     domovoy_state = await pipeline.final_domovoy_state(conn, user_id)
     return outcome.build_outcome(
         receipt_detail,
@@ -94,6 +101,7 @@ async def _apply_rewards(
         league_rank_change,
         referral_status,
         fraud_decision,
+        achievements_unlocked,
     )
 
 

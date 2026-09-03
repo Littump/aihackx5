@@ -4,6 +4,7 @@ from decimal import Decimal
 import pytest
 from psycopg import AsyncConnection
 
+from app.features.achievements import service as achievements_service
 from app.features.antifraud import service as antifraud_service
 from app.features.antifraud.models import FraudDecision
 from app.features.challenges import service as challenges_service
@@ -187,6 +188,18 @@ async def _fake_referrals_on_receipt(
     return None
 
 
+async def _fake_achievements_on_receipt(
+    _: AsyncConnection,
+    user_id: int,
+    *,
+    receipt: ReceiptDetail,
+    challenge_deltas: list[ChallengeProgressDelta],
+    referral_status: str | None,
+) -> list[str]:
+    assert user_id == 1
+    return []
+
+
 def _patch_process_receipt(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(users_service, "get_user", _fake_get_user)
     monkeypatch.setattr(users_service, "get_store", _fake_get_store)
@@ -203,6 +216,7 @@ def _patch_process_receipt(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(challenges_service, "on_receipt", _fake_challenges_on_receipt)
     monkeypatch.setattr(league_service, "on_receipt", _fake_league_on_receipt)
     monkeypatch.setattr(referrals_service, "on_receipt", _fake_referrals_on_receipt)
+    monkeypatch.setattr(achievements_service, "on_receipt", _fake_achievements_on_receipt)
 
 
 async def test_process_receipt_happy_path_combines_domovoy_and_challenges(
