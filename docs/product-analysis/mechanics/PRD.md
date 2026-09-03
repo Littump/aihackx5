@@ -223,6 +223,11 @@ Score должен учитывать прогресс и выполнение �
 
 `type / baseline / target / progress / deadline / reward / rationale`
 
+> **E14 (ML rework, принято).** Базовый MVP — `Frequency` и `Category`. Принятая переработка расширяет
+> библиотеку типов до `basket / streak / replenishment / collection` и добавляет форму награды
+> `reward_kind` (`promo` / `ladder` / `none`) и многошаговый план `steps[]` (cap 2, пользователю виден
+> только `steps[0]`). Дизайн — `docs/ml-rework/ml-solution-architecture.md`, задачи — эпик E14.
+
 ---
 
 ## 7. Как формируется предложение
@@ -230,6 +235,11 @@ Score должен учитывать прогресс и выполнение �
 ### Pipeline
 
 **чеки → user features → candidate challenges / offers → personalization → economics engine → LLM → пользователь**
+
+> **E14 (ML rework, принято).** Целевой pipeline: **чеки → user features → Insight Builder → LLM Challenge
+> Planner (structured output) → детерминированный validator → Economics / Reward Ladder → пользователь**.
+> `candidate` + `personalization` ниже сохраняются как **fallback** (без ключа LLM или при невалидном
+> плане, `plan_source=rules`), а не удаляются. Деньги/XP по-прежнему считает код (decision #7/#14).
 
 ### 7.1. User Features — обычный код
 
@@ -261,6 +271,9 @@ AI/recommender ранжирует допустимые варианты и вы�
 
 - 1 hero option;
 - до 2 side options.
+
+> **E14 (ML rework, принято).** Целевой выбор челленджа делает LLM Challenge Planner (§7.5); rule-based
+> ранжирование остаётся **fallback**-веткой и baseline для eval.
 
 ### 7.4. Economics / Reward Engine — обычный код
 
@@ -313,6 +326,15 @@ LLM отвечает за:
 > Домовой заметил, что вы покупаете молочные продукты примерно раз в 6 дней. Поэтому на этой неделе он выбрал цель именно по этой категории.
 
 LLM **не назначает скидку, reward или финансовые параметры**.
+
+> **E14 (ML rework, принято).** В целевой архитектуре LLM выходит из роли «только текст» и становится
+> **планировщиком челленджа**: выбирает тип, target, ссылки на SKU (`sku_refs`), **форму** награды
+> `reward_kind` (`promo` / `ladder` / `none`) и её **ординальную стадию** `reward_level`
+> (`none` / `low` / `medium` / `high`), а также до `MAX_PLAN_STEPS=2` шагов плана. Граница «LLM не считает
+> деньги» сохраняется: **конкретную сумму в рублях и число XP считает только код** — Economics Engine по
+> марже (§7.4) и Reward Ladder по грейду пользователя. Ответ LLM детерминированно валидируется (SKU/target/
+> тип), при провале — repair и fallback на rule-based. Полный дизайн — `docs/ml-rework/ml-solution-architecture.md`,
+> граница уточнена в decision #7/#14.
 
 ---
 
