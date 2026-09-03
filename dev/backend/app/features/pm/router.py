@@ -6,11 +6,13 @@ from app.core.db import Conn
 from app.features.pm import service
 from app.features.pm.dto import (
     ChallengeDetail,
+    EvalRun,
     FraudCheck,
     FraudCheckListResponse,
     PmUserResponse,
     RecommendedMechanic,
     RewardLedgerEntry,
+    SimulationRun,
     UserFeatures,
     UserSummary,
 )
@@ -48,3 +50,15 @@ async def list_fraud_checks(
 ) -> FraudCheckListResponse:
     rows = await service.list_fraud_checks(conn, limit=limit, decision=decision)
     return FraudCheckListResponse(items=[FraudCheck.model_validate(row) for row in rows])
+
+
+@router.get("/pm/simulation/latest", response_model=SimulationRun)
+async def get_latest_simulation(conn: Conn) -> SimulationRun:
+    row = await service.get_latest_simulation(conn)
+    return SimulationRun.model_validate(row)
+
+
+@router.get("/pm/eval/latest", response_model=EvalRun)
+async def get_latest_eval(conn: Conn) -> EvalRun:
+    row = await service.get_latest_eval(conn)
+    return EvalRun.model_validate(row)

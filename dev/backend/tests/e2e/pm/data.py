@@ -60,6 +60,32 @@ HERO_CHALLENGE_FIELDS = {
     "copy_source",
 }
 
+SIMULATION_RUN_FIELDS = {"id", "created_at", "params", "results"}
+SIMULATION_RESULTS_FIELDS = {
+    "purchases_per_user_control",
+    "purchases_per_user_treatment",
+    "share_above_n_control",
+    "share_above_n_treatment",
+    "frequency_uplift",
+    "incremental_revenue",
+    "incremental_margin",
+    "reward_cost",
+    "net_effect",
+    "referral_conversion",
+    "fraud_precision",
+    "fraud_recall",
+}
+EVAL_RUN_FIELDS = {
+    "id",
+    "created_at",
+    "profiles",
+    "hit_rate",
+    "invalid_rate",
+    "fallback_rate",
+    "economics_pass_rate",
+    "details",
+}
+
 HERO_ECONOMICS = Jsonb(
     {
         "avg_basket": 600.0,

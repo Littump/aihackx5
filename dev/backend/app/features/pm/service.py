@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from psycopg import AsyncConnection
 
+from app.core.errors import AppError
 from app.core.models import AppModel
 from app.features.antifraud import service as antifraud_service
 from app.features.antifraud.models import FraudCheckRow, FraudDecisionKind
@@ -10,11 +11,15 @@ from app.features.challenges.models import ChallengeRow, RewardLedgerEntry
 from app.features.domovoy import service as domovoy_service
 from app.features.pm import database
 from app.features.pm.models import (
+    EvalRunRow,
+    JsonValue,
     Mechanic,
     MechanicDecisionContext,
     MechanicDecisionReasons,
     MechanicDecisionRow,
     RecommendedMechanicCard,
+    SimulationRunResults,
+    SimulationRunRow,
 )
 from app.features.user_features import service as user_features_service
 from app.features.user_features.models import UserFeaturesRow
@@ -86,6 +91,50 @@ async def list_fraud_checks(
     conn: AsyncConnection, *, limit: int, decision: FraudDecisionKind | None
 ) -> list[FraudCheckRow]:
     return await antifraud_service.list_all(conn, limit=limit, decision=decision)
+
+
+async def get_latest_simulation(conn: AsyncConnection) -> SimulationRunRow:
+    row = await database.get_latest_simulation_run(conn)
+    if row is None:
+        raise AppError("simulation_not_found", "симуляция ещё не запускалась", 404)
+    return row
+
+
+async def get_latest_eval(conn: AsyncConnection) -> EvalRunRow:
+    row = await database.get_latest_eval_run(conn)
+    if row is None:
+        raise AppError("eval_not_found", "eval ещё не запускался", 404)
+    return row
+
+
+async def record_simulation_run(
+    conn: AsyncConnection,
+    *,
+    params: dict[str, JsonValue],
+    results: SimulationRunResults,
+) -> SimulationRunRow:
+    return await database.insert_simulation_run(conn, params=params, results=results)
+
+
+async def record_eval_run(
+    conn: AsyncConnection,
+    *,
+    profiles: int,
+    hit_rate: Decimal,
+    invalid_rate: Decimal,
+    fallback_rate: Decimal,
+    economics_pass_rate: Decimal,
+    details: list[dict[str, JsonValue]],
+) -> EvalRunRow:
+    return await database.insert_eval_run(
+        conn,
+        profiles=profiles,
+        hit_rate=hit_rate,
+        invalid_rate=invalid_rate,
+        fallback_rate=fallback_rate,
+        economics_pass_rate=economics_pass_rate,
+        details=details,
+    )
 
 
 def _features_with_defaults(features: UserFeaturesRow) -> UserFeaturesRow:

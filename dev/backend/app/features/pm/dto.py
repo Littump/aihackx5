@@ -3,6 +3,7 @@ from typing import Literal
 
 from app.core.models import AppModel
 from app.features.challenges.dto import ChallengeDetail, RewardLedgerEntry
+from app.features.pm.models import JsonValue, SimulationRunResults
 from app.features.receipts.dto import FraudSignal
 from app.features.users.dto import UserSummary
 
@@ -45,6 +46,24 @@ class FraudCheck(AppModel):
 
 class FraudCheckListResponse(AppModel):
     items: list[FraudCheck]
+
+
+class SimulationRun(AppModel):
+    id: int
+    created_at: datetime
+    params: dict[str, JsonValue]
+    results: SimulationRunResults
+
+
+class EvalRun(AppModel):
+    id: int
+    created_at: datetime
+    profiles: int
+    hit_rate: float
+    invalid_rate: float
+    fallback_rate: float
+    economics_pass_rate: float
+    details: list[dict[str, JsonValue]]
 
 
 class PmUserResponse(AppModel):
