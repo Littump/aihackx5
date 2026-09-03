@@ -188,6 +188,10 @@ async def get_list(conn: AsyncConnection, user_id: int) -> ChallengeListResult:
     return ChallengeListResult(hero=hero, side=side, history=history)
 
 
+async def count_completed(conn: AsyncConnection, user_id: int) -> int:
+    return await database.count_completed_challenges(conn, user_id=user_id)
+
+
 async def get_one(conn: AsyncConnection, user_id: int, challenge_id: int) -> ChallengeRow:
     await users_service.get_user(conn, user_id)
     row = await database.get_challenge_by_id(conn, challenge_id=challenge_id)

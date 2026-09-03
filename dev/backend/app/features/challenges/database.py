@@ -61,6 +61,9 @@ CHALLENGE_UPDATE_PROGRESS = (
     "completed_at = %(completed_at)s WHERE id = %(challenge_id)s "
     f"RETURNING {CHALLENGE_SELECT_COLUMNS}"
 )
+CHALLENGE_COUNT_COMPLETED = (
+    "SELECT count(*) FROM challenges WHERE user_id = %(user_id)s AND status = 'completed'"
+)
 
 
 async def insert_challenge(
@@ -171,6 +174,14 @@ async def list_challenges_for_period(
         params = {"user_id": user_id, "purchased_at": purchased_at, "statuses": statuses}
         await cur.execute(CHALLENGE_LIST_FOR_PERIOD_BY_STATUSES, params)
         return await cur.fetchall()
+
+
+async def count_completed_challenges(conn: AsyncConnection, *, user_id: int) -> int:
+    async with conn.cursor() as cur:
+        await cur.execute(CHALLENGE_COUNT_COMPLETED, {"user_id": user_id})
+        row = await cur.fetchone()
+        assert row is not None
+        return int(row[0])
 
 
 async def update_progress(
