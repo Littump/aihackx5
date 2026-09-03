@@ -143,9 +143,11 @@ async def make_challenge(conn: AsyncConnection, user_id: int, **overrides: objec
         "economics": Jsonb(
             {
                 "avg_basket": 0.0,
+                "expected_incremental_purchases": 0.0,
                 "expected_incremental_margin": 0.0,
-                "max_reward": 0.0,
+                "max_reward_rub": 0.0,
                 "contribution_margin": 0.0,
+                "reward_share_max": 0.0,
             }
         ),
         "rationale_features": Jsonb({}),
