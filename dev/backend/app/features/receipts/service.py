@@ -17,6 +17,7 @@ from app.features.receipts.models import (
     ReceiptProcessingOutcome,
     ReceiptRow,
     ReceiptTotals,
+    ReceiptWithItems,
 )
 from app.features.receipts.totals import compute_totals
 from app.features.users import service as users_service
@@ -58,6 +59,7 @@ async def ingest_receipt(
         counted=decision.counted,
     )
     item_rows = await _insert_items(conn, receipt_id=receipt_row.id, items=drafts)
+    await _recompute_user_features(conn, user_id)
     receipt_detail = _to_receipt_detail(receipt_row, store_name=store.name, items=item_rows)
     return _build_stub_outcome(receipt_detail, decision)
 
@@ -84,6 +86,40 @@ async def list_receipts(conn: AsyncConnection, *, user_id: int, limit: int) -> l
         )
         for row in rows
     ]
+
+
+async def list_counted_receipts_with_items(
+    conn: AsyncConnection, *, user_id: int, since: datetime
+) -> list[ReceiptWithItems]:
+    rows = await database.list_counted_receipts_since(conn, user_id=user_id, since=since)
+    if not rows:
+        return []
+    item_rows = await database.list_receipt_items_for_receipts(
+        conn, receipt_ids=[row.id for row in rows]
+    )
+    items_by_receipt: dict[int, list[ReceiptItemRow]] = {}
+    for item in item_rows:
+        items_by_receipt.setdefault(item.receipt_id, []).append(item)
+    return [
+        ReceiptWithItems(
+            id=row.id,
+            store_id=row.store_id,
+            purchased_at=row.purchased_at,
+            regular_total=row.regular_total,
+            paid_total=row.paid_total,
+            points_earned=row.points_earned,
+            points_spent=row.points_spent,
+            items=items_by_receipt.get(row.id, []),
+        )
+        for row in rows
+    ]
+
+
+async def _recompute_user_features(conn: AsyncConnection, user_id: int) -> None:
+    # отложенный импорт разрывает цикл: user_features.service импортирует нас
+    from app.features.user_features import service as user_features_service
+
+    await user_features_service.recompute(conn, user_id)
 
 
 def _draft_items(items: Sequence[ReceiptItemInputLike]) -> list[ReceiptItemDraft]:

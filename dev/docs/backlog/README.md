@@ -19,7 +19,7 @@
 | AI-003 | E1 | `make synth` и seed 300 пользователей для dev | T | AI-001 | todo | |
 | BE-005 | E2 | `users`: список демо-пользователей, `GET /users`, псевдонимы | R | BE-004 | done | 2026-09-03 |
 | BE-006 | E2 | `receipts`: приём чека, дедуп 30 мин, дневной лимит, `POST /receipts`, `GET /users/{id}/receipts` | R | BE-005 | done | 2026-09-03 |
-| BE-007 | E2 | `user_features`: расчёт всех features по §3 domain-rules, пересчёт после чека | R | BE-006 | todo | |
+| BE-007 | E2 | `user_features`: расчёт всех features по §3 domain-rules, пересчёт после чека | R | BE-006 | done | 2026-09-03 |
 | BE-008 | E3 | `savings`: расчёт по §2, `GET /users/{id}/savings` | R | BE-006 | todo | |
 | BE-009 | E4 | `domovoy`: XP, уровень, настроение, streak, `progression.py`, on_receipt | R | BE-007 | todo | |
 | BE-010 | E5 | `challenges/candidate.py` + `economics.py`: кандидаты, target, max reward по §4–6 | R | BE-007, BE-003 | todo | |

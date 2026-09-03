@@ -80,7 +80,7 @@ PostgreSQL 16. Все таблицы создаются SQL-миграциями
 | computed_at | TIMESTAMPTZ NOT NULL DEFAULT now() | |
 | window_weeks | INTEGER NOT NULL | по скольким неделям считали (8–12) |
 | frequency_per_week | NUMERIC(6,3) NOT NULL DEFAULT 0 | counted-чеки / недели |
-| recency_days | INTEGER NULL | дней с последнего чека; NULL — нет чеков |
+| recency_days | INTEGER NULL | дней с последнего чека; 999 — нет чеков (сентинел) |
 | avg_basket | NUMERIC(12,2) NOT NULL DEFAULT 0 | |
 | promo_sensitivity | NUMERIC(4,3) NOT NULL DEFAULT 0 | доля promo-позиций по сумме |
 | cadence_days | NUMERIC(6,2) NULL | средний интервал между чеками; NULL — нет чеков |

@@ -95,6 +95,10 @@ async def _fake_insert_item(_: AsyncConnection, params: dict[str, object]) -> Re
     return _item_row()
 
 
+async def _fake_recompute_user_features(_: AsyncConnection, user_id: int) -> None:
+    assert user_id == 1
+
+
 def _patch_ingest(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(users_service, "get_user", _fake_get_user)
     monkeypatch.setattr(users_service, "get_store", _fake_get_store)
@@ -104,6 +108,7 @@ def _patch_ingest(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(receipts_db, "count_counted_receipts_in_range", _fake_no_daily_limit)
     monkeypatch.setattr(receipts_db, "insert_receipt", _fake_insert_receipt)
     monkeypatch.setattr(receipts_db, "insert_receipt_item", _fake_insert_item)
+    monkeypatch.setattr(service, "_recompute_user_features", _fake_recompute_user_features)
 
 
 async def test_ingest_receipt_happy_path_builds_stub_result(

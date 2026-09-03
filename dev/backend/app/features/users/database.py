@@ -11,6 +11,9 @@ USER_GET_BY_ID = (
 )
 PSEUDONYM_EXISTS = "SELECT EXISTS(SELECT 1 FROM users WHERE pseudonym = %(pseudonym)s)"
 STORE_GET_BY_ID = "SELECT id, name, chain, district, city FROM stores WHERE id = %(store_id)s"
+STORE_LIST_BY_IDS = (
+    "SELECT id, name, chain, district, city FROM stores WHERE id = ANY(%(store_ids)s)"
+)
 STORE_INSERT = (
     "INSERT INTO stores (name, chain, district, city) "
     "VALUES (%(name)s, %(chain)s, %(district)s, %(city)s) "
@@ -65,3 +68,9 @@ async def get_store_by_id(conn: AsyncConnection, *, store_id: int) -> StoreRow |
     async with conn.cursor(row_factory=class_row(StoreRow)) as cur:
         await cur.execute(STORE_GET_BY_ID, {"store_id": store_id})
         return await cur.fetchone()
+
+
+async def list_stores_by_ids(conn: AsyncConnection, *, store_ids: list[int]) -> list[StoreRow]:
+    async with conn.cursor(row_factory=class_row(StoreRow)) as cur:
+        await cur.execute(STORE_LIST_BY_IDS, {"store_ids": store_ids})
+        return await cur.fetchall()

@@ -39,6 +39,10 @@ LLM не участвует. Это чистый SQL-агрегат.
 | `category_affinity[c].cadence_days` | средний интервал между чеками с категорией |
 | `favourite_store_id` | магазин с максимумом чеков, при равенстве — последний |
 | `cross_chain_share` | доля чеков в сети, отличной от сети любимого магазина |
+| `realized_savings_30d` | savings за последние `REALIZED_SAVINGS_WINDOW_DAYS = 30` дней (не окно features): `(regular_total − paid_total) + points_earned − points_spent`, 0 если чеков нет |
+| `weekday_pattern` | доля counted-чеков по дню недели покупки (0 — понедельник) за окно, `[0]×7` если чеков нет |
+
+Нет истории (0 чеков в окне): `frequency_per_week=0`, `recency_days = USER_FEATURES_RECENCY_NO_HISTORY_DAYS = 999` (сентинел, не null), `avg_basket=0`, `promo_sensitivity=0`, `cadence_days=null`, `category_affinity={}`, `favourite_store_id=null`, `cross_chain_share=0`.
 
 Baseline для frequency-челленджа = `round(frequency_per_week, 1)`, минимум 1.
 
