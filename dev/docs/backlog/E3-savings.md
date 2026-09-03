@@ -1,7 +1,7 @@
 # E3 — Savings
 
 ## BE-008 savings
-**Файлы:** `app/features/savings/{router,dto,service,database}.py`, тесты.
+**Файлы:** `app/features/savings/{router,dto,service,calc}.py`, тесты (без `database.py` — у savings нет своих таблиц, данные читаются через `receipts.service`).
 **Описание:** `service.summary(conn, user_id, period) -> SavingsSummary` по §2: сумма, предыдущий период, дельта, разбивка на discount / points_earned / points_spent, топ-3 категории. Только counted и не возвращённые. `GET /users/{id}/savings?period=week|month`.
 **AC:**
 - чек 1000 регулярных, 850 оплачено, 10 баллов начислено, 50 списано → savings 210;

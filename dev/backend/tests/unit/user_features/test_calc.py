@@ -12,12 +12,14 @@ from tests.unit.user_features.data import (
     EXPECTED_FREQUENCY_PER_WEEK,
     EXPECTED_MULTI_CATEGORY_PROMO_SENSITIVITY,
     EXPECTED_MULTI_CATEGORY_SHARE,
+    EXPECTED_POINTS_SPENT_SAVINGS,
     EXPECTED_PROMO_SENSITIVITY,
     EXPECTED_REALIZED_SAVINGS_30D,
     EXPECTED_RECENCY_DAYS,
     EXPECTED_WEEKDAY_PATTERN,
     MULTI_CATEGORY_RECEIPT,
     NOW,
+    POINTS_SPENT_RECEIPT,
     SAME_CATEGORY_RECEIPT,
     SIX_RECEIPTS,
     STORE_CHAINS,
@@ -74,6 +76,11 @@ def test_cross_chain_share_matches_hand_calc() -> None:
 
 def test_realized_savings_30d_matches_hand_calc() -> None:
     assert calc.compute_realized_savings_30d(SIX_RECEIPTS) == EXPECTED_REALIZED_SAVINGS_30D
+
+
+def test_realized_savings_30d_adds_points_spent_per_domain_rules() -> None:
+    result = calc.compute_realized_savings_30d(POINTS_SPENT_RECEIPT)
+    assert result == EXPECTED_POINTS_SPENT_SAVINGS
 
 
 def test_weekday_pattern_matches_hand_calc() -> None:
