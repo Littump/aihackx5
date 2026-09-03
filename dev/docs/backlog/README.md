@@ -42,7 +42,7 @@
 | FE-005 | E9 | Referral: код/QR, правила, приглашённые со статусами, лимиты | R | FE-001, BE-019 | done | 2026-09-03 |
 | BE-022 | E10 | `pm`: `GET /pm/users/{id}`, `GET /pm/fraud`, `mechanic_decisions` | R | BE-019, BE-021 | done | 2026-09-03 |
 | BE-023 | E10 | `GET /pm/simulation/latest`, `GET /pm/eval/latest` | R | BE-002 | done | 2026-09-03 |
-| FE-006 | E10 | PM view: features, механика + причины, челлендж + экономика, фрод, ledger, симуляция, eval | R | FE-001, BE-022, BE-023 | todo | |
+| FE-006 | E10 | PM view: features, механика + причины, челлендж + экономика, фрод, ledger, симуляция, eval | R | FE-001, BE-022, BE-023 | done | 2026-09-03 |
 | AI-005 | E11 | `app/eval`: relevance по §14 на 30–50 профилях, запись в eval_runs | T | BE-011, AI-003 | todo | |
 | AI-006 | E11 | `app/simulation`: control vs treatment по §13, запись в simulation_runs | T | AI-003, BE-013 | todo | |
 | AI-007 | E11 | Промпт-тюнинг и проверка, что LLM-тексты содержат числа из features (fallback rate < 20 %) | T | AI-004, AI-005 | todo | |

@@ -81,7 +81,11 @@ export const handlers = [
     HttpResponse.json(getPmUser(userIdParam(params))),
   ),
 
-  http.get(`${API}/pm/fraud`, () => HttpResponse.json({ items: getFraudChecks() })),
+  http.get(`${API}/pm/fraud`, ({ request }) => {
+    const decision = new URL(request.url).searchParams.get("decision");
+    const items = getFraudChecks().filter((check) => !decision || check.decision === decision);
+    return HttpResponse.json({ items });
+  }),
 
   http.get(`${API}/pm/simulation/latest`, () => HttpResponse.json(getSimulationRun())),
 
