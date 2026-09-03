@@ -49,7 +49,7 @@
 | DOC-001 | E12 | Демо-сценарий по §17 PRD с конкретными user_id и ожидаемыми цифрами | A | FE-006 | todo | |
 | INF-005 | E12 | `make demo`: поднять всё, засеять, прогнать eval и simulation одной командой | R | AI-005, AI-006 | todo | |
 | INF-006 | E13 | Dockerfile backend/frontend, nginx.conf, docker-compose.prod.yml, .env.prod.example | R | INF-001, INF-002 | done | 2026-09-03 |
-| INF-009 | E13 | Миграции как одноразовый сервис перед backend, rollback.sh, правило откатов | R | INF-006 | todo | |
+| INF-009 | E13 | Миграции как одноразовый сервис перед backend, rollback.sh, правило откатов | R | INF-006 | done | 2026-09-03 |
 | INF-007 | E13 | setup-vm.sh: docker, ufw, пользователь деплоя, pg_dump по cron | R | INF-006 | blocked: нужна VM | |
 | INF-008 | E13 | CD workflow: сборка образов в ghcr, деплой на VM по SSH после зелёного CI | R | INF-007, INF-009 | blocked: нужны secrets | |
 | INF-011 | E13 | Демо-данные на VM: синтетика, DEMO_NOW, eval и simulation | R | INF-008, AI-003 | blocked: нужна VM | |
