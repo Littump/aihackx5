@@ -26,8 +26,11 @@ LEAGUE_GET_BY_ID = f"SELECT {LEAGUE_COLUMNS} FROM leagues WHERE id = %(league_id
 LEAGUE_CLOSE = "UPDATE leagues SET status = 'closed' WHERE id = %(league_id)s"
 LEAGUE_MEMBER_INSERT = (
     "INSERT INTO league_members (league_id, user_id, score) "
-    "VALUES (%(league_id)s, %(user_id)s, 0) "
+    "VALUES (%(league_id)s, %(user_id)s, %(score)s) "
     "RETURNING league_id, user_id, score, joined_at"
+)
+LEAGUE_MEMBER_DELETE = (
+    "DELETE FROM league_members WHERE league_id = %(league_id)s AND user_id = %(user_id)s"
 )
 LEAGUE_MEMBER_COUNT = "SELECT count(*) FROM league_members WHERE league_id = %(league_id)s"
 LEAGUE_MEMBER_UPDATE_SCORE = (
@@ -36,7 +39,8 @@ LEAGUE_MEMBER_UPDATE_SCORE = (
     "RETURNING league_id, user_id, score, joined_at"
 )
 LEAGUE_MEMBERSHIP_FOR_WEEK = (
-    "SELECT l.id AS league_id, l.division AS division, l.store_id AS store_id "
+    "SELECT l.id AS league_id, l.division AS division, l.store_id AS store_id, "
+    "lm.score AS score "
     "FROM league_members lm JOIN leagues l ON l.id = lm.league_id "
     "WHERE lm.user_id = %(user_id)s AND l.week_start = %(week_start)s"
 )
@@ -60,6 +64,9 @@ MEMBER_USER_IDS_FOR_STORE_WEEK = (
 )
 STORE_IDS_WITH_LEAGUES = (
     "SELECT DISTINCT store_id AS store_id FROM leagues WHERE week_start = %(week_start)s"
+)
+OPEN_LEAGUES_BEFORE_WEEK = (
+    f"SELECT {LEAGUE_COLUMNS} FROM leagues WHERE status = 'open' AND week_start < %(week_start)s"
 )
 
 
@@ -104,13 +111,20 @@ async def close_league(conn: AsyncConnection, *, league_id: int) -> None:
         await cur.execute(LEAGUE_CLOSE, {"league_id": league_id})
 
 
-async def insert_member(conn: AsyncConnection, *, league_id: int, user_id: int) -> LeagueMemberRow:
-    params = {"league_id": league_id, "user_id": user_id}
+async def insert_member(
+    conn: AsyncConnection, *, league_id: int, user_id: int, score: int = 0
+) -> LeagueMemberRow:
+    params = {"league_id": league_id, "user_id": user_id, "score": score}
     async with conn.cursor(row_factory=class_row(LeagueMemberRow)) as cur:
         await cur.execute(LEAGUE_MEMBER_INSERT, params)
         row = await cur.fetchone()
         assert row is not None
         return row
+
+
+async def delete_member(conn: AsyncConnection, *, league_id: int, user_id: int) -> None:
+    async with conn.cursor() as cur:
+        await cur.execute(LEAGUE_MEMBER_DELETE, {"league_id": league_id, "user_id": user_id})
 
 
 async def count_members(conn: AsyncConnection, *, league_id: int) -> int:
@@ -178,4 +192,10 @@ async def list_store_ids_with_leagues(
 ) -> list[LeagueStoreWeekRow]:
     async with conn.cursor(row_factory=class_row(LeagueStoreWeekRow)) as cur:
         await cur.execute(STORE_IDS_WITH_LEAGUES, {"week_start": week_start})
+        return await cur.fetchall()
+
+
+async def list_open_leagues_before(conn: AsyncConnection, *, week_start: date) -> list[LeagueRow]:
+    async with conn.cursor(row_factory=class_row(LeagueRow)) as cur:
+        await cur.execute(OPEN_LEAGUES_BEFORE_WEEK, {"week_start": week_start})
         return await cur.fetchall()

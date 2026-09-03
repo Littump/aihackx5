@@ -5,15 +5,16 @@ from zoneinfo import ZoneInfo
 from psycopg import AsyncConnection
 
 from app.core.clock import now, week_end, week_start
-from app.features.league import database, scoring
+from app.features.league import database, rollover, scoring
+from app.features.league import membership as league_membership
 from app.features.league.models import (
     LeagueHouseView,
     LeagueMembership,
     LeagueMemberView,
     LeagueRankChange,
     LeagueRankedMemberRow,
-    LeagueRow,
     LeagueView,
+    RolloverSummary,
     WeekTotals,
 )
 from app.features.receipts import service as receipts_service
@@ -21,7 +22,7 @@ from app.features.receipts.models import ReceiptDetail, ReceiptWithItems
 from app.features.savings import calc as savings_calc
 from app.features.user_features import service as user_features_service
 from app.features.users import service as users_service
-from app.game_rules import DIVISION_NAMES, LEAGUE_SIZE, TIMEZONE, level_for_xp
+from app.game_rules import DIVISION_NAMES, TIMEZONE, level_for_xp
 
 TZ = ZoneInfo(TIMEZONE)
 
@@ -34,11 +35,13 @@ async def ensure_member(conn: AsyncConnection, user_id: int) -> LeagueMembership
         return existing
     division = await _resolve_division(conn, user_id)
     store_id = await _resolve_store_id(conn, user_id)
-    league = await _find_or_create_open_league(
+    league = await league_membership.find_or_create_open_league(
         conn, store_id=store_id, division=division, week_start=week
     )
     await database.insert_member(conn, league_id=league.id, user_id=user_id)
-    return LeagueMembership(league_id=league.id, division=league.division, store_id=league.store_id)
+    return LeagueMembership(
+        league_id=league.id, division=league.division, store_id=league.store_id, score=0
+    )
 
 
 async def on_receipt(
@@ -85,6 +88,10 @@ async def get_league_view(conn: AsyncConnection, user_id: int) -> LeagueView:
     )
 
 
+async def rollover_week(conn: AsyncConnection) -> RolloverSummary:
+    return await rollover.rollover_week(conn)
+
+
 async def _resolve_division(conn: AsyncConnection, user_id: int) -> int:
     division = await database.get_latest_division(conn, user_id=user_id)
     return division if division is not None else 1
@@ -96,22 +103,6 @@ async def _resolve_store_id(conn: AsyncConnection, user_id: int) -> int:
         return features.favourite_store_id
     default_store = await users_service.get_default_store(conn)
     return default_store.id
-
-
-async def _find_or_create_open_league(
-    conn: AsyncConnection, *, store_id: int, division: int, week_start: date
-) -> LeagueRow:
-    open_league = await database.get_open_league(
-        conn, store_id=store_id, division=division, week_start=week_start
-    )
-    if open_league is not None:
-        size = await database.count_members(conn, league_id=open_league.id)
-        if size < LEAGUE_SIZE:
-            return open_league
-        await database.close_league(conn, league_id=open_league.id)
-    return await database.insert_league(
-        conn, store_id=store_id, division=division, week_start=week_start, status="open"
-    )
 
 
 async def _compute_score(conn: AsyncConnection, user_id: int) -> int:
