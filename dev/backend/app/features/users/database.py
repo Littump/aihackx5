@@ -1,8 +1,15 @@
 from psycopg import AsyncConnection
 from psycopg.rows import class_row
 
-from app.features.users.models import StoreRow, UserRow
+from app.features.users.models import StoreRow, UserBasicRow, UserRow
 
+USER_LIST_SELECT = "SELECT id, pseudonym, segment FROM users ORDER BY id ASC LIMIT %(limit)s"
+USER_GET_BY_ID = (
+    "SELECT id, pseudonym, segment, favourite_store_id, referral_code, "
+    "referred_by_user_id, device_fingerprint, social_propensity, created_at "
+    "FROM users WHERE id = %(user_id)s"
+)
+PSEUDONYM_EXISTS = "SELECT EXISTS(SELECT 1 FROM users WHERE pseudonym = %(pseudonym)s)"
 STORE_INSERT = (
     "INSERT INTO stores (name, chain, district, city) "
     "VALUES (%(name)s, %(chain)s, %(district)s, %(city)s) "
@@ -32,3 +39,22 @@ async def insert_user(conn: AsyncConnection, params: dict[str, object]) -> UserR
         row = await cur.fetchone()
         assert row is not None
         return row
+
+
+async def list_users(conn: AsyncConnection, *, limit: int) -> list[UserBasicRow]:
+    async with conn.cursor(row_factory=class_row(UserBasicRow)) as cur:
+        await cur.execute(USER_LIST_SELECT, {"limit": limit})
+        return await cur.fetchall()
+
+
+async def get_user_by_id(conn: AsyncConnection, *, user_id: int) -> UserRow | None:
+    async with conn.cursor(row_factory=class_row(UserRow)) as cur:
+        await cur.execute(USER_GET_BY_ID, {"user_id": user_id})
+        return await cur.fetchone()
+
+
+async def pseudonym_exists(conn: AsyncConnection, *, pseudonym: str) -> bool:
+    async with conn.cursor() as cur:
+        await cur.execute(PSEUDONYM_EXISTS, {"pseudonym": pseudonym})
+        row = await cur.fetchone()
+        return bool(row is not None and row[0])

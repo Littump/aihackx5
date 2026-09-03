@@ -15,3 +15,8 @@ class DomovoyStateRow(AppModel):
     items: list[str]
     last_fed_at: datetime | None
     updated_at: datetime
+
+
+class DomovoyLevelRow(AppModel):
+    user_id: int
+    level: int
