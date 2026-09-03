@@ -40,6 +40,12 @@ async def get_store(conn: AsyncConnection, store_id: int) -> StoreRow:
     return store
 
 
+async def get_stores_by_ids(conn: AsyncConnection, *, store_ids: list[int]) -> list[StoreRow]:
+    if not store_ids:
+        return []
+    return await database.list_stores_by_ids(conn, store_ids=store_ids)
+
+
 async def generate_pseudonym(conn: AsyncConnection) -> str:
     async def is_taken(candidate: str) -> bool:
         return await database.pseudonym_exists(conn, pseudonym=candidate)

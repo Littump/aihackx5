@@ -34,6 +34,17 @@ class ReceiptItemRow(AppModel):
     is_promo: bool
 
 
+class ReceiptWithItems(AppModel):
+    id: int
+    store_id: int
+    purchased_at: datetime
+    regular_total: Decimal
+    paid_total: Decimal
+    points_earned: int
+    points_spent: int
+    items: list[ReceiptItemRow]
+
+
 class ReceiptItemDraft(AppModel):
     product_name: str
     category: str

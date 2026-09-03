@@ -15,6 +15,12 @@ RECEIPT_ITEMS_FOR_RECEIPTS_SELECT = (
     "SELECT id, receipt_id, product_name, category, qty, regular_price, paid_price, is_promo "
     "FROM receipt_items WHERE receipt_id = ANY(%(receipt_ids)s) ORDER BY receipt_id, id"
 )
+RECEIPT_LIST_COUNTED_SINCE_SELECT = (
+    "SELECT id, user_id, store_id, purchased_at, regular_total, paid_total, discount_total, "
+    "points_earned, points_spent, counted, is_returned, returned_at, source, pos_id, created_at "
+    "FROM receipts WHERE user_id = %(user_id)s AND counted = true AND is_returned = false "
+    "AND purchased_at >= %(since)s ORDER BY purchased_at ASC, id ASC"
+)
 DEDUP_WINDOW_EXISTS = (
     "SELECT EXISTS (SELECT 1 FROM receipts WHERE user_id = %(user_id)s "
     "AND store_id = %(store_id)s AND counted = true AND purchased_at > "
@@ -73,6 +79,14 @@ async def list_receipt_items_for_receipts(
 ) -> list[ReceiptItemRow]:
     async with conn.cursor(row_factory=class_row(ReceiptItemRow)) as cur:
         await cur.execute(RECEIPT_ITEMS_FOR_RECEIPTS_SELECT, {"receipt_ids": receipt_ids})
+        return await cur.fetchall()
+
+
+async def list_counted_receipts_since(
+    conn: AsyncConnection, *, user_id: int, since: datetime
+) -> list[ReceiptRow]:
+    async with conn.cursor(row_factory=class_row(ReceiptRow)) as cur:
+        await cur.execute(RECEIPT_LIST_COUNTED_SINCE_SELECT, {"user_id": user_id, "since": since})
         return await cur.fetchall()
 
 
