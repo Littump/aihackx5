@@ -89,9 +89,11 @@ async def list_receipts(conn: AsyncConnection, *, user_id: int, limit: int) -> l
 
 
 async def list_counted_receipts_with_items(
-    conn: AsyncConnection, *, user_id: int, since: datetime
+    conn: AsyncConnection, *, user_id: int, since: datetime, until: datetime | None = None
 ) -> list[ReceiptWithItems]:
-    rows = await database.list_counted_receipts_since(conn, user_id=user_id, since=since)
+    rows = await database.list_counted_receipts_since(
+        conn, user_id=user_id, since=since, until=until
+    )
     if not rows:
         return []
     item_rows = await database.list_receipt_items_for_receipts(

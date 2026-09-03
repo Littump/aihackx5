@@ -132,3 +132,17 @@ SAME_CATEGORY_RECEIPT: list[ReceiptWithItems] = [
         [_item("dairy", "30.00", "30.00"), _item("dairy", "20.00", "20.00")],
     )
 ]
+
+POINTS_SPENT_RECEIPT: list[ReceiptWithItems] = [
+    ReceiptWithItems(
+        id=1,
+        store_id=STORE_PYATEROCHKA.id,
+        purchased_at=BASE_TIME,
+        regular_total=Decimal("1000.00"),
+        paid_total=Decimal("850.00"),
+        points_earned=10,
+        points_spent=50,
+        items=[],
+    )
+]
+EXPECTED_POINTS_SPENT_SAVINGS = Decimal("210.00")

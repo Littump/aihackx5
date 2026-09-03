@@ -93,7 +93,7 @@ def compute_realized_savings_30d(receipts: list[ReceiptWithItems]) -> Decimal:
         return Decimal("0")
     total = Decimal("0")
     for r in receipts:
-        total += (r.regular_total - r.paid_total) + r.points_earned - r.points_spent
+        total += (r.regular_total - r.paid_total) + r.points_earned + r.points_spent
     return total.quantize(MONEY_PRECISION)
 
 
