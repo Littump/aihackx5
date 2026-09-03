@@ -14,6 +14,8 @@ from app.features.receipts import database as receipts_db
 from app.features.receipts import service
 from app.features.receipts.dto import ReceiptItemInput
 from app.features.receipts.models import ReceiptDetail, ReceiptItemRow, ReceiptRow
+from app.features.referrals import service as referrals_service
+from app.features.referrals.models import ReferralProgressDelta
 from app.features.users import service as users_service
 from app.features.users.models import StoreRow, UserRow
 
@@ -167,6 +169,14 @@ async def _fake_league_on_receipt(
     return LeagueRankChange(rank_before=2, rank_after=1)
 
 
+async def _fake_referrals_on_receipt(
+    _: AsyncConnection, user_id: int, receipt: ReceiptDetail
+) -> ReferralProgressDelta | None:
+    assert user_id == 1
+    assert receipt.counted is True
+    return None
+
+
 def _patch_process_receipt(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(users_service, "get_user", _fake_get_user)
     monkeypatch.setattr(users_service, "get_store", _fake_get_store)
@@ -181,6 +191,7 @@ def _patch_process_receipt(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(domovoy_service, "get_state", _fake_domovoy_get_state)
     monkeypatch.setattr(challenges_service, "on_receipt", _fake_challenges_on_receipt)
     monkeypatch.setattr(league_service, "on_receipt", _fake_league_on_receipt)
+    monkeypatch.setattr(referrals_service, "on_receipt", _fake_referrals_on_receipt)
 
 
 async def test_process_receipt_happy_path_combines_domovoy_and_challenges(

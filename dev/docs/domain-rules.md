@@ -149,7 +149,9 @@ score = 200 × savings_rate
 
 Qualifying: 1-я покупка `≥ REFERRAL_MIN_FIRST_PURCHASE = 500 ₽`; 2-я покупка не раньше `REFERRAL_SECOND_PURCHASE_MIN_DAYS = 7` дней после первой. Награда пригласившему — после 2-й покупки и `antifraud.decision == approve`; `hold` → статус `on_review`, повторная проверка через 14 дней или при следующей покупке; `block` → `blocked`.
 
-Лимиты: `REFERRAL_PAID_PER_MONTH = 5`, `REFERRAL_PAID_PER_YEAR = 20`.
+Лимиты: `REFERRAL_PAID_PER_MONTH = 5`, `REFERRAL_PAID_PER_YEAR = 20`. `POST /referrals/redeem` возвращает `409 referral_limit_reached`, когда у пригласившего уже `REFERRAL_PAID_PER_YEAR` рефералов в статусе `rewarded` за текущий календарный год (годовой лимит, не месячный).
+
+Известное ограничение MVP: реферал, упёршийся в месячный лимит `REFERRAL_PAID_PER_MONTH`, остаётся в `status='qualified'` без награды навсегда — retry на следующий месяц не реализован, это осознанное упрощение, а не баг.
 
 ## 11. Антифрод
 

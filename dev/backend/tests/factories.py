@@ -244,6 +244,7 @@ async def make_referral(
         "referrer_reward_points": 0,
         "referee_reward_points": 0,
         "created_at": None,
+        "decided_at": None,
     }
     params.update(overrides)
     return await referrals_db.insert_referral_row(conn, params)

@@ -18,6 +18,7 @@ def build_outcome(
     domovoy_state: DomovoyStateStub,
     challenge_deltas: list[ChallengeProgressDelta],
     league_rank_change: LeagueRankChange,
+    referral_status: str | None,
 ) -> ReceiptProcessingOutcome:
     xp_delta = domovoy_xp_delta + _completed_challenges_xp(challenge_deltas)
     return ReceiptProcessingOutcome(
@@ -30,7 +31,7 @@ def build_outcome(
         challenges=_map_challenge_deltas(challenge_deltas),
         league_rank_before=league_rank_change.rank_before,
         league_rank_after=league_rank_change.rank_after,
-        referral_status=None,
+        referral_status=referral_status,
         fraud=_stub_fraud_decision(),
         achievements_unlocked=[],
     )

@@ -35,7 +35,7 @@
 | BE-016 | E7 | `league`: формирование лиг по дому и дивизиону, `scoring.py`, on_receipt, `GET /users/{id}/league` | R | BE-013 | done | 2026-09-03 |
 | BE-017 | E7 | `POST /league/rollover`: недельный сброс, зоны, повышение/понижение, XP | R | BE-016 | done | 2026-09-03 |
 | BE-018 | E8 | `antifraud/scoring.py`: сигналы чека и реферала по §11, решение, `fraud_checks` | R | BE-013 | done | 2026-09-03 |
-| BE-019 | E8 | `referrals`: код, `redeem`, referee_kind, qualifying purchases, награда после антифрода, лимиты, `GET /users/{id}/referral` | R | BE-018 | todo | |
+| BE-019 | E8 | `referrals`: код, `redeem`, referee_kind, qualifying purchases, награда после антифрода, лимиты, `GET /users/{id}/referral` | R | BE-018 | done | 2026-09-03 |
 | BE-020 | E8 | Антифрод в pipeline чека: block → counted=false, hold → отложенная награда | R | BE-018 | todo | |
 | BE-021 | E8 | `achievements`: правила §12, on_receipt, `GET` | R | BE-013 | todo | |
 | FE-004 | E9 | League: дивизион, список под псевдонимами, моё место, зоны, дельта после покупки, «дом vs район» | R | FE-001, BE-016 | done | 2026-09-03 |

@@ -4,13 +4,9 @@ from datetime import datetime, timedelta
 from psycopg import AsyncConnection
 
 from app.core.clock import day_start
-from app.features.challenges.models import ChallengeProgressDelta
-from app.features.domovoy.models import DomovoyDelta, DomovoyStateRow
-from app.features.league.models import LeagueRankChange
-from app.features.receipts import database, outcome
+from app.features.receipts import database, outcome, pipeline
 from app.features.receipts.models import (
     CountedDecision,
-    DomovoyStateStub,
     ReceiptDetail,
     ReceiptItemDraft,
     ReceiptItemInputLike,
@@ -23,12 +19,7 @@ from app.features.receipts.models import (
 )
 from app.features.receipts.totals import compute_totals
 from app.features.users import service as users_service
-from app.game_rules import (
-    RECEIPT_DEDUP_WINDOW_MIN,
-    RECEIPTS_PER_DAY_MAX,
-    level_for_xp,
-    xp_to_next_level,
-)
+from app.game_rules import RECEIPT_DEDUP_WINDOW_MIN, RECEIPTS_PER_DAY_MAX
 
 
 async def process_receipt(
@@ -62,11 +53,12 @@ async def process_receipt(
     )
     item_rows = await _insert_items(conn, receipt_id=receipt_row.id, items=drafts)
     await _recompute_user_features(conn, user_id)
-    domovoy_delta = await _run_domovoy_step(conn, user_id, receipt_row)
+    domovoy_delta = await pipeline.run_domovoy_step(conn, user_id, receipt_row)
     receipt_detail = _to_receipt_detail(receipt_row, store_name=store.name, items=item_rows)
-    challenge_deltas = await _run_challenges_step(conn, user_id, receipt_detail)
-    league_rank_change = await _run_league_step(conn, user_id, receipt_detail)
-    domovoy_state = await _final_domovoy_state(conn, user_id)
+    challenge_deltas = await pipeline.run_challenges_step(conn, user_id, receipt_detail)
+    league_rank_change = await pipeline.run_league_step(conn, user_id, receipt_detail)
+    referral_status = await pipeline.run_referral_step(conn, user_id, receipt_detail)
+    domovoy_state = await pipeline.final_domovoy_state(conn, user_id)
     return outcome.build_outcome(
         receipt_detail,
         decision,
@@ -74,6 +66,7 @@ async def process_receipt(
         domovoy_state,
         challenge_deltas,
         league_rank_change,
+        referral_status,
     )
 
 
@@ -160,48 +153,6 @@ async def _recompute_user_features(conn: AsyncConnection, user_id: int) -> None:
 
 def _draft_items(items: Sequence[ReceiptItemInputLike]) -> list[ReceiptItemDraft]:
     return [ReceiptItemDraft.model_validate(item) for item in items]
-
-
-async def _run_domovoy_step(
-    conn: AsyncConnection, user_id: int, receipt: ReceiptRow
-) -> DomovoyDelta:
-    # отложенный импорт разрывает цикл: domovoy.service импортирует нас
-    from app.features.domovoy import service as domovoy_service
-
-    return await domovoy_service.on_receipt(conn, user_id, receipt)
-
-
-async def _run_challenges_step(
-    conn: AsyncConnection, user_id: int, receipt: ReceiptDetail
-) -> list[ChallengeProgressDelta]:
-    # отложенный импорт: challenges тянет user_features, который тянет нас
-    from app.features.challenges import service as challenges_service
-
-    return await challenges_service.on_receipt(conn, user_id, receipt)
-
-
-async def _run_league_step(
-    conn: AsyncConnection, user_id: int, receipt: ReceiptDetail
-) -> LeagueRankChange:
-    # отложенный импорт разрывает цикл: league.service импортирует нас
-    from app.features.league import service as league_service
-
-    return await league_service.on_receipt(conn, user_id, receipt)
-
-
-async def _final_domovoy_state(conn: AsyncConnection, user_id: int) -> DomovoyStateStub:
-    from app.features.domovoy import service as domovoy_service
-
-    state: DomovoyStateRow = await domovoy_service.get_state(conn, user_id)
-    return DomovoyStateStub(
-        xp=state.xp,
-        level=level_for_xp(state.xp),
-        xp_to_next_level=xp_to_next_level(state.xp),
-        mood=state.mood,
-        mood_reason=state.mood_reason,
-        streak_weeks=state.streak_weeks,
-        items=state.items,
-    )
 
 
 async def _decide_counted(
