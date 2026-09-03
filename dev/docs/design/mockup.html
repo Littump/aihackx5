@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Домовой — визуальный слой</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style type="text/tailwindcss">
+@theme static {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --color-brand-50:  #EAF7EF;
+  --color-brand-100: #D3EFDD;
+  --color-brand-300: #7ACB99;
+  --color-brand-500: #10A64A;
+  --color-brand-600: #00923B;
+  --color-brand-700: #04722F;
+  --color-brand-800: #04581F;
+  --color-ink-900:   #0B3B2E;
+  --color-ink-700:   #33544A;
+  --color-ink-500:   #5A6862;
+  --color-accent-50: #FFF0E6;
+  --color-accent-300:#FFA46B;
+  --color-accent-500:#FF5C00;
+  --color-accent-600:#F26722;
+  --color-accent-700:#A83E00;
+  --color-surface:   #FFFFFF;
+  --color-canvas:    #F5F5F5;
+  --color-line:      #E5E8E6;
+  --color-desk:      #DFE3E1;
+  --color-fur-100:   #F7EFE1;
+  --color-fur-200:   #E9DAC2;
+  --color-fur-300:   #D3BE9E;
+
+  --radius-tile: 16px;
+  --radius-card: 20px;
+  --radius-sheet: 28px;
+
+  --shadow-card: 0 2px 8px rgba(11,59,46,.06);
+  --shadow-lift: 0 10px 28px rgba(11,59,46,.12);
+  --shadow-nav: 0 -2px 12px rgba(11,59,46,.06);
+
+  --text-caption: 14px;
+  --text-body: 16px;
+  --text-lead: 18px;
+  --text-title: 22px;
+  --text-hero: 40px;
+
+  --spacing-frame: 390px;
+  --spacing-frameh: 844px;
+  --spacing-pm: 960px;
+
+  --animate-popin: popin .45s cubic-bezier(.2,.8,.2,1) both;
+  --animate-glow: glow 1.6s ease-in-out 2;
+}
+@keyframes popin { from { opacity:0; transform: translateY(6px) scale(.96);} to { opacity:1; transform:none;} }
+@keyframes glow { 0%,100% { box-shadow: 0 0 0 0 rgba(255,92,0,0);} 50% { box-shadow: 0 0 0 6px rgba(255,92,0,.18);} }
+</style>
+</head>
+<body class="bg-desk font-sans text-ink-900 antialiased">
+
+<!-- ===== ПЕРСОНАЖ: символы ===== -->
+<svg width="0" height="0" class="absolute" aria-hidden="true">
+  <defs>
+    <g id="dom-fur">
+      <circle cx="12" cy="26" r="5" class="fill-fur-300"/>
+      <circle cx="52" cy="26" r="5" class="fill-fur-300"/>
+      <circle cx="9" cy="36" r="5" class="fill-fur-300"/>
+      <circle cx="55" cy="36" r="5" class="fill-fur-300"/>
+      <circle cx="15" cy="48" r="5" class="fill-fur-300"/>
+      <circle cx="49" cy="48" r="5" class="fill-fur-300"/>
+      <path d="M32 10c14 0 22 9 22 22s-9 24-22 24-22-11-22-24 8-22 22-22z" class="fill-fur-200"/>
+      <ellipse cx="32" cy="34" rx="16" ry="14" class="fill-fur-100"/>
+      <ellipse cx="32" cy="46" rx="11" ry="8" class="fill-fur-100"/>
+      <circle cx="17" cy="38" r="4" class="fill-accent-300" opacity=".7"/>
+      <circle cx="47" cy="38" r="4" class="fill-accent-300" opacity=".7"/>
+      <path d="M32 36l4 4h-8z" class="fill-accent-500"/>
+    </g>
+    <g id="dom-cap">
+      <path d="M12 22C18 8 46 8 52 22z" class="fill-brand-600"/>
+      <rect x="9" y="19" width="46" height="8" rx="4" class="fill-brand-700"/>
+      <circle cx="32" cy="7" r="5" class="fill-accent-500"/>
+    </g>
+    <g id="dom-blanket">
+      <path d="M11 42c8 11 34 11 42 0v11c-8 10-34 10-42 0z" class="fill-brand-500"/>
+      <path d="M12 48c8 9 32 9 40 0" fill="none" class="stroke-brand-100" stroke-width="2.5"/>
+    </g>
+    <g id="dom-cup">
+      <rect x="44" y="50" width="13" height="11" rx="3" class="fill-surface stroke-brand-700" stroke-width="2"/>
+      <path d="M57 53h3a3 3 0 0 1 0 5h-3" fill="none" class="stroke-brand-700" stroke-width="2"/>
+    </g>
+    <g id="dom-shelf">
+      <rect x="2" y="16" width="20" height="3" rx="1.5" class="fill-fur-300"/>
+      <rect x="4" y="7" width="7" height="9" rx="2" class="fill-accent-300"/>
+      <rect x="13" y="9" width="7" height="7" rx="2" class="fill-brand-300"/>
+    </g>
+
+    <symbol id="dom-cheerful" viewBox="0 0 64 64">
+      <use href="#dom-fur"/><use href="#dom-cap"/>
+      <circle cx="24" cy="32" r="4" class="fill-ink-900"/>
+      <circle cx="40" cy="32" r="4" class="fill-ink-900"/>
+      <path d="M24 44a8 8 0 0 0 16 0z" class="fill-ink-900"/>
+      <path d="M58 12v7M54.5 15.5h7" class="stroke-accent-500" stroke-width="3" stroke-linecap="round"/>
+      <path d="M6 16v6M3 19h6" class="stroke-accent-500" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="dom-cozy" viewBox="0 0 64 64">
+      <use href="#dom-fur"/><use href="#dom-cap"/>
+      <path d="M19 33a5 5 0 0 1 10 0M35 33a5 5 0 0 1 10 0" fill="none" class="stroke-ink-900" stroke-width="3" stroke-linecap="round"/>
+      <path d="M27 45a5 5 0 0 0 10 0" fill="none" class="stroke-ink-900" stroke-width="3" stroke-linecap="round"/>
+      <use href="#dom-blanket"/>
+    </symbol>
+    <symbol id="dom-healthy" viewBox="0 0 64 64">
+      <use href="#dom-fur"/><use href="#dom-cap"/>
+      <circle cx="24" cy="33" r="4.5" class="fill-ink-900"/>
+      <circle cx="40" cy="33" r="4.5" class="fill-ink-900"/>
+      <path d="M18 26q6-5 12-1M34 25q6-4 12 1" fill="none" class="stroke-ink-900" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M22 43q10 8 20 0z" class="fill-ink-900"/>
+      <path d="M46 42c0-14 8-22 18-24 2 14-4 24-18 24z" class="fill-brand-500"/>
+      <path d="M50 40c4-8 8-13 13-16" fill="none" class="stroke-brand-100" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="dom-bored" viewBox="0 0 64 64">
+      <use href="#dom-fur"/>
+      <g transform="rotate(-14 32 24)"><use href="#dom-cap"/></g>
+      <path d="M18 31h12M34 31h12" class="stroke-ink-900" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="26" cy="35" r="3" class="fill-ink-900"/>
+      <circle cx="42" cy="35" r="3" class="fill-ink-900"/>
+      <path d="M25 46h14" class="stroke-ink-900" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="dom-sleepy" viewBox="0 0 64 64">
+      <use href="#dom-fur"/>
+      <path d="M12 24C16 8 44 6 50 20l8 14a6 6 0 0 1-9 3l-6-9z" class="fill-brand-600"/>
+      <rect x="9" y="21" width="44" height="8" rx="4" class="fill-brand-700"/>
+      <circle cx="54" cy="38" r="5" class="fill-accent-500"/>
+      <path d="M19 34q5 5 10 0M35 34q5 5 10 0" fill="none" class="stroke-ink-900" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="32" cy="46" rx="4" ry="3" class="fill-ink-900"/>
+      <text x="4" y="16" font-size="14" font-weight="700" font-family="ui-sans-serif, system-ui" class="fill-brand-700">z</text>
+      <text x="14" y="8" font-size="9" font-weight="700" font-family="ui-sans-serif, system-ui" class="fill-brand-500">z</text>
+    </symbol>
+    <symbol id="dom-lvl1" viewBox="0 0 64 64"><use href="#dom-cheerful"/></symbol>
+    <symbol id="dom-lvl7" viewBox="0 0 64 64"><use href="#dom-cozy"/><use href="#dom-cup"/></symbol>
+    <symbol id="dom-lvl15" viewBox="0 0 64 64"><use href="#dom-cozy"/><use href="#dom-cup"/><use href="#dom-shelf"/></symbol>
+  </defs>
+</svg>
+
+<header class="mx-auto max-w-pm px-6 pt-12 pb-8 flex flex-col gap-3">
+  <p class="text-caption uppercase tracking-widest text-ink-500">Хакатон X5 · визуальный слой</p>
+  <h1 class="text-4xl font-bold">Домовой</h1>
+  <p class="text-lead text-ink-700 max-w-2xl text-pretty">Игровой слой X5 Клуба: домашний хранитель, посчитанная экономия и одна понятная цель на неделю. Галерея фреймов 390×844, широкий экран для продакта, библиотека компонентов и состояния персонажа.</p>
+</header>
+
+<main class="flex flex-wrap justify-center items-start gap-10 px-6 pb-16">
+
+  <!-- ============ 1. HOME ============ -->
+  <figure class="flex flex-col gap-3 m-0">
+    <figcaption class="text-lead font-semibold">Home</figcaption>
+    <div class="w-frame h-frameh max-w-[430px] rounded-sheet bg-canvas shadow-lift overflow-hidden flex flex-col">
+
+      <!-- служебная демо-полоса -->
+      <div class="shrink-0 bg-ink-900 text-white px-4 py-2 flex items-center gap-3">
+        <span class="text-caption font-mono uppercase tracking-wider text-brand-300">Демо</span>
+        <select class="flex-1 min-w-0 bg-ink-700 text-white text-caption rounded-tile px-3 py-2 border border-white/20">
+          <option>Пользователь: Мария, 2,1 покупки/нед</option>
+          <option>Пользователь: Игорь, 0,8 покупки/нед</option>
+        </select>
+        <button class="shrink-0 bg-accent-300 text-ink-900 text-caption font-semibold rounded-tile px-3 py-2">Симулировать покупку</button>
+      </div>
+
+      <div class="flex-1 min-h-0 overflow-y-auto px-4 py-3 flex flex-col gap-3">
+
+        <!-- персонаж -->
+        <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex items-center gap-4">
+          <svg class="w-20 h-20 shrink-0"><use href="#dom-cozy"/></svg>
+          <div class="flex flex-col gap-1 min-w-0">
+            <h2 class="text-title font-bold leading-tight">Домовой</h2>
+            <p class="text-body text-ink-700">Уровень 7 · Уютный — вы заходили 3 недели подряд</p>
+            <div class="flex flex-wrap items-center gap-2 pt-1">
+              <div class="h-3 w-1/4 shrink-0 rounded-tile bg-brand-50 overflow-hidden"><div class="h-full w-5/6 rounded-tile bg-brand-600"></div></div>
+              <span class="text-caption font-semibold whitespace-nowrap">1240 XP</span>
+              <span class="text-caption text-ink-500 whitespace-nowrap">ещё 260</span>
+              <span class="text-caption font-semibold text-brand-700 bg-brand-50 rounded-tile px-2 py-1 whitespace-nowrap">серия 3 нед.</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- экономия -->
+        <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-2">
+          <h3 class="text-caption text-ink-500">Экономия за месяц</h3>
+          <p class="flex items-baseline gap-2 flex-wrap m-0"><span class="text-hero font-bold leading-none">1 240 ₽</span><span class="text-body font-semibold text-brand-700">+260 ₽ к прошлому месяцу</span></p>
+          <button class="flex items-center justify-between gap-2 border-t border-line pt-2 text-body font-semibold text-ink-700" data-acc="acc-home">
+            <span>Из чего сложилось</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div id="acc-home" class="hidden flex-col gap-3 pt-1">
+            <dl class="flex flex-col gap-2 m-0">
+              <div class="flex justify-between text-body"><dt class="text-ink-700">Скидки</dt><dd class="font-semibold m-0">820 ₽</dd></div>
+              <div class="flex justify-between text-body"><dt class="text-ink-700">Начислено баллов</dt><dd class="font-semibold m-0">310</dd></div>
+              <div class="flex justify-between text-body"><dt class="text-ink-700">Потрачено баллов</dt><dd class="font-semibold m-0">110</dd></div>
+            </dl>
+            <div class="flex flex-col gap-2 border-t border-line pt-3">
+              <p class="text-caption text-ink-500">Топ-категории</p>
+              <div class="flex flex-col gap-1"><div class="flex justify-between text-body"><span>Молочное</span><span class="font-semibold">420 ₽</span></div><div class="h-2 rounded-tile bg-brand-50"><div class="h-full w-full rounded-tile bg-brand-500"></div></div></div>
+              <div class="flex flex-col gap-1"><div class="flex justify-between text-body"><span>Овощи</span><span class="font-semibold">310 ₽</span></div><div class="h-2 rounded-tile bg-brand-50"><div class="h-full w-3/4 rounded-tile bg-brand-500"></div></div></div>
+              <div class="flex flex-col gap-1"><div class="flex justify-between text-body"><span>Бакалея</span><span class="font-semibold">210 ₽</span></div><div class="h-2 rounded-tile bg-brand-50"><div class="h-full w-1/2 rounded-tile bg-brand-500"></div></div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- цель недели -->
+        <section class="shrink-0 bg-brand-700 text-white rounded-card shadow-card p-4 flex flex-col gap-3">
+          <div class="flex items-center gap-2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>
+            <span class="text-caption font-semibold uppercase tracking-wider text-brand-100">Цель недели</span>
+          </div>
+          <h3 class="text-title font-bold leading-tight">Три похода за неделю</h3>
+          <p class="text-body text-brand-100 text-pretty">Обычно у вас 2 покупки в неделю. Сделайте 3 до воскресенья</p>
+          <div class="flex flex-col gap-2">
+            <div class="h-3 w-full rounded-tile bg-brand-800 overflow-hidden"><div class="h-full w-2/3 rounded-tile bg-white"></div></div>
+            <div class="flex justify-between text-body"><span class="font-semibold">2 из 3</span><span class="text-brand-100">до вс, 7 сентября</span></div>
+          </div>
+          <div class="flex items-center gap-2 self-start bg-white text-accent-700 rounded-tile px-3 py-2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M20 12v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7M3 8h18v4H3zM12 8v12M12 8S10 3 7.5 4.5 12 8 12 8s2-5 4.5-3.5S12 8 12 8"/></svg>
+            <span class="text-body font-semibold">+50 XP и 30 баллов</span>
+          </div>
+          <button class="flex items-center justify-between gap-2 bg-white text-brand-700 rounded-tile px-4 py-3 text-body font-semibold" data-acc="acc-why">
+            <span>Почему это мне?</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <p id="acc-why" class="hidden text-body text-brand-100 text-pretty bg-brand-800 rounded-tile p-3">За последние 8 недель вы покупали продукты 2 раза в неделю, обычно по средам и субботам. Поэтому цель — плюс один поход.</p>
+        </section>
+
+        <!-- инсайт -->
+        <section class="shrink-0 bg-brand-50 rounded-card p-4 flex items-start gap-3">
+          <svg class="w-12 h-12 shrink-0"><use href="#dom-cheerful"/></svg>
+          <div class="flex flex-col gap-1">
+            <p class="text-caption font-semibold uppercase tracking-wider text-brand-700">Домовой заметил</p>
+            <p class="text-body text-ink-900 text-pretty">Вы берёте молочное примерно раз в 6 дней — похоже, пора.</p>
+          </div>
+        </section>
+
+        <!-- плитки -->
+        <div class="shrink-0 grid grid-cols-2 gap-3">
+          <a href="#frame-league" class="bg-surface rounded-tile shadow-card p-4 flex flex-col gap-2 no-underline text-ink-900">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6 text-brand-700"><path d="M8 4h8v5a4 4 0 0 1-8 0zM12 13v4M9 21h6M16 5h3v2a3 3 0 0 1-3 3M8 5H5v2a3 3 0 0 0 3 3"/></svg>
+            <span class="text-body font-semibold leading-tight">Лига</span>
+            <span class="text-caption text-ink-500">6 место из 24</span>
+          </a>
+          <a href="#frame-refer" class="bg-surface rounded-tile shadow-card p-4 flex flex-col gap-2 no-underline text-ink-900">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6 text-brand-700"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M17 11h4M19 9v4"/></svg>
+            <span class="text-body font-semibold leading-tight">Соседи</span>
+            <span class="text-caption text-ink-500">приглашено 3</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- нижняя навигация -->
+      <nav class="shrink-0 bg-surface shadow-nav px-2 pt-2 pb-3 grid grid-cols-4">
+        <a href="#" class="flex flex-col items-center gap-1 py-2 no-underline text-brand-700"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m3 11 9-7 9 7v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M10 21v-6h4v6"/></svg><span class="text-caption font-semibold">Дом</span></a>
+        <a href="#frame-goal" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span class="text-caption">Цель</span></a>
+        <a href="#frame-league" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M8 4h8v5a4 4 0 0 1-8 0zM12 13v4M9 21h6"/></svg><span class="text-caption">Лига</span></a>
+        <a href="#frame-refer" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M17 11h4M19 9v4"/></svg><span class="text-caption">Соседи</span></a>
+      </nav>
+    </div>
+  </figure>
+
+  <!-- ============ 2. HOME — ЗАГРУЗКА ============ -->
+  <figure class="flex flex-col gap-3 m-0">
+    <figcaption class="text-lead font-semibold">Home — загрузка</figcaption>
+    <div class="w-frame h-frameh max-w-[430px] rounded-sheet bg-canvas shadow-lift overflow-hidden flex flex-col">
+      <div class="shrink-0 bg-ink-900 text-white px-4 py-2 flex items-center gap-3">
+        <span class="text-caption font-mono uppercase tracking-wider text-brand-300">Демо</span>
+        <span class="flex-1 text-caption text-white/60">Загружаем чеки…</span>
+      </div>
+      <div class="flex-1 overflow-hidden px-4 py-4 flex flex-col gap-4 animate-pulse">
+        <div class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+          <div class="flex items-center gap-4">
+            <div class="w-20 h-20 rounded-tile bg-canvas shrink-0"></div>
+            <div class="flex-1 flex flex-col gap-2"><div class="h-6 w-3/4 rounded-tile bg-canvas"></div><div class="h-4 w-full rounded-tile bg-canvas"></div></div>
+          </div>
+          <div class="h-3 w-full rounded-tile bg-canvas"></div>
+          <div class="h-10 w-1/2 rounded-tile bg-canvas"></div>
+        </div>
+        <div class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+          <div class="h-4 w-1/3 rounded-tile bg-canvas"></div>
+          <div class="h-10 w-2/3 rounded-tile bg-canvas"></div>
+          <div class="h-4 w-1/2 rounded-tile bg-canvas"></div>
+        </div>
+        <div class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+          <div class="h-4 w-1/4 rounded-tile bg-canvas"></div>
+          <div class="h-6 w-3/4 rounded-tile bg-canvas"></div>
+          <div class="h-4 w-full rounded-tile bg-canvas"></div>
+          <div class="h-3 w-full rounded-tile bg-canvas"></div>
+          <div class="h-12 w-full rounded-tile bg-canvas"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-surface rounded-tile shadow-card p-4 flex flex-col gap-2"><div class="h-6 w-6 rounded-tile bg-canvas"></div><div class="h-4 w-2/3 rounded-tile bg-canvas"></div><div class="h-4 w-1/2 rounded-tile bg-canvas"></div></div>
+          <div class="bg-surface rounded-tile shadow-card p-4 flex flex-col gap-2"><div class="h-6 w-6 rounded-tile bg-canvas"></div><div class="h-4 w-2/3 rounded-tile bg-canvas"></div><div class="h-4 w-1/2 rounded-tile bg-canvas"></div></div>
+        </div>
+      </div>
+      <nav class="shrink-0 bg-surface shadow-nav px-2 pt-2 pb-3 grid grid-cols-4">
+        <a href="#" class="flex flex-col items-center gap-1 py-2 no-underline text-brand-700"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m3 11 9-7 9 7v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M10 21v-6h4v6"/></svg><span class="text-caption font-semibold">Дом</span></a>
+        <a href="#frame-goal" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span class="text-caption">Цель</span></a>
+        <a href="#frame-league" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M8 4h8v5a4 4 0 0 1-8 0zM12 13v4M9 21h6"/></svg><span class="text-caption">Лига</span></a>
+        <a href="#frame-refer" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M17 11h4M19 9v4"/></svg><span class="text-caption">Соседи</span></a>
+      </nav>
+    </div>
+  </figure>
+
+  <!-- ============ 3. HOME — ПОСЛЕ ПОКУПКИ ============ -->
+  <figure class="flex flex-col gap-3 m-0" id="after-frame">
+    <figcaption class="text-lead font-semibold">Home — после покупки</figcaption>
+    <p class="text-caption text-ink-700 w-frame text-pretty m-0">Анимация: плашка «Чек учтён» выезжает сверху за 250 мс и уходит через 3 с. Изменившиеся числа (экономия, XP, прогресс цели, место в лиге) на 1,6 с получают оранжевое свечение и подрастают на 4%; полосы прогресса доезжают до новых значений за 600 мс с замедлением. Ниже — состояние «после».</p>
+    <div class="w-frame h-frameh max-w-[430px] rounded-sheet bg-canvas shadow-lift overflow-hidden flex flex-col">
+      <div class="shrink-0 bg-ink-900 text-white px-4 py-2 flex items-center gap-3">
+        <span class="text-caption font-mono uppercase tracking-wider text-brand-300">Демо</span>
+        <span class="flex-1 text-caption text-white/60">Покупка отправлена</span>
+        <button class="shrink-0 bg-accent-300 text-ink-900 text-caption font-semibold rounded-tile px-3 py-2">Симулировать покупку</button>
+      </div>
+      <div class="flex-1 min-h-0 overflow-y-auto px-4 py-4 flex flex-col gap-4">
+        <div class="animate-popin bg-brand-700 text-white rounded-tile px-4 py-3 flex items-center gap-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m4 13 5 5L20 7"/></svg>
+          <span class="text-body font-semibold">Чек учтён — Домовой всё пересчитал</span>
+        </div>
+
+        <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+          <div class="flex items-center gap-4">
+            <svg class="w-20 h-20 shrink-0 animate-popin"><use href="#dom-cheerful"/></svg>
+            <div class="flex flex-col gap-1"><h2 class="text-title font-bold leading-tight">Домовой</h2><p class="text-body text-ink-700">Уровень 7 · Уютный — вы заходили 3 недели подряд</p></div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <div class="h-3 w-full rounded-tile bg-brand-50 overflow-hidden"><div class="h-full w-5/6 rounded-tile bg-brand-600"></div></div>
+            <div class="flex items-baseline justify-between gap-3">
+              <span class="animate-glow rounded-tile bg-accent-50 px-2 py-1 text-body font-semibold text-accent-700">1240 XP <span class="font-normal">(опыт)</span></span>
+              <span class="text-caption text-ink-500">до 8-го уровня 260</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-2">
+          <h3 class="text-body text-ink-500">Экономия за месяц</h3>
+          <p class="animate-glow self-start rounded-tile bg-accent-50 px-2 py-1 text-hero font-bold leading-none text-accent-700">1 240 ₽</p>
+          <p class="text-body font-semibold text-brand-700">+260 ₽ к прошлому месяцу</p>
+        </section>
+
+        <section class="shrink-0 bg-brand-700 text-white rounded-card shadow-card p-4 flex flex-col gap-3">
+          <span class="text-caption font-semibold uppercase tracking-wider text-brand-100">Цель недели</span>
+          <h3 class="text-title font-bold leading-tight">Три похода за неделю</h3>
+          <div class="flex flex-col gap-2">
+            <div class="h-3 w-full rounded-tile bg-brand-800 overflow-hidden"><div class="h-full w-2/3 rounded-tile bg-white animate-popin"></div></div>
+            <div class="flex justify-between text-body"><span class="animate-glow rounded-tile bg-white text-accent-700 px-2 py-1 font-semibold">2 из 3</span><span class="text-brand-100 self-center">до вс, 7 сентября</span></div>
+          </div>
+          <p class="text-body text-brand-100">Остался один поход — и награда ваша.</p>
+        </section>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-surface rounded-tile shadow-card p-4 flex flex-col gap-2">
+            <span class="text-body font-semibold leading-tight">Лига</span>
+            <span class="animate-glow self-start rounded-tile bg-accent-50 px-2 py-1 text-caption font-semibold text-accent-700">6 место из 24</span>
+            <span class="animate-popin flex items-center gap-1 text-caption font-semibold text-brand-700"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M12 19V5M6 11l6-6 6 6"/></svg>+2 места</span>
+          </div>
+          <div class="bg-surface rounded-tile shadow-card p-4 flex flex-col gap-2">
+            <span class="text-body font-semibold leading-tight">Соседи</span>
+            <span class="text-caption text-ink-500">приглашено 3</span>
+          </div>
+        </div>
+      </div>
+      <nav class="shrink-0 bg-surface shadow-nav px-2 pt-2 pb-3 grid grid-cols-4">
+        <a href="#" class="flex flex-col items-center gap-1 py-2 no-underline text-brand-700"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m3 11 9-7 9 7v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M10 21v-6h4v6"/></svg><span class="text-caption font-semibold">Дом</span></a>
+        <a href="#frame-goal" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span class="text-caption">Цель</span></a>
+        <a href="#frame-league" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M8 4h8v5a4 4 0 0 1-8 0zM12 13v4M9 21h6"/></svg><span class="text-caption">Лига</span></a>
+        <a href="#frame-refer" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M17 11h4M19 9v4"/></svg><span class="text-caption">Соседи</span></a>
+      </nav>
+    </div>
+  </figure>
+
+  <!-- ============ 4. ЦЕЛЬ НЕДЕЛИ ============ -->
+  <figure class="flex flex-col gap-3 m-0" id="frame-goal">
+    <figcaption class="text-lead font-semibold">Цель недели</figcaption>
+    <div class="w-frame h-frameh max-w-[430px] rounded-sheet bg-canvas shadow-lift overflow-hidden flex flex-col">
+      <div class="shrink-0 bg-surface px-4 py-4 flex items-center gap-3 border-b border-line">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M15 5l-7 7 7 7"/></svg>
+        <h2 class="text-lead font-bold">Цель недели</h2>
+      </div>
+      <div class="flex-1 min-h-0 overflow-y-auto px-4 py-4 flex flex-col gap-4">
+        <section class="shrink-0 bg-brand-700 text-white rounded-card shadow-card p-4 flex flex-col gap-3">
+          <span class="text-caption font-semibold uppercase tracking-wider text-brand-100">Задание · тип «серия покупок»</span>
+          <h3 class="text-title font-bold leading-tight">Три похода за неделю</h3>
+          <p class="text-body text-brand-100 text-pretty">Обычно у вас 2 покупки в неделю. Сделайте 3 до воскресенья</p>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-brand-800 rounded-tile p-3 flex flex-col gap-1"><span class="text-caption text-brand-100">Ваша обычная норма</span><span class="text-lead font-bold">2 покупки</span></div>
+            <div class="bg-brand-800 rounded-tile p-3 flex flex-col gap-1"><span class="text-caption text-brand-100">Цель</span><span class="text-lead font-bold">3 покупки</span></div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <div class="h-3 w-full rounded-tile bg-brand-800 overflow-hidden"><div class="h-full w-2/3 rounded-tile bg-white"></div></div>
+            <div class="flex justify-between text-body"><span class="font-semibold">2 из 3</span><span class="text-brand-100">до вс, 7 сентября</span></div>
+          </div>
+          <div class="flex items-center gap-2 self-start bg-white text-accent-700 rounded-tile px-3 py-2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M3 8h18v4H3zM20 12v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7M12 8v12"/></svg>
+            <span class="text-body font-semibold">+50 XP и 30 баллов</span>
+          </div>
+          <div class="bg-brand-800 rounded-tile p-3 flex flex-col gap-1">
+            <p class="text-caption font-semibold text-brand-100">Почему это мне?</p>
+            <p class="text-body text-white text-pretty">За последние 8 недель вы покупали продукты 2 раза в неделю, обычно по средам и субботам. Поэтому цель — плюс один поход.</p>
+          </div>
+        </section>
+
+        <h3 class="text-lead font-bold">Ещё можно взять</h3>
+        <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+          <div class="flex items-start justify-between gap-3">
+            <h4 class="text-body font-semibold leading-tight">Молочное дважды за неделю</h4>
+            <span class="shrink-0 bg-accent-50 text-accent-700 rounded-tile px-3 py-1 text-caption font-semibold">+30 XP · 15 баллов</span>
+          </div>
+          <div class="h-2 w-full rounded-tile bg-canvas overflow-hidden"><div class="h-full w-0 rounded-tile bg-brand-500"></div></div>
+          <div class="flex items-center justify-between"><span class="text-caption text-ink-500">0 из 2</span><button class="bg-brand-700 text-white rounded-tile px-4 py-3 text-body font-semibold">Взять цель</button></div>
+        </section>
+        <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+          <div class="flex items-start justify-between gap-3">
+            <h4 class="text-body font-semibold leading-tight">Загляните в новый для вас магазин</h4>
+            <span class="shrink-0 bg-accent-50 text-accent-700 rounded-tile px-3 py-1 text-caption font-semibold">+20 XP</span>
+          </div>
+          <div class="h-2 w-full rounded-tile bg-canvas overflow-hidden"><div class="h-full w-0 rounded-tile bg-brand-500"></div></div>
+          <div class="flex items-center justify-between"><span class="text-caption text-ink-500">0 из 1</span><button class="bg-brand-700 text-white rounded-tile px-4 py-3 text-body font-semibold">Взять цель</button></div>
+        </section>
+
+        <h3 class="text-lead font-bold">История целей</h3>
+        <section class="shrink-0 bg-surface rounded-card shadow-card divide-y divide-line">
+          <div class="flex items-center gap-3 p-4">
+            <span class="w-10 h-10 shrink-0 rounded-tile bg-brand-50 text-brand-700 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m4 13 5 5L20 7"/></svg></span>
+            <div class="flex-1 flex flex-col gap-1 min-w-0"><span class="text-body font-semibold leading-tight">Три похода за неделю</span><span class="text-caption text-ink-500">24 августа · выполнено</span></div>
+            <span class="text-caption font-semibold text-brand-700 shrink-0">+50 XP</span>
+          </div>
+          <div class="flex items-center gap-3 p-4">
+            <span class="w-10 h-10 shrink-0 rounded-tile bg-brand-50 text-brand-700 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m4 13 5 5L20 7"/></svg></span>
+            <div class="flex-1 flex flex-col gap-1 min-w-0"><span class="text-body font-semibold leading-tight">Молочное дважды за неделю</span><span class="text-caption text-ink-500">17 августа · выполнено</span></div>
+            <span class="text-caption font-semibold text-brand-700 shrink-0">30 баллов</span>
+          </div>
+          <div class="flex items-center gap-3 p-4">
+            <span class="w-10 h-10 shrink-0 rounded-tile bg-accent-50 text-accent-700 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></span>
+            <div class="flex-1 flex flex-col gap-1 min-w-0"><span class="text-body font-semibold leading-tight">Три похода за неделю</span><span class="text-caption text-ink-500">10 августа · не успели</span></div>
+            <span class="text-caption text-ink-500 shrink-0">без награды</span>
+          </div>
+          <div class="flex items-center gap-3 p-4">
+            <span class="w-10 h-10 shrink-0 rounded-tile bg-canvas text-ink-500 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M6 6l12 12M18 6 6 18"/></svg></span>
+            <div class="flex-1 flex flex-col gap-1 min-w-0"><span class="text-body font-semibold leading-tight">Загляните в новый для вас магазин</span><span class="text-caption text-ink-500">3 августа · истекло</span></div>
+            <span class="text-caption text-ink-500 shrink-0">без награды</span>
+          </div>
+        </section>
+      </div>
+      <nav class="shrink-0 bg-surface shadow-nav px-2 pt-2 pb-3 grid grid-cols-4">
+        <a href="#" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m3 11 9-7 9 7v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M10 21v-6h4v6"/></svg><span class="text-caption">Дом</span></a>
+        <a href="#frame-goal" class="flex flex-col items-center gap-1 py-2 no-underline text-brand-700"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span class="text-caption font-semibold">Цель</span></a>
+        <a href="#frame-league" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M8 4h8v5a4 4 0 0 1-8 0zM12 13v4M9 21h6"/></svg><span class="text-caption">Лига</span></a>
+        <a href="#frame-refer" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M17 11h4M19 9v4"/></svg><span class="text-caption">Соседи</span></a>
+      </nav>
+    </div>
+  </figure>
+
+  <!-- ============ 5. ЛИГА ============ -->
+  <figure class="flex flex-col gap-3 m-0" id="frame-league">
+    <figcaption class="text-lead font-semibold">Лига</figcaption>
+    <div class="w-frame h-frameh max-w-[430px] rounded-sheet bg-canvas shadow-lift overflow-hidden flex flex-col">
+      <div class="shrink-0 bg-brand-700 text-white px-4 py-4 flex flex-col gap-3">
+        <div class="flex items-center gap-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M15 5l-7 7 7 7"/></svg>
+          <h2 class="text-lead font-bold">Лига домов</h2>
+        </div>
+        <p class="text-body text-brand-100">Дивизион 2 «Кирпичный дом» · неделя 1–7 сентября</p>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-brand-800 rounded-tile p-3 flex flex-col gap-1"><span class="text-caption text-brand-100">Место</span><span class="text-lead font-bold">6 из 24</span></div>
+          <div class="bg-brand-800 rounded-tile p-3 flex flex-col gap-1"><span class="text-caption text-brand-100">Счёт</span><span class="text-lead font-bold">418</span></div>
+          <div class="bg-brand-800 rounded-tile p-3 flex flex-col gap-1"><span class="text-caption text-brand-100">Зона</span><span class="text-body font-bold">Безопасная</span></div>
+        </div>
+        <div class="animate-popin flex items-center gap-2 self-start bg-white text-brand-700 rounded-tile px-3 py-2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+          <span class="text-body font-semibold">+2 места после покупки</span>
+        </div>
+      </div>
+      <div class="flex-1 min-h-0 overflow-y-auto px-4 py-4 flex flex-col gap-4">
+        <p class="flex items-start gap-2 text-caption text-ink-700 text-pretty m-0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6 shrink-0 text-ink-500"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          Показываем только псевдонимы и очки. Ни имён, ни адресов, ни сумм и состава чужих покупок.
+        </p>
+
+        <section class="shrink-0 bg-surface rounded-card shadow-card overflow-hidden">
+          <div class="flex items-center gap-3 px-4 py-3 border-b border-line text-caption text-ink-500"><span class="w-8">№</span><span class="flex-1">Сосед</span><span>Счёт</span></div>
+          <div class="flex items-center gap-3 px-4 py-3"><span class="w-8 text-body font-bold">1</span><span class="flex-1 flex flex-col"><span class="text-body">Ранняя пташка</span><span class="text-caption text-ink-500">уровень 12</span></span><span class="text-body font-semibold">612</span></div>
+          <div class="flex items-center gap-3 px-4 py-3"><span class="w-8 text-body font-bold">2</span><span class="flex-1 flex flex-col"><span class="text-body">Тихий чайник</span><span class="text-caption text-ink-500">уровень 11</span></span><span class="text-body font-semibold">574</span></div>
+          <div class="flex items-center gap-3 px-4 py-3"><span class="w-8 text-body font-bold">3</span><span class="flex-1 flex flex-col"><span class="text-body">Сосед с 4 этажа</span><span class="text-caption text-ink-500">уровень 10</span></span><span class="text-body font-semibold">531</span></div>
+          <div class="flex items-center gap-3 px-4 py-3"><span class="w-8 text-body font-bold">4</span><span class="flex-1 flex flex-col"><span class="text-body">Утренний батон</span><span class="text-caption text-ink-500">уровень 9</span></span><span class="text-body font-semibold">498</span></div>
+          <div class="flex items-center gap-3 px-4 py-3"><span class="w-8 text-body font-bold">5</span><span class="flex-1 flex flex-col"><span class="text-body">Хозяйка балкона</span><span class="text-caption text-ink-500">уровень 9</span></span><span class="text-body font-semibold">460</span></div>
+          <div class="flex items-center gap-2 bg-brand-50 px-4 py-2 text-brand-700">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+            <span class="text-caption font-semibold">Выше — повышение в дивизион 1</span>
+          </div>
+          <div class="flex items-center gap-3 px-4 py-3 bg-brand-700 text-white"><span class="w-8 text-body font-bold">6</span><span class="flex-1 flex flex-col"><span class="text-body font-semibold">Вы</span><span class="text-caption text-brand-100">уровень 7 · зона безопасная</span></span><span class="text-body font-bold">418</span></div>
+          <div class="flex items-center gap-3 px-4 py-3"><span class="w-8 text-body font-bold">7</span><span class="flex-1 flex flex-col"><span class="text-body">Ночной кефир</span><span class="text-caption text-ink-500">уровень 8</span></span><span class="text-body font-semibold">402</span></div>
+          <div class="flex items-center gap-3 px-4 py-3"><span class="w-8 text-body font-bold">8</span><span class="flex-1 flex flex-col"><span class="text-body">Сосед у лифта</span><span class="text-caption text-ink-500">уровень 7</span></span><span class="text-body font-semibold">377</span></div>
+          <div class="flex items-center gap-2 bg-accent-50 px-4 py-2 text-accent-700">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+            <span class="text-caption font-semibold">Ниже — понижение в дивизион 3</span>
+          </div>
+          <div class="flex items-center gap-3 px-4 py-3 bg-accent-50/50"><span class="w-8 text-body font-bold">20</span><span class="flex-1 flex flex-col"><span class="text-body">Дальний подъезд</span><span class="text-caption text-ink-500">уровень 4</span></span><span class="text-body font-semibold">96</span></div>
+          <div class="flex items-center gap-3 px-4 py-3 bg-accent-50/50"><span class="w-8 text-body font-bold">21</span><span class="flex-1 flex flex-col"><span class="text-body">Пустой холодильник</span><span class="text-caption text-ink-500">уровень 3</span></span><span class="text-body font-semibold">74</span></div>
+        </section>
+
+        <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+          <h3 class="text-lead font-bold leading-tight">Ваш дом против района</h3>
+          <p class="text-body text-ink-700">Пятёрочка на Афанасьевском</p>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-brand-50 rounded-tile p-3 flex flex-col gap-1"><span class="text-caption text-ink-500">Средняя экономия</span><span class="text-title font-bold text-brand-700">12,4%</span></div>
+            <div class="bg-brand-50 rounded-tile p-3 flex flex-col gap-1"><span class="text-caption text-ink-500">Место в районе</span><span class="text-title font-bold text-brand-700">3 из 17</span></div>
+          </div>
+        </section>
+      </div>
+      <nav class="shrink-0 bg-surface shadow-nav px-2 pt-2 pb-3 grid grid-cols-4">
+        <a href="#" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m3 11 9-7 9 7v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M10 21v-6h4v6"/></svg><span class="text-caption">Дом</span></a>
+        <a href="#frame-goal" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span class="text-caption">Цель</span></a>
+        <a href="#frame-league" class="flex flex-col items-center gap-1 py-2 no-underline text-brand-700"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M8 4h8v5a4 4 0 0 1-8 0zM12 13v4M9 21h6"/></svg><span class="text-caption font-semibold">Лига</span></a>
+        <a href="#frame-refer" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M17 11h4M19 9v4"/></svg><span class="text-caption">Соседи</span></a>
+      </nav>
+    </div>
+  </figure>
+
+  <!-- ============ 6. СОСЕДИ ============ -->
+  <figure class="flex flex-col gap-3 m-0" id="frame-refer">
+    <figcaption class="text-lead font-semibold">Соседи</figcaption>
+    <div class="w-frame h-frameh max-w-[430px] rounded-sheet bg-canvas shadow-lift overflow-hidden flex flex-col">
+      <div class="shrink-0 bg-surface px-4 py-4 flex items-center gap-3 border-b border-line">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M15 5l-7 7 7 7"/></svg>
+        <h2 class="text-lead font-bold">Позови соседа</h2>
+      </div>
+      <div class="flex-1 min-h-0 overflow-y-auto px-4 py-4 flex flex-col gap-4">
+        <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-4">
+          <div class="flex items-center gap-4">
+            <svg viewBox="0 0 33 33" class="w-24 h-24 shrink-0 rounded-tile bg-surface" aria-hidden="true">
+              <defs><pattern id="qr" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="2" height="2" style="fill:var(--color-ink-900)"/></pattern></defs>
+              <rect x="0" y="0" width="33" height="33" fill="url(#qr)"/>
+              <rect x="0" y="0" width="12" height="12" style="fill:var(--color-surface)"/>
+              <rect x="21" y="0" width="12" height="12" style="fill:var(--color-surface)"/>
+              <rect x="0" y="21" width="12" height="12" style="fill:var(--color-surface)"/>
+              <rect x="1" y="1" width="9" height="9" fill="none" style="stroke:var(--color-ink-900)" stroke-width="2"/>
+              <rect x="4" y="4" width="3" height="3" style="fill:var(--color-ink-900)"/>
+              <rect x="22" y="1" width="9" height="9" fill="none" style="stroke:var(--color-ink-900)" stroke-width="2"/>
+              <rect x="25" y="4" width="3" height="3" style="fill:var(--color-ink-900)"/>
+              <rect x="1" y="22" width="9" height="9" fill="none" style="stroke:var(--color-ink-900)" stroke-width="2"/>
+              <rect x="4" y="25" width="3" height="3" style="fill:var(--color-ink-900)"/>
+            </svg>
+            <div class="flex flex-col gap-1 min-w-0">
+              <span class="text-caption text-ink-500">Ваш код</span>
+              <span class="text-title font-bold tracking-wide">DOMOVOY-4821</span>
+              <span class="text-caption text-ink-500">Покажите QR или продиктуйте код</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <button class="flex items-center justify-center gap-2 bg-brand-700 text-white rounded-tile px-4 py-3 text-body font-semibold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 5H6a1 1 0 0 0-1 1v9"/></svg>Скопировать</button>
+            <button class="flex items-center justify-center gap-2 bg-surface text-brand-700 border border-brand-600 rounded-tile px-4 py-3 text-body font-semibold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M12 16V4M8 8l4-4 4 4M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/></svg>Поделиться</button>
+          </div>
+        </section>
+
+        <section class="shrink-0 bg-brand-50 rounded-card p-4 flex flex-col gap-3">
+          <h3 class="text-lead font-bold">Награды</h3>
+          <dl class="flex flex-col gap-2 m-0">
+            <div class="flex justify-between text-body"><dt class="text-ink-700">Вам</dt><dd class="font-semibold m-0">300 баллов</dd></div>
+            <div class="flex justify-between text-body"><dt class="text-ink-700">Новому соседу</dt><dd class="font-semibold m-0">200 баллов</dd></div>
+            <div class="flex justify-between text-body"><dt class="text-ink-700">Вернувшемуся</dt><dd class="font-semibold m-0">100 баллов</dd></div>
+          </dl>
+        </section>
+
+        <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+          <h3 class="text-lead font-bold">Правила</h3>
+          <ul class="flex flex-col gap-2 m-0 pl-0 list-none">
+            <li class="flex gap-2 text-body text-ink-700"><span class="text-brand-700 font-bold">1.</span>Награда приходит после второй покупки соседа.</li>
+            <li class="flex gap-2 text-body text-ink-700"><span class="text-brand-700 font-bold">2.</span>Приглашения проходят проверку на честность.</li>
+            <li class="flex gap-2 text-body text-ink-700"><span class="text-brand-700 font-bold">3.</span>Не больше 5 оплаченных приглашений в месяц.</li>
+          </ul>
+        </section>
+
+        <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+          <div class="flex items-baseline justify-between gap-3"><h3 class="text-lead font-bold">Лимит месяца</h3><span class="text-body font-semibold">выплачено 3 из 5</span></div>
+          <div class="h-3 w-full rounded-tile bg-canvas overflow-hidden"><div class="h-full w-3/5 rounded-tile bg-brand-600"></div></div>
+        </section>
+
+        <section class="shrink-0 bg-surface rounded-card shadow-card flex flex-col divide-y divide-line">
+          <h3 class="text-lead font-bold p-4 pb-3">Приглашённые</h3>
+          <div class="flex items-center gap-3 p-4">
+            <span class="w-10 h-10 shrink-0 rounded-tile bg-brand-50 text-brand-700 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m4 13 5 5L20 7"/></svg></span>
+            <span class="flex-1 text-body font-semibold">Сосед №1</span>
+            <span class="text-caption font-semibold text-brand-700 bg-brand-50 rounded-tile px-3 py-1">награда получена</span>
+          </div>
+          <div class="flex items-center gap-3 p-4">
+            <span class="w-10 h-10 shrink-0 rounded-tile bg-accent-50 text-accent-700 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M6 6h13l-2 7H8zM8 13l-2-7H3M9 20h.01M17 20h.01"/></svg></span>
+            <span class="flex-1 text-body font-semibold">Сосед №2</span>
+            <span class="text-caption font-semibold text-accent-700 bg-accent-50 rounded-tile px-3 py-1">1 из 2 покупок</span>
+          </div>
+          <div class="flex items-center gap-3 p-4">
+            <span class="w-10 h-10 shrink-0 rounded-tile bg-canvas text-ink-700 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></span>
+            <span class="flex-1 text-body font-semibold">Сосед №3</span>
+            <span class="text-caption font-semibold text-ink-700 bg-canvas rounded-tile px-3 py-1">на проверке</span>
+          </div>
+        </section>
+
+        <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+          <h3 class="text-lead font-bold">Как читать статусы</h3>
+          <ul class="grid grid-cols-1 gap-2 m-0 pl-0 list-none">
+            <li class="flex items-center gap-2 text-body"><span class="w-8 h-8 rounded-tile bg-canvas text-ink-700 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></span>ожидает</li>
+            <li class="flex items-center gap-2 text-body"><span class="w-8 h-8 rounded-tile bg-accent-50 text-accent-700 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M6 6h13l-2 7H8zM8 13l-2-7H3"/></svg></span>первая покупка</li>
+            <li class="flex items-center gap-2 text-body"><span class="w-8 h-8 rounded-tile bg-brand-50 text-brand-700 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m4 13 5 5L20 7"/></svg></span>выполнил условия</li>
+            <li class="flex items-center gap-2 text-body"><span class="w-8 h-8 rounded-tile bg-canvas text-ink-700 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></span>на проверке</li>
+            <li class="flex items-center gap-2 text-body"><span class="w-8 h-8 rounded-tile bg-brand-50 text-brand-700 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M3 8h18v4H3zM20 12v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7M12 8v12"/></svg></span>награда получена</li>
+            <li class="flex items-center gap-2 text-body"><span class="w-8 h-8 rounded-tile bg-canvas text-ink-900 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M6 6l12 12M18 6 6 18"/></svg></span>отклонён</li>
+          </ul>
+        </section>
+      </div>
+      <nav class="shrink-0 bg-surface shadow-nav px-2 pt-2 pb-3 grid grid-cols-4">
+        <a href="#" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m3 11 9-7 9 7v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M10 21v-6h4v6"/></svg><span class="text-caption">Дом</span></a>
+        <a href="#frame-goal" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span class="text-caption">Цель</span></a>
+        <a href="#frame-league" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M8 4h8v5a4 4 0 0 1-8 0zM12 13v4M9 21h6"/></svg><span class="text-caption">Лига</span></a>
+        <a href="#frame-refer" class="flex flex-col items-center gap-1 py-2 no-underline text-brand-700"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M17 11h4M19 9v4"/></svg><span class="text-caption font-semibold">Соседи</span></a>
+      </nav>
+    </div>
+  </figure>
+
+  <!-- ============ 7. ПУСТОЕ СОСТОЯНИЕ ============ -->
+  <figure class="flex flex-col gap-3 m-0">
+    <figcaption class="text-lead font-semibold">Пустое состояние</figcaption>
+    <div class="w-frame h-frameh max-w-[430px] rounded-sheet bg-canvas shadow-lift overflow-hidden flex flex-col">
+      <div class="shrink-0 bg-surface px-4 py-4 flex items-center gap-3 border-b border-line">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M15 5l-7 7 7 7"/></svg>
+        <h2 class="text-lead font-bold">Цель недели</h2>
+      </div>
+      <div class="flex-1 min-h-0 overflow-y-auto px-4 py-4 flex flex-col gap-4 items-center justify-center text-center">
+        <svg class="w-40 h-40"><use href="#dom-sleepy"/></svg>
+        <h3 class="text-title font-bold leading-tight">Домовой думает над целью недели…</h3>
+        <p class="text-body text-ink-700 text-pretty">Ему нужна ещё одна ваша покупка, чтобы понять ваш ритм. Обычно это занимает пару дней.</p>
+        <button class="w-full bg-brand-700 text-white rounded-tile px-4 py-4 text-lead font-semibold">Посмотреть экономию за месяц</button>
+        <button class="w-full bg-surface text-brand-700 border border-brand-600 rounded-tile px-4 py-4 text-body font-semibold">Позвать соседа и получить 300 баллов</button>
+      </div>
+      <nav class="shrink-0 bg-surface shadow-nav px-2 pt-2 pb-3 grid grid-cols-4">
+        <a href="#" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m3 11 9-7 9 7v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M10 21v-6h4v6"/></svg><span class="text-caption">Дом</span></a>
+        <a href="#frame-goal" class="flex flex-col items-center gap-1 py-2 no-underline text-brand-700"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span class="text-caption font-semibold">Цель</span></a>
+        <a href="#frame-league" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M8 4h8v5a4 4 0 0 1-8 0zM12 13v4M9 21h6"/></svg><span class="text-caption">Лига</span></a>
+        <a href="#frame-refer" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M17 11h4M19 9v4"/></svg><span class="text-caption">Соседи</span></a>
+      </nav>
+    </div>
+  </figure>
+
+  <!-- ============ 8. ОШИБКА ============ -->
+  <figure class="flex flex-col gap-3 m-0">
+    <figcaption class="text-lead font-semibold">Ошибка</figcaption>
+    <div class="w-frame h-frameh max-w-[430px] rounded-sheet bg-canvas shadow-lift overflow-hidden flex flex-col">
+      <div class="shrink-0 bg-surface px-4 py-4 flex items-center gap-3 border-b border-line">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M15 5l-7 7 7 7"/></svg>
+        <h2 class="text-lead font-bold">Дом</h2>
+      </div>
+      <div class="flex-1 min-h-0 overflow-y-auto px-4 py-4 flex flex-col gap-4 items-center justify-center text-center">
+        <svg class="w-40 h-40"><use href="#dom-bored"/></svg>
+        <h3 class="text-title font-bold leading-tight">Не получилось загрузить</h3>
+        <p class="text-body text-ink-700 text-pretty">Домовой не дозвонился до кассы. Проверьте связь и попробуйте ещё раз — данные не потеряются.</p>
+        <button class="w-full flex items-center justify-center gap-2 bg-brand-700 text-white rounded-tile px-4 py-4 text-lead font-semibold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/></svg>
+          Повторить
+        </button>
+      </div>
+      <nav class="shrink-0 bg-surface shadow-nav px-2 pt-2 pb-3 grid grid-cols-4">
+        <a href="#" class="flex flex-col items-center gap-1 py-2 no-underline text-brand-700"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m3 11 9-7 9 7v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M10 21v-6h4v6"/></svg><span class="text-caption font-semibold">Дом</span></a>
+        <a href="#frame-goal" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span class="text-caption">Цель</span></a>
+        <a href="#frame-league" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M8 4h8v5a4 4 0 0 1-8 0zM12 13v4M9 21h6"/></svg><span class="text-caption">Лига</span></a>
+        <a href="#frame-refer" class="flex flex-col items-center gap-1 py-2 no-underline text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M17 11h4M19 9v4"/></svg><span class="text-caption">Соседи</span></a>
+      </nav>
+    </div>
+  </figure>
+</main>
+
+<!-- ============ PM VIEW ============ -->
+<section class="mx-auto max-w-pm px-6 pb-16 flex flex-col gap-4">
+  <h2 class="text-title font-bold">PM view — экран для продакта</h2>
+  <div class="bg-canvas rounded-sheet shadow-lift p-6 flex flex-col gap-4">
+    <div class="bg-accent-50 text-accent-700 rounded-tile px-4 py-3 flex items-start gap-2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6 shrink-0"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 11v5"/></svg>
+      <p class="text-body font-semibold m-0">Допущения симуляции, не фактические показатели X5.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+        <h3 class="text-lead font-bold">Профиль и признаки</h3>
+        <dl class="grid grid-cols-2 gap-3 m-0">
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Частота</dt><dd class="text-body font-semibold m-0">2,1 покупки/нед</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Давность</dt><dd class="text-body font-semibold m-0">3 дня</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Средний чек</dt><dd class="text-body font-semibold m-0">640 ₽</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Чувствительность к промо</dt><dd class="text-body font-semibold m-0">0,42</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Ритм</dt><dd class="text-body font-semibold m-0">5,8 дней</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Экономия за 30 дней</dt><dd class="text-body font-semibold m-0">1 240 ₽</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Молочное</dt><dd class="text-body font-semibold m-0">31%</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Овощи</dt><dd class="text-body font-semibold m-0">18%</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Покупки в других сетях</dt><dd class="text-body font-semibold m-0">12%</dd></div>
+        </dl>
+      </section>
+
+      <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+        <h3 class="text-lead font-bold">Механика и обоснование</h3>
+        <span class="self-start bg-brand-50 text-brand-700 rounded-tile px-3 py-1 text-caption font-semibold font-mono">challenge</span>
+        <ul class="flex flex-col gap-2 m-0 pl-0 list-none">
+          <li class="flex gap-2 text-body text-ink-700"><span class="text-brand-700 font-bold">1.</span>Ритм 5,8 дней — плюс один поход реалистичен без давления.</li>
+          <li class="flex gap-2 text-body text-ink-700"><span class="text-brand-700 font-bold">2.</span>Чувствительность к промо 0,42 — средняя, скидка не обязательна.</li>
+          <li class="flex gap-2 text-body text-ink-700"><span class="text-brand-700 font-bold">3.</span>12% покупок в других сетях — есть что вернуть.</li>
+        </ul>
+      </section>
+
+      <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+        <h3 class="text-lead font-bold">Экономика цели</h3>
+        <dl class="grid grid-cols-2 gap-3 m-0">
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Средний чек</dt><dd class="text-body font-semibold m-0">640 ₽</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Ожидаемые доп. покупки</dt><dd class="text-body font-semibold m-0">0,8</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Ожидаемая доп. маржа</dt><dd class="text-body font-semibold m-0">92 ₽</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Максимальный бюджет награды</dt><dd class="text-body font-semibold m-0">37 ₽</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Выданная награда</dt><dd class="text-body font-semibold m-0">30 баллов</dd></div>
+        </dl>
+        <div class="flex items-center gap-2 bg-brand-50 text-brand-700 rounded-tile px-3 py-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6 shrink-0"><path d="m4 13 5 5L20 7"/></svg>
+          <span class="text-body font-semibold">Награда укладывается в бюджет: 30 из 37 ₽</span>
+        </div>
+      </section>
+
+      <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+        <h3 class="text-lead font-bold">Антифрод</h3>
+        <div class="flex items-baseline gap-3"><span class="text-hero font-bold leading-none">0,62</span><span class="bg-accent-50 text-accent-700 rounded-tile px-3 py-1 text-caption font-semibold font-mono">решение: hold — удержать</span></div>
+        <div class="flex flex-col gap-1">
+          <div class="relative h-3 w-full rounded-tile bg-canvas overflow-hidden">
+            <div class="h-full w-3/5 rounded-tile bg-accent-500"></div>
+            <div class="absolute inset-0 flex"><div class="w-1/2 border-r-2 border-ink-900"></div></div>
+            <div class="absolute inset-0 flex"><div class="w-4/5 border-r-2 border-ink-900"></div></div>
+          </div>
+          <div class="relative flex text-caption text-ink-500">
+            <div class="w-1/2 shrink-0"></div><span class="whitespace-nowrap">порог 0,5</span>
+          </div>
+          <div class="relative flex text-caption text-ink-500">
+            <div class="w-4/5 shrink-0"></div><span class="whitespace-nowrap">порог 0,8</span>
+          </div>
+          <div class="relative flex text-caption font-semibold text-ink-900">
+            <div class="w-3/5 shrink-0"></div><span class="whitespace-nowrap">текущий 0,62</span>
+          </div>
+          <div class="flex justify-between text-caption text-ink-500"><span>0</span><span>1</span></div>
+        </div>
+        <ul class="flex flex-col gap-2 m-0 pl-0 list-none">
+          <li class="flex items-start justify-between gap-3 border-t border-line pt-2"><span class="text-body text-ink-700">Несколько чеков за 10 минут — вес 0,28<span class="block text-caption text-ink-500">Похоже на дробление одной покупки</span></span><span class="shrink-0 bg-accent-50 text-accent-700 rounded-tile px-3 py-1 text-caption font-semibold">сильный</span></li>
+          <li class="flex items-start justify-between gap-3 border-t border-line pt-2"><span class="text-body text-ink-700">Новое устройство — вес 0,19<span class="block text-caption text-ink-500">Вход с незнакомого телефона на этой неделе</span></span><span class="shrink-0 bg-accent-50 text-accent-700 rounded-tile px-3 py-1 text-caption font-semibold">сильный</span></li>
+          <li class="flex items-start justify-between gap-3 border-t border-line pt-2"><span class="text-body text-ink-700">Приглашения из одной сети — вес 0,09<span class="block text-caption text-ink-500">Соседи зашли с одного адреса сети</span></span><span class="shrink-0 bg-canvas text-ink-700 rounded-tile px-3 py-1 text-caption font-semibold">слабый</span></li>
+          <li class="flex items-start justify-between gap-3 border-t border-line pt-2"><span class="text-body text-ink-700">Мелкие чеки подряд — вес 0,06<span class="block text-caption text-ink-500">Суммы ниже обычных для этого профиля</span></span><span class="shrink-0 bg-canvas text-ink-700 rounded-tile px-3 py-1 text-caption font-semibold">слабый</span></li>
+        </ul>
+      </section>
+
+      <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+        <h3 class="text-lead font-bold">Журнал начислений</h3>
+        <table class="w-full border-collapse text-body">
+          <thead><tr class="text-caption text-ink-500 text-left"><th class="font-normal py-2">Событие</th><th class="font-normal py-2">XP</th><th class="font-normal py-2">Баллы</th><th class="font-normal py-2">Дата</th></tr></thead>
+          <tbody>
+            <tr class="border-t border-line"><td class="py-2">Покупка учтена</td><td class="py-2">+20</td><td class="py-2">—</td><td class="py-2 text-ink-500">3 сентября</td></tr>
+            <tr class="border-t border-line"><td class="py-2">Цель выполнена</td><td class="py-2">+50</td><td class="py-2">30</td><td class="py-2 text-ink-500">24 августа</td></tr>
+            <tr class="border-t border-line"><td class="py-2">Приглашение оплачено</td><td class="py-2">—</td><td class="py-2">300</td><td class="py-2 text-ink-500">21 августа</td></tr>
+            <tr class="border-t border-line"><td class="py-2">Серия 3 недели</td><td class="py-2">+15</td><td class="py-2">—</td><td class="py-2 text-ink-500">18 августа</td></tr>
+            <tr class="border-t border-line"><td class="py-2">Цель выполнена</td><td class="py-2">+30</td><td class="py-2">15</td><td class="py-2 text-ink-500">17 августа</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+        <h3 class="text-lead font-bold">Симуляция: контроль и тест</h3>
+        <table class="w-full border-collapse text-body">
+          <thead><tr class="text-caption text-ink-500 text-left"><th class="font-normal py-2">Показатель</th><th class="font-normal py-2">Контроль</th><th class="font-normal py-2">Тест</th></tr></thead>
+          <tbody>
+            <tr class="border-t border-line"><td class="py-2">Покупок на пользователя</td><td class="py-2">3,1</td><td class="py-2 font-semibold text-brand-700">3,4</td></tr>
+            <tr class="border-t border-line"><td class="py-2">Доля с 4 и более покупками</td><td class="py-2">28%</td><td class="py-2 font-semibold text-brand-700">36%</td></tr>
+            <tr class="border-t border-line"><td class="py-2">Прирост частоты</td><td class="py-2">—</td><td class="py-2 font-semibold text-brand-700">+7,4%</td></tr>
+          </tbody>
+        </table>
+        <dl class="grid grid-cols-2 gap-3 m-0 border-t border-line pt-3">
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Доп. выручка</dt><dd class="text-body font-semibold m-0">на 0,8 покупки × 640 ₽</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Доп. маржа</dt><dd class="text-body font-semibold m-0">92 ₽ на пользователя</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Стоимость наград</dt><dd class="text-body font-semibold m-0">30 баллов ≈ 30 ₽</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Чистый эффект</dt><dd class="text-body font-semibold m-0 text-brand-700">+62 ₽ на пользователя</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Конверсия приглашений</dt><dd class="text-body font-semibold m-0">3 из 5 оплачено</dd></div>
+          <div class="flex flex-col"><dt class="text-caption text-ink-500">Точность / полнота антифрода</dt><dd class="text-body font-semibold m-0">0,78 / 0,71</dd></div>
+        </dl>
+      </section>
+
+      <section class="bg-surface rounded-card shadow-card p-4 flex flex-col gap-3 md:col-span-2">
+        <h3 class="text-lead font-bold">Качество подбора целей ИИ</h3>
+        <dl class="grid grid-cols-2 md:grid-cols-5 gap-3 m-0">
+          <div class="bg-canvas rounded-tile p-3 flex flex-col gap-1"><dt class="text-caption text-ink-500">Профилей проверено</dt><dd class="text-title font-bold m-0">30–50</dd></div>
+          <div class="bg-canvas rounded-tile p-3 flex flex-col gap-1"><dt class="text-caption text-ink-500">Попадание</dt><dd class="text-title font-bold m-0 text-brand-700">78%</dd></div>
+          <div class="bg-canvas rounded-tile p-3 flex flex-col gap-1"><dt class="text-caption text-ink-500">Некорректных</dt><dd class="text-title font-bold m-0 text-accent-700">6%</dd></div>
+          <div class="bg-canvas rounded-tile p-3 flex flex-col gap-1"><dt class="text-caption text-ink-500">Шаблонных текстов</dt><dd class="text-title font-bold m-0 text-accent-700">14%</dd></div>
+          <div class="bg-canvas rounded-tile p-3 flex flex-col gap-1"><dt class="text-caption text-ink-500">Прошли проверку экономики</dt><dd class="text-title font-bold m-0 text-brand-700">96%</dd></div>
+        </dl>
+      </section>
+    </div>
+  </div>
+</section>
+
+<!-- ============ БИБЛИОТЕКА КОМПОНЕНТОВ ============ -->
+<section class="mx-auto max-w-pm px-6 pb-16 flex flex-col gap-4">
+  <h2 class="text-title font-bold">Библиотека компонентов</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+    <div class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+      <h3 class="text-lead font-bold">Кнопки</h3>
+      <button class="bg-brand-700 text-white rounded-tile px-4 py-4 text-lead font-semibold">Основная, большая</button>
+      <button class="bg-brand-700 text-white rounded-tile px-4 py-3 text-body font-semibold">Основная, обычная</button>
+      <button class="bg-brand-800 text-white rounded-tile px-4 py-3 text-body font-semibold">Основная, нажатая</button>
+      <button class="bg-surface text-brand-700 border border-brand-600 rounded-tile px-4 py-3 text-body font-semibold">Второстепенная</button>
+      <button class="bg-accent-500 text-white rounded-tile px-4 py-3 text-lead font-semibold">Акцентная</button>
+      <button class="bg-canvas text-ink-500 rounded-tile px-4 py-3 text-body font-semibold" disabled>Недоступна</button>
+      <button class="self-start text-brand-700 text-body font-semibold underline">Кнопка-ссылка</button>
+    </div>
+
+    <div class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+      <h3 class="text-lead font-bold">Карточка, плитка, «пилюли»</h3>
+      <div class="bg-canvas rounded-card p-4 flex flex-col gap-2"><span class="text-caption text-ink-500">Заголовок раздела</span><span class="text-title font-bold">Значение</span><span class="text-body text-ink-700">Пояснение в одну строку</span></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-canvas rounded-tile p-4 flex flex-col gap-2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6 text-brand-700"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span class="text-body font-semibold leading-tight">Плитка</span><span class="text-caption text-ink-500">две строки подписи</span></div>
+        <div class="bg-canvas rounded-tile p-4 flex flex-col gap-2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6 text-brand-700"><path d="M8 4h8v5a4 4 0 0 1-8 0zM12 13v4M9 21h6"/></svg><span class="text-body font-semibold leading-tight">Плитка</span><span class="text-caption text-ink-500">с иконкой 24px</span></div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <span class="bg-ink-900 text-white rounded-tile px-4 py-2 text-body font-semibold">Активная</span>
+        <span class="bg-canvas text-ink-700 rounded-tile px-4 py-2 text-body">Неактивная</span>
+        <span class="bg-canvas text-ink-700 rounded-tile px-4 py-2 text-body">Ещё одна</span>
+      </div>
+    </div>
+
+    <div class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+      <h3 class="text-lead font-bold">Прогресс и бейджи</h3>
+      <div class="flex flex-col gap-1"><span class="text-caption text-ink-500">Светлый тон — на белой карточке</span><div class="h-3 w-full rounded-tile bg-brand-50 overflow-hidden"><div class="h-full w-2/3 rounded-tile bg-brand-600"></div></div></div>
+      <div class="flex flex-col gap-1 bg-brand-700 rounded-tile p-3"><span class="text-caption text-brand-100">Тёмный тон — на зелёной карточке</span><div class="h-3 w-full rounded-tile bg-brand-800 overflow-hidden"><div class="h-full w-2/3 rounded-tile bg-white"></div></div></div>
+      <div class="flex flex-wrap gap-2">
+        <span class="bg-accent-50 text-accent-700 rounded-tile px-3 py-1 text-caption font-semibold">+50 XP</span>
+        <span class="bg-accent-50 text-accent-700 rounded-tile px-3 py-1 text-caption font-semibold">до вс, 7 сентября</span>
+        <span class="bg-brand-50 text-brand-700 rounded-tile px-3 py-1 text-caption font-semibold">серия 3 недели</span>
+      </div>
+    </div>
+
+    <div class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3">
+      <h3 class="text-lead font-bold">Строка списка, статусы, скелетон</h3>
+      <div class="bg-canvas rounded-tile divide-y divide-line">
+        <div class="flex items-center gap-3 p-4"><span class="w-10 h-10 shrink-0 rounded-tile bg-brand-50 text-brand-700 flex items-center justify-center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m4 13 5 5L20 7"/></svg></span><span class="flex-1 flex flex-col"><span class="text-body font-semibold">Строка списка</span><span class="text-caption text-ink-500">дата · статус</span></span><span class="text-caption font-semibold text-brand-700">+50 XP</span></div>
+        <div class="flex items-center gap-3 p-4 bg-brand-700 text-white rounded-b-tile"><span class="w-8 text-body font-bold">6</span><span class="flex-1 text-body font-semibold">Выделенная строка «Вы»</span><span class="text-body font-bold">418</span></div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <span class="flex items-center gap-2 bg-brand-50 text-brand-700 rounded-tile px-3 py-1 text-caption font-semibold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m4 13 5 5L20 7"/></svg>успешно</span>
+        <span class="flex items-center gap-2 bg-accent-50 text-accent-700 rounded-tile px-3 py-1 text-caption font-semibold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>в процессе</span>
+        <span class="flex items-center gap-2 bg-canvas text-ink-700 rounded-tile px-3 py-1 text-caption font-semibold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M6 6l12 12M18 6 6 18"/></svg>не выполнено</span>
+      </div>
+      <div class="bg-canvas rounded-tile p-4 flex flex-col gap-2 animate-pulse"><div class="h-4 w-1/3 rounded-tile bg-line"></div><div class="h-8 w-2/3 rounded-tile bg-line"></div><div class="h-3 w-full rounded-tile bg-line"></div></div>
+    </div>
+
+    <div class="shrink-0 bg-surface rounded-card shadow-card p-4 flex flex-col gap-3 md:col-span-2">
+      <h3 class="text-lead font-bold">Состояния интерактивных элементов</h3>
+      <p class="text-caption text-ink-500 m-0">Кольцо фокуса — 2px, отступ 2px, цвет brand-700. Наведение затемняет на один шаг, нажатие — на два.</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <button class="bg-brand-700 text-white rounded-tile px-4 py-3 text-body font-semibold hover:bg-brand-800 active:bg-brand-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 disabled:bg-canvas disabled:text-ink-500">Основная: наведение, нажатие, фокус</button>
+        <button class="bg-brand-700 text-white rounded-tile px-4 py-3 text-body font-semibold disabled:bg-canvas disabled:text-ink-500" disabled>Основная: недоступна</button>
+        <button class="bg-surface text-brand-700 border border-brand-700 rounded-tile px-4 py-3 text-body font-semibold hover:bg-brand-50 active:bg-brand-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 disabled:border-line disabled:text-ink-500">Второстепенная: наведение, нажатие, фокус</button>
+        <button class="bg-surface text-brand-700 border border-line rounded-tile px-4 py-3 text-body font-semibold" disabled>Второстепенная: недоступна</button>
+        <button class="self-start text-brand-700 text-body font-semibold underline hover:text-brand-800 active:text-brand-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 rounded-tile px-2 py-2">Кнопка-ссылка: наведение и фокус</button>
+        <button class="self-start text-ink-500 text-body font-semibold underline px-2 py-2" disabled>Кнопка-ссылка: недоступна</button>
+      </div>
+      <div class="bg-canvas rounded-tile divide-y divide-line">
+        <button class="w-full flex items-center gap-3 p-4 text-left hover:bg-brand-50 active:bg-brand-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700"><span class="flex-1 text-body font-semibold">Строка списка: наведение, нажатие, фокус</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6 text-ink-500"><path d="m9 6 6 6-6 6"/></svg></button>
+        <button class="w-full flex items-center gap-3 p-4 text-left text-ink-500" disabled><span class="flex-1 text-body font-semibold">Строка списка: недоступна</span></button>
+      </div>
+      <nav class="bg-canvas rounded-tile px-2 pt-2 pb-3 grid grid-cols-4 max-w-[430px]">
+        <button class="flex flex-col items-center gap-1 py-2 text-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 rounded-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m3 11 9-7 9 7v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M10 21v-6h4v6"/></svg><span class="text-caption font-semibold">Активный</span></button>
+        <button class="flex flex-col items-center gap-1 py-2 text-ink-700 hover:text-brand-700 rounded-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span class="text-caption">Наведение</span></button>
+        <button class="flex flex-col items-center gap-1 py-2 text-brand-800 bg-brand-50 rounded-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M8 4h8v5a4 4 0 0 1-8 0zM12 13v4M9 21h6"/></svg><span class="text-caption">Нажатие</span></button>
+        <button class="flex flex-col items-center gap-1 py-2 text-brand-700 rounded-tile outline-2 outline-offset-2 outline-brand-700"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M17 11h4M19 9v4"/></svg><span class="text-caption">Фокус</span></button>
+      </nav>
+    </div>
+
+    <div class="bg-surface rounded-card shadow-card p-4 flex flex-col gap-3 md:col-span-2">
+      <h3 class="text-lead font-bold">Нижняя навигация</h3>
+      <nav class="bg-canvas rounded-tile px-2 pt-2 pb-3 grid grid-cols-4 max-w-[430px]">
+        <span class="flex flex-col items-center gap-1 py-2 text-brand-700"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="m3 11 9-7 9 7v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M10 21v-6h4v6"/></svg><span class="text-caption font-semibold">Дом</span></span>
+        <span class="flex flex-col items-center gap-1 py-2 text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg><span class="text-caption">Цель</span></span>
+        <span class="flex flex-col items-center gap-1 py-2 text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><path d="M8 4h8v5a4 4 0 0 1-8 0zM12 13v4M9 21h6"/></svg><span class="text-caption">Лига</span></span>
+        <span class="flex flex-col items-center gap-1 py-2 text-ink-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" class="w-6 h-6"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M17 11h4M19 9v4"/></svg><span class="text-caption">Соседи</span></span>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ПЕРСОНАЖ ============ -->
+<section class="mx-auto max-w-pm px-6 pb-24 flex flex-col gap-4">
+  <h2 class="text-title font-bold">Домовой: настроения и обжитость</h2>
+  <div class="bg-surface rounded-card shadow-card p-6 grid grid-cols-2 md:grid-cols-5 gap-4">
+    <div class="flex flex-col items-center gap-2"><svg class="w-32 h-32"><use href="#dom-cheerful"/></svg><span class="text-body font-semibold">Весёлый</span><span class="text-caption text-ink-500 font-mono">cheerful</span></div>
+    <div class="flex flex-col items-center gap-2"><svg class="w-32 h-32"><use href="#dom-cozy"/></svg><span class="text-body font-semibold">Уютный</span><span class="text-caption text-ink-500 font-mono">cozy</span></div>
+    <div class="flex flex-col items-center gap-2"><svg class="w-32 h-32"><use href="#dom-healthy"/></svg><span class="text-body font-semibold">Бодрый</span><span class="text-caption text-ink-500 font-mono">healthy</span></div>
+    <div class="flex flex-col items-center gap-2"><svg class="w-32 h-32"><use href="#dom-bored"/></svg><span class="text-body font-semibold">Скучающий</span><span class="text-caption text-ink-500 font-mono">bored</span></div>
+    <div class="flex flex-col items-center gap-2"><svg class="w-32 h-32"><use href="#dom-sleepy"/></svg><span class="text-body font-semibold">Сонный</span><span class="text-caption text-ink-500 font-mono">sleepy</span></div>
+  </div>
+  <div class="bg-surface rounded-card shadow-card p-6 flex flex-col gap-4">
+    <h3 class="text-lead font-bold">Контрольная полоса: различимость в 32px и 48px</h3>
+    <div class="grid grid-cols-5 gap-4 max-w-lg">
+      <div class="flex flex-col items-center gap-2"><svg class="w-8 h-8"><use href="#dom-cheerful"/></svg><svg class="w-12 h-12"><use href="#dom-cheerful"/></svg><span class="text-caption text-center">Весёлый<span class="block text-ink-500">искры</span></span></div>
+      <div class="flex flex-col items-center gap-2"><svg class="w-8 h-8"><use href="#dom-cozy"/></svg><svg class="w-12 h-12"><use href="#dom-cozy"/></svg><span class="text-caption text-center">Уютный<span class="block text-ink-500">плед</span></span></div>
+      <div class="flex flex-col items-center gap-2"><svg class="w-8 h-8"><use href="#dom-healthy"/></svg><svg class="w-12 h-12"><use href="#dom-healthy"/></svg><span class="text-caption text-center">Бодрый<span class="block text-ink-500">лист</span></span></div>
+      <div class="flex flex-col items-center gap-2"><svg class="w-8 h-8"><use href="#dom-bored"/></svg><svg class="w-12 h-12"><use href="#dom-bored"/></svg><span class="text-caption text-center">Скучающий<span class="block text-ink-500">кривая шапка</span></span></div>
+      <div class="flex flex-col items-center gap-2"><svg class="w-8 h-8"><use href="#dom-sleepy"/></svg><svg class="w-12 h-12"><use href="#dom-sleepy"/></svg><span class="text-caption text-center">Сонный<span class="block text-ink-500">колпак и «z»</span></span></div>
+    </div>
+    <p class="text-caption text-ink-500 m-0 text-pretty">Каждое настроение отличается формой: искры по бокам, полоса пледа, зелёный лист, наклон шапки, длинный колпак с «z». Глаза и рот — тёмные на светлом мехе.</p>
+  </div>
+  <div class="bg-surface rounded-card shadow-card p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="flex flex-col items-center gap-2"><svg class="w-40 h-40"><use href="#dom-lvl1"/></svg><span class="text-body font-semibold">Уровень 1</span><span class="text-caption text-ink-500">пустой дом</span></div>
+    <div class="flex flex-col items-center gap-2"><svg class="w-40 h-40"><use href="#dom-lvl7"/></svg><span class="text-body font-semibold">Уровень 7</span><span class="text-caption text-ink-500">плед и чашка</span></div>
+    <div class="flex flex-col items-center gap-2"><svg class="w-40 h-40"><use href="#dom-lvl15"/></svg><span class="text-body font-semibold">Уровень 15</span><span class="text-caption text-ink-500">плед, чашка, полка</span></div>
+  </div>
+  <div class="flex items-center gap-8 flex-wrap">
+    <div class="flex items-center gap-3"><svg class="w-12 h-12"><use href="#dom-cozy"/></svg><span class="text-caption text-ink-700">48px — узнаваемость</span></div>
+    <div class="flex items-center gap-3"><svg class="w-8 h-8"><use href="#dom-cheerful"/></svg><span class="text-caption text-ink-700">32px — в списках</span></div>
+  </div>
+</section>
+
+<script>
+document.querySelectorAll('[data-acc]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = document.getElementById(b.dataset.acc);
+    t.classList.toggle('hidden');
+    t.classList.toggle('flex');
+    var i = b.querySelector('svg');
+    if (i) i.style.transform = t.classList.contains('hidden') ? '' : 'rotate(180deg)';
+  });
+});
+</script>
+</body>
+</html>

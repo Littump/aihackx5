@@ -14,6 +14,7 @@
 | [team.md](team.md) | Кто за что отвечает и как стыкуемся |
 | [decisions.md](decisions.md) | Архитектурные решения и чем за них платим |
 | [deploy.md](deploy.md) | Схема деплоя на Yandex Cloud VM, что нужно от владельца, порядок первого развёртывания |
+| [design/README.md](design/README.md) | Дизайн-система: токены, правила контраста и вёрстки, компоненты; сам макет — `design/mockup.html` |
 | [backlog/README.md](backlog/README.md) | Доска задач: эпики, статусы, порядок |
 
 Правила для кода — `.claude/rules/`, рецепты — `.claude/skills/`, агенты — `.claude/agents/`. Корневой `CLAUDE.md` — точка входа для любого агента.
