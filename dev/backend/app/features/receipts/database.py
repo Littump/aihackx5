@@ -1,8 +1,30 @@
+from datetime import datetime
+
 from psycopg import AsyncConnection
 from psycopg.rows import class_row
 
 from app.features.receipts.models import ReceiptItemRow, ReceiptRow
 
+RECEIPT_LIST_SELECT = (
+    "SELECT id, user_id, store_id, purchased_at, regular_total, paid_total, discount_total, "
+    "points_earned, points_spent, counted, is_returned, returned_at, source, pos_id, created_at "
+    "FROM receipts WHERE user_id = %(user_id)s "
+    "ORDER BY purchased_at DESC, id DESC LIMIT %(limit)s"
+)
+RECEIPT_ITEMS_FOR_RECEIPTS_SELECT = (
+    "SELECT id, receipt_id, product_name, category, qty, regular_price, paid_price, is_promo "
+    "FROM receipt_items WHERE receipt_id = ANY(%(receipt_ids)s) ORDER BY receipt_id, id"
+)
+DEDUP_WINDOW_EXISTS = (
+    "SELECT EXISTS (SELECT 1 FROM receipts WHERE user_id = %(user_id)s "
+    "AND store_id = %(store_id)s AND counted = true AND purchased_at > "
+    "%(purchased_at)s - make_interval(mins => %(window_minutes)s) AND purchased_at < "
+    "%(purchased_at)s + make_interval(mins => %(window_minutes)s))"
+)
+COUNTED_IN_RANGE_COUNT = (
+    "SELECT count(*) FROM receipts WHERE user_id = %(user_id)s AND counted = true "
+    "AND purchased_at >= %(start)s AND purchased_at < %(end)s"
+)
 RECEIPT_INSERT = (
     "INSERT INTO receipts (user_id, store_id, purchased_at, regular_total, paid_total, "
     "discount_total, points_earned, points_spent, counted, is_returned, returned_at, "
@@ -36,3 +58,51 @@ async def insert_receipt_item(conn: AsyncConnection, params: dict[str, object]) 
         row = await cur.fetchone()
         assert row is not None
         return row
+
+
+async def list_receipts_for_user(
+    conn: AsyncConnection, *, user_id: int, limit: int
+) -> list[ReceiptRow]:
+    async with conn.cursor(row_factory=class_row(ReceiptRow)) as cur:
+        await cur.execute(RECEIPT_LIST_SELECT, {"user_id": user_id, "limit": limit})
+        return await cur.fetchall()
+
+
+async def list_receipt_items_for_receipts(
+    conn: AsyncConnection, *, receipt_ids: list[int]
+) -> list[ReceiptItemRow]:
+    async with conn.cursor(row_factory=class_row(ReceiptItemRow)) as cur:
+        await cur.execute(RECEIPT_ITEMS_FOR_RECEIPTS_SELECT, {"receipt_ids": receipt_ids})
+        return await cur.fetchall()
+
+
+async def exists_counted_receipt_in_store_within_window(
+    conn: AsyncConnection,
+    *,
+    user_id: int,
+    store_id: int,
+    purchased_at: datetime,
+    window_minutes: int,
+) -> bool:
+    async with conn.cursor() as cur:
+        await cur.execute(
+            DEDUP_WINDOW_EXISTS,
+            {
+                "user_id": user_id,
+                "store_id": store_id,
+                "purchased_at": purchased_at,
+                "window_minutes": window_minutes,
+            },
+        )
+        row = await cur.fetchone()
+        return bool(row is not None and row[0])
+
+
+async def count_counted_receipts_in_range(
+    conn: AsyncConnection, *, user_id: int, start: datetime, end: datetime
+) -> int:
+    async with conn.cursor() as cur:
+        await cur.execute(COUNTED_IN_RANGE_COUNT, {"user_id": user_id, "start": start, "end": end})
+        row = await cur.fetchone()
+        assert row is not None
+        return int(row[0])

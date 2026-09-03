@@ -10,6 +10,7 @@ USER_GET_BY_ID = (
     "FROM users WHERE id = %(user_id)s"
 )
 PSEUDONYM_EXISTS = "SELECT EXISTS(SELECT 1 FROM users WHERE pseudonym = %(pseudonym)s)"
+STORE_GET_BY_ID = "SELECT id, name, chain, district, city FROM stores WHERE id = %(store_id)s"
 STORE_INSERT = (
     "INSERT INTO stores (name, chain, district, city) "
     "VALUES (%(name)s, %(chain)s, %(district)s, %(city)s) "
@@ -58,3 +59,9 @@ async def pseudonym_exists(conn: AsyncConnection, *, pseudonym: str) -> bool:
         await cur.execute(PSEUDONYM_EXISTS, {"pseudonym": pseudonym})
         row = await cur.fetchone()
         return bool(row is not None and row[0])
+
+
+async def get_store_by_id(conn: AsyncConnection, *, store_id: int) -> StoreRow | None:
+    async with conn.cursor(row_factory=class_row(StoreRow)) as cur:
+        await cur.execute(STORE_GET_BY_ID, {"store_id": store_id})
+        return await cur.fetchone()

@@ -1,0 +1,83 @@
+from decimal import Decimal
+
+from app.features.receipts.models import ReceiptItemDraft
+
+TOTALS_CASES: list[tuple[list[ReceiptItemDraft], Decimal, Decimal, Decimal]] = [
+    (
+        [
+            ReceiptItemDraft(
+                product_name="Молоко",
+                category="dairy",
+                qty=Decimal("1"),
+                regular_price=Decimal("89.90"),
+                paid_price=Decimal("79.90"),
+            ),
+            ReceiptItemDraft(
+                product_name="Багет",
+                category="bakery",
+                qty=Decimal("2"),
+                regular_price=Decimal("59.90"),
+                paid_price=Decimal("49.90"),
+                is_promo=True,
+            ),
+        ],
+        Decimal("209.70"),
+        Decimal("179.70"),
+        Decimal("30.00"),
+    ),
+    (
+        [
+            ReceiptItemDraft(
+                product_name="Сыр",
+                category="dairy",
+                qty=Decimal("0.500"),
+                regular_price=Decimal("20.03"),
+                paid_price=Decimal("20.02"),
+            ),
+        ],
+        Decimal("10.02"),
+        Decimal("10.01"),
+        Decimal("0.01"),
+    ),
+    (
+        [],
+        Decimal("0.00"),
+        Decimal("0.00"),
+        Decimal("0.00"),
+    ),
+    (
+        [
+            ReceiptItemDraft(
+                product_name="Оливки",
+                category="grocery",
+                qty=Decimal("0.333"),
+                regular_price=Decimal("19.99"),
+                paid_price=Decimal("15.90"),
+            ),
+        ],
+        Decimal("6.66"),
+        Decimal("5.29"),
+        Decimal("1.37"),
+    ),
+    (
+        [
+            ReceiptItemDraft(
+                product_name="Сыр 1",
+                category="dairy",
+                qty=Decimal("1"),
+                regular_price=Decimal("10.004"),
+                paid_price=Decimal("9.996"),
+            ),
+            ReceiptItemDraft(
+                product_name="Сыр 2",
+                category="dairy",
+                qty=Decimal("1"),
+                regular_price=Decimal("10.004"),
+                paid_price=Decimal("9.996"),
+            ),
+        ],
+        Decimal("20.01"),
+        Decimal("19.99"),
+        Decimal("0.02"),
+    ),
+]

@@ -163,3 +163,10 @@ def level_for_xp(xp: int) -> int:
     while LEVEL_XP_MULTIPLIER * level * (level + 1) <= xp:
         level += 1
     return level
+
+
+def xp_to_next_level(xp: int) -> int:
+    level = level_for_xp(xp)
+    if level >= len(LEVEL_XP_THRESHOLDS):
+        return 0
+    return LEVEL_XP_THRESHOLDS[level] - xp
