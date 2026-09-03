@@ -44,6 +44,6 @@ async def render_insight(*, features: UserFeatures, savings: SavingsSummary) -> 
 async def plan(*, planner_input: PlannerInput) -> ChallengePlan | None: ...  # None → детерминированный fallback
 ```
 `PlannerInput` собирает `challenges/insight.py`, `ChallengePlan` валидирует `challenges/plan_validator.py`
-(зона Романа). LLM не возвращает рубли/баллы — только `promo_level`; деньги считает `economics.py`. Новая feature
+(зона Романа). LLM не возвращает рубли/баллы — только `reward_level`; деньги считает `economics.py`. Новая feature
 `catalog` (`sku_catalog`) — зона Романа; генерация каталога в `app/synthetic/catalog.py` — зона Татьяны.
 Полный дизайн и границы — `docs/ml-rework/`.
