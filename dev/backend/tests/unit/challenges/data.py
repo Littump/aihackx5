@@ -1,7 +1,15 @@
 from datetime import UTC, datetime
 from decimal import Decimal
+from typing import Literal
 
+from app.features.challenges.models import (
+    ChallengeDraft,
+    ChallengeEconomics,
+    ChallengeRow,
+    RationaleFeatures,
+)
 from app.features.user_features.models import CategoryAffinity, UserFeaturesRow
+from app.features.users.models import UserRow
 
 COMPUTED_AT = datetime(2026, 9, 1, 12, 0, tzinfo=UTC)
 DEFAULT_WINDOW_WEEKS = 10
@@ -70,3 +78,84 @@ ECONOMICS_CASES: list[tuple[Decimal, Decimal, Decimal, Decimal, Decimal, int]] =
     (Decimal("1.5"), Decimal("3"), Decimal("555"), Decimal("124.875"), Decimal("49.95"), 40),
     (Decimal("2"), Decimal("3"), Decimal("150"), Decimal("22.5"), Decimal("9"), 0),
 ]
+
+
+def make_draft(
+    *,
+    type: Literal["frequency", "category"] = "frequency",
+    category: str | None = None,
+    baseline: Decimal = Decimal("2"),
+    target: Decimal = Decimal("3"),
+    priority: float = 1.0,
+    frequency_per_week: float | None = None,
+    share: float | None = None,
+    visits: int | None = None,
+) -> ChallengeDraft:
+    return ChallengeDraft(
+        type=type,
+        category=category,
+        baseline=baseline,
+        target=target,
+        priority=priority,
+        rationale_features=RationaleFeatures(
+            frequency_per_week=frequency_per_week, share=share, visits=visits
+        ),
+    )
+
+
+def make_challenge_row(
+    *,
+    id: int = 1,
+    user_id: int = 1,
+    type: Literal["frequency", "category"] = "frequency",
+    category: str | None = None,
+    status: Literal["active", "completed", "failed", "expired"] = "active",
+    is_hero: bool = True,
+    baseline: Decimal = Decimal("2"),
+    target: Decimal = Decimal("3"),
+    progress: Decimal = Decimal("0"),
+) -> ChallengeRow:
+    return ChallengeRow(
+        id=id,
+        user_id=user_id,
+        type=type,
+        category=category,
+        status=status,
+        is_hero=is_hero,
+        baseline=baseline,
+        target=target,
+        progress=progress,
+        period_start=COMPUTED_AT,
+        period_end=COMPUTED_AT,
+        reward_xp=50,
+        reward_points=30,
+        economics=ChallengeEconomics(
+            avg_basket=0.0,
+            expected_incremental_purchases=0.0,
+            expected_incremental_margin=0.0,
+            max_reward_rub=0.0,
+            contribution_margin=0.0,
+            reward_share_max=0.0,
+        ),
+        rationale_features={},
+        copy_title="Заголовок",
+        copy_body="Текст",
+        copy_explanation="Почему",
+        copy_source="template",
+        created_at=COMPUTED_AT,
+        completed_at=None,
+    )
+
+
+def make_user_row(*, user_id: int = 1) -> UserRow:
+    return UserRow(
+        id=user_id,
+        pseudonym="Домовой",
+        segment="regular_mid",
+        favourite_store_id=None,
+        referral_code=f"CODE{user_id}",
+        referred_by_user_id=None,
+        device_fingerprint=None,
+        social_propensity=Decimal("0"),
+        created_at=COMPUTED_AT,
+    )

@@ -66,3 +66,9 @@ class ChallengeRow(AppModel):
     copy_source: Literal["llm", "template"]
     created_at: datetime
     completed_at: datetime | None
+
+
+class ChallengeListResult(AppModel):
+    hero: ChallengeRow | None
+    side: list[ChallengeRow]
+    history: list[ChallengeRow]

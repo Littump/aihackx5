@@ -23,7 +23,7 @@
 | BE-008 | E3 | `savings`: расчёт по §2, `GET /users/{id}/savings` | R | BE-006 | done | 2026-09-03 |
 | BE-009 | E4 | `domovoy`: XP, уровень, настроение, streak, `progression.py`, on_receipt | R | BE-007 | done | 2026-09-03 |
 | BE-010 | E5 | `challenges/candidate.py` + `economics.py`: кандидаты, target, max reward по §4–6 | R | BE-007, BE-003 | done | 2026-09-03 |
-| BE-011 | E5 | `challenges`: personalization (hero/side), генерация набора, `refresh`, `GET` ручки, заглушка copy | R | BE-010 | todo | |
+| BE-011 | E5 | `challenges`: personalization (hero/side), генерация набора, `refresh`, `GET` ручки, заглушка copy | R | BE-010 | done | 2026-09-03 |
 | AI-004 | E5 | `app/llm/`: клиент Anthropic, `render_challenge`, `render_insight`, шаблоны fallback | T | BE-011 | todo | |
 | BE-012 | E5 | Прогресс челленджа от чека, выполнение → reward_ledger + XP + streak, возврат откатывает | R | BE-011, BE-009 | todo | |
 | BE-013 | E6 | `receipts.process_receipt`: оркестратор по порядку из architecture.md, `ReceiptProcessingResult` | R | BE-012, BE-008 | todo | |
