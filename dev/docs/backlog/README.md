@@ -38,7 +38,7 @@
 | BE-019 | E8 | `referrals`: код, `redeem`, referee_kind, qualifying purchases, награда после антифрода, лимиты, `GET /users/{id}/referral` | R | BE-018 | todo | |
 | BE-020 | E8 | Антифрод в pipeline чека: block → counted=false, hold → отложенная награда | R | BE-018 | todo | |
 | BE-021 | E8 | `achievements`: правила §12, on_receipt, `GET` | R | BE-013 | todo | |
-| FE-004 | E9 | League: дивизион, список под псевдонимами, моё место, зоны, дельта после покупки, «дом vs район» | R | FE-001, BE-016 | todo | |
+| FE-004 | E9 | League: дивизион, список под псевдонимами, моё место, зоны, дельта после покупки, «дом vs район» | R | FE-001, BE-016 | done | 2026-09-03 |
 | FE-005 | E9 | Referral: код/QR, правила, приглашённые со статусами, лимиты | R | FE-001, BE-019 | todo | |
 | BE-022 | E10 | `pm`: `GET /pm/users/{id}`, `GET /pm/fraud`, `mechanic_decisions` | R | BE-019, BE-021 | todo | |
 | BE-023 | E10 | `GET /pm/simulation/latest`, `GET /pm/eval/latest` | R | BE-002 | todo | |
