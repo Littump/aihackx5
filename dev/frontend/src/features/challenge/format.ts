@@ -1,4 +1,5 @@
-import type { ChallengeDetail } from "./api";
+import type { StatusChipStatus } from "@/shared/ui/StatusChip";
+import type { ChallengeDetail, ChallengeHistoryItem } from "./api";
 
 type ChallengeType = ChallengeDetail["type"];
 
@@ -18,5 +19,29 @@ export function formatDeadline(periodEnd: string): string {
 }
 
 export function formatReward(rewardXp: number, rewardPoints: number): string {
-  return `+${rewardXp} XP + ${rewardPoints} баллов`;
+  return `+${rewardXp} XP и ${rewardPoints} баллов`;
+}
+
+export function formatCompactReward(rewardXp: number, rewardPoints: number): string {
+  return `+${rewardXp} XP · ${rewardPoints} баллов`;
+}
+
+type ChallengeHistoryStatus = ChallengeHistoryItem["status"];
+
+type ChallengeHistoryStatusInfo = {
+  text: string;
+  tone: StatusChipStatus;
+};
+
+const HISTORY_STATUS_INFO: Record<ChallengeHistoryStatus, ChallengeHistoryStatusInfo> = {
+  completed: { text: "выполнено", tone: "success" },
+  failed: { text: "не успели", tone: "inProgress" },
+  expired: { text: "истекло", tone: "failed" },
+  active: { text: "активно", tone: "neutral" },
+};
+
+export function formatChallengeHistoryStatus(
+  status: ChallengeHistoryStatus,
+): ChallengeHistoryStatusInfo {
+  return HISTORY_STATUS_INFO[status];
 }

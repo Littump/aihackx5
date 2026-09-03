@@ -1,8 +1,6 @@
-import { Card } from "@/shared/ui/Card";
 import { ProgressBar } from "@/shared/ui/ProgressBar";
 import type { ChallengeDetail } from "../api";
-import { formatChallengeType, formatDeadline, formatReward } from "../format";
-import { ExplanationDisclosure } from "./ExplanationDisclosure";
+import { formatCompactReward, formatDeadline } from "../format";
 
 type SideChallengeCardProps = {
   challenge: ChallengeDetail;
@@ -10,27 +8,20 @@ type SideChallengeCardProps = {
 
 export function SideChallengeCard({ challenge }: SideChallengeCardProps) {
   return (
-    <Card>
+    <section className="flex shrink-0 flex-col gap-3 rounded-card bg-surface p-4 shadow-card">
+      <div className="flex items-start justify-between gap-3">
+        <h4 className="text-body font-semibold leading-tight">{challenge.title}</h4>
+        <span className="shrink-0 rounded-tile bg-accent-50 px-3 py-1 text-caption font-semibold text-accent-700">
+          {formatCompactReward(challenge.reward_xp, challenge.reward_points)}
+        </span>
+      </div>
+      <ProgressBar value={challenge.progress} max={challenge.target} />
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-text">{challenge.title}</h3>
-        <span className="text-xs text-text-secondary">{formatChallengeType(challenge.type)}</span>
+        <span className="text-caption text-ink-500">
+          {challenge.progress} из {challenge.target}
+        </span>
+        <span className="text-caption text-ink-500">до {formatDeadline(challenge.period_end)}</span>
       </div>
-      <p className="mt-1 text-xs text-text-secondary">{challenge.body}</p>
-      <p className="mt-2 text-xs text-text">
-        {challenge.baseline} → <span className="font-semibold">{challenge.target}</span>
-      </p>
-      <div className="mt-2">
-        <ProgressBar value={challenge.progress} max={challenge.target} />
-        <p className="mt-1 text-xs text-text-secondary">
-          {challenge.progress} / {challenge.target} · до {formatDeadline(challenge.period_end)}
-        </p>
-      </div>
-      <p className="mt-1 text-xs font-medium text-legacy-accent-600">
-        {formatReward(challenge.reward_xp, challenge.reward_points)}
-      </p>
-      <div className="mt-2">
-        <ExplanationDisclosure explanation={challenge.explanation} />
-      </div>
-    </Card>
+    </section>
   );
 }

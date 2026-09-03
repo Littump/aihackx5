@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-type StatusChipStatus = "success" | "inProgress" | "failed" | "neutral";
+export type StatusChipStatus = "success" | "inProgress" | "failed" | "neutral";
 
 type StatusChipProps = {
   status: StatusChipStatus;

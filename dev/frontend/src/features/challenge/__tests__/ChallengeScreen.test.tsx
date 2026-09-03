@@ -29,23 +29,32 @@ describe("ChallengeScreen", () => {
 
     expect(await screen.findByRole("heading", { name: "3 покупки за неделю" })).toBeInTheDocument();
     expect(screen.getByText("2 покупки молочки за неделю")).toBeInTheDocument();
-    expect(screen.getByText("2 / 3")).toBeInTheDocument();
-    expect(screen.getAllByText(/\+50 XP \+ 30 баллов/).length).toBeGreaterThan(0);
-    expect(screen.getByText("30 августа")).toBeInTheDocument();
+    expect(screen.getByText("2 из 3")).toBeInTheDocument();
+    expect(screen.getByText("+50 XP и 30 баллов")).toBeInTheDocument();
+    expect(screen.getAllByText("+50 XP · 30 баллов").length).toBeGreaterThan(0);
+    expect(screen.getByText("30 августа · выполнено")).toBeInTheDocument();
   });
 
-  it("раскрывает объяснение по клику «Почему это мне?»", async () => {
-    const user = userEvent.setup();
+  it("объяснение в hero-карточке видно сразу, без клика", async () => {
     renderScreen();
 
     await screen.findByRole("heading", { name: "3 покупки за неделю" });
-    const explanationText = "Обычно 2 покупки в неделю (baseline 2), цель — 3 до конца недели.";
-    expect(screen.queryByText(explanationText)).not.toBeInTheDocument();
+    expect(
+      screen.getByText("Обычно 2 покупки в неделю (baseline 2), цель — 3 до конца недели."),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Почему это мне?" })).not.toBeInTheDocument();
+  });
 
-    const toggles = screen.getAllByRole("button", { name: "Почему это мне?" });
-    await user.click(toggles[0]);
+  it("side-карточка показывает реальный прогресс и без кнопки «Взять цель»", async () => {
+    renderScreen();
 
-    expect(screen.getByText(explanationText)).toBeInTheDocument();
+    const sideTitle = await screen.findByText("2 покупки молочки за неделю");
+    const sideCard = sideTitle.closest("section");
+    if (sideCard === null) throw new Error("side card not found");
+
+    expect(within(sideCard).getByText("1 из 2")).toBeInTheDocument();
+    expect(within(sideCard).getByText("до 6 сентября")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Взять цель" })).not.toBeInTheDocument();
   });
 
   it("показывает пустое состояние и обновляет челленджи по клику", async () => {
@@ -67,27 +76,27 @@ describe("ChallengeScreen", () => {
     const user = userEvent.setup();
     renderScreen("/challenge?user=3");
 
-    expect(await screen.findByText("Домовой думает…")).toBeInTheDocument();
+    expect(await screen.findByText("Домовой думает над целью недели…")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Обновить" }));
 
     expect(await screen.findByText("3 покупки за неделю")).toBeInTheDocument();
-    expect(screen.queryByText("Домовой думает…")).not.toBeInTheDocument();
+    expect(screen.queryByText("Домовой думает над целью недели…")).not.toBeInTheDocument();
   });
 
-  it("показывает тип, условие и baseline → target отдельно для hero и side", async () => {
+  it("показывает реальный тип и baseline/target в плитках hero-карточки", async () => {
     renderScreen();
     const heroHeading = await screen.findByRole("heading", { name: "3 покупки за неделю" });
-    const heroCard = heroHeading.closest("div");
+    const heroCard = heroHeading.closest("section");
     if (heroCard === null) throw new Error("hero card not found");
 
     expect(within(heroCard).getByText("Частота покупок")).toBeInTheDocument();
     expect(
       within(heroCard).getByText("Обычно у вас 2 покупки в неделю. Сделайте 3 до воскресенья."),
     ).toBeInTheDocument();
-    expect(heroCard.textContent).toContain("2 → 3");
-
-    expect(screen.getByText("Категория товаров")).toBeInTheDocument();
-    expect(screen.getByText("Молочка у вас в топ-категориях — берите чаще.")).toBeInTheDocument();
+    expect(within(heroCard).getByText("Ваша обычная норма")).toBeInTheDocument();
+    expect(within(heroCard).getByText("2")).toBeInTheDocument();
+    expect(within(heroCard).getByText("Цель")).toBeInTheDocument();
+    expect(within(heroCard).getByText("3")).toBeInTheDocument();
   });
 
   it("показывает ошибку, если список челленджей не загрузился", async () => {
@@ -117,7 +126,7 @@ describe("ChallengeScreen", () => {
     renderScreen();
 
     expect(await screen.findByText("2 покупки молочки за неделю")).toBeInTheDocument();
-    expect(screen.queryByText("Домовой думает…")).not.toBeInTheDocument();
+    expect(screen.queryByText("Домовой думает над целью недели…")).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "3 покупки за неделю" })).not.toBeInTheDocument();
   });
 
@@ -135,7 +144,7 @@ describe("ChallengeScreen", () => {
     const progress = screen.getByRole("progressbar");
     expect(progress).toHaveAttribute("aria-valuenow", "3");
     expect(progress).toHaveAttribute("aria-valuemax", "3");
-    expect(screen.getByText("3 / 3")).toBeInTheDocument();
+    expect(screen.getByText("3 из 3")).toBeInTheDocument();
   });
 
   it("показывает плейсхолдер истории, если завершённых челленджей ещё нет", async () => {
