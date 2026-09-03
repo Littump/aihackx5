@@ -1,24 +1,8 @@
 import { Card } from "@/shared/ui/Card";
 import { ProgressBar } from "@/shared/ui/ProgressBar";
+import { DomovoyAvatar } from "@/features/domovoy/DomovoyAvatar";
+import { MOOD_LABEL } from "@/features/domovoy/moodLabels";
 import type { HomeResponse } from "../api";
-
-type Mood = HomeResponse["domovoy"]["mood"];
-
-const MOOD_AVATAR: Record<Mood, string> = {
-  cheerful: "🤩",
-  cozy: "😊",
-  healthy: "💪",
-  bored: "😐",
-  sleepy: "😴",
-};
-
-const MOOD_LABEL: Record<Mood, string> = {
-  cheerful: "Весёлый",
-  cozy: "Уютный",
-  healthy: "Бодрый",
-  bored: "Скучающий",
-  sleepy: "Сонный",
-};
 
 type DomovoyHeaderProps = {
   domovoy: HomeResponse["domovoy"];
@@ -34,13 +18,7 @@ export function DomovoyHeader({ domovoy, flash }: DomovoyHeaderProps) {
       }
     >
       <div className="flex items-center gap-3">
-        <span
-          className="text-4xl"
-          role="img"
-          aria-label={`Домовой, настроение: ${MOOD_LABEL[domovoy.mood]}`}
-        >
-          {MOOD_AVATAR[domovoy.mood]}
-        </span>
+        <DomovoyAvatar mood={domovoy.mood} size={80} level={domovoy.level} className="shrink-0" />
         <div className="flex-1">
           <h1 className="text-lg font-semibold text-text">Домовой · уровень {domovoy.level}</h1>
           <p className="text-sm text-text-secondary">

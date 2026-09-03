@@ -72,7 +72,7 @@
 | INF-010 | E13 | Домен и TLS, если будет домен | R | INF-008 | blocked: нужен домен | |
 | DOC-002 | E12 | Одностраничник пилота и README для жюри | A | DOC-001 | todo | |
 | FE-D01 | E15 | Токены дизайн-системы в `@theme static` + `shared/ui`: Card, Button, ProgressBar, Badge, StatusChip, ListRow, Skeleton, Tile | R | FE-001 | done | 2026-09-04 |
-| FE-D02 | E15 | Персонаж: `DomovoyAvatar` на SVG, 5 настроений, слои обжитости, размеры 32/48/80 | R | FE-D01 | todo | |
+| FE-D02 | E15 | Персонаж: `DomovoyAvatar` на SVG, 5 настроений, слои обжитости, размеры 32/48/80 | R | FE-D01 | done | 2026-09-04 |
 | FE-D03 | E15 | Оболочка: PhoneShell со скроллером, новая нижняя навигация, демо-полоса вместо селекта, широкий режим для PM | R | FE-D01 | todo | |
 | FE-D04 | E15 | Home по макету: компактный персонаж, свёрнутая экономия, цель недели в первом экране | R | FE-D02, FE-D03 | todo | |
 | FE-D05 | E15 | Challenge по макету: плитки baseline/target, объяснение в карточке, история со статусами | R | FE-D03 | todo | |
