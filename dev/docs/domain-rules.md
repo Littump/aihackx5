@@ -50,7 +50,7 @@ Baseline для frequency-челленджа = `round(frequency_per_week, 1)`, �
 
 | Кандидат | Условие |
 |---|---|
-| `frequency` | `frequency_per_week ≤ FREQUENCY_HEADROOM_MAX = 6` и `recency_days ≤ 21` |
+| `frequency` | `frequency_per_week < FREQUENCY_HEADROOM_MAX = 6` (строго меньше — на самом пороге headroom уже нет) и `recency_days ≤ 21` |
 | `category` | категория с `share ≥ 0.10` и `visits ≥ 3` за окно, не из исключённых |
 
 Если кандидатов нет (новый пользователь без истории) — `frequency` с baseline 1, target 2, без денежной награды.
@@ -59,8 +59,8 @@ Baseline для frequency-челленджа = `round(frequency_per_week, 1)`, �
 
 | Тип | Target |
 |---|---|
-| `frequency` | `max(ceil(baseline × 1.2), baseline + 1)`, потолок `baseline + 2` |
-| `category` | покупок категории за неделю: `max(ceil(weekly_visits × 1.2), weekly_visits + 1)`, где `weekly_visits = visits / window_weeks` |
+| `frequency` | `ceil(max(baseline × 1.2, baseline + 1))`, потолок `ceil(baseline + 2)` — `ceil` берётся от всего выражения, а не только от `× 1.2`, поэтому target всегда целое число, даже при дробном `baseline` |
+| `category` | покупок категории за неделю: `ceil(max(weekly_visits × 1.2, weekly_visits + 1))`, потолок `ceil(weekly_visits + 2)`, где `weekly_visits = visits / window_weeks` |
 
 Пример PRD: baseline 2 → target 3.
 
@@ -76,7 +76,7 @@ reward_points                  = floor(max_reward_rub / 10) × 10
 reward_points = min(reward_points, REWARD_POINTS_MAX_WEEKLY = 150)
 ```
 
-Пример PRD: baseline 2, target 3, avg_basket 600 → margin 90 → max 36 → **30 баллов**. Пример из продуктового документа: baseline 1.5, target 3, чек 555 → 832 × 0.15 = 125 → 50 → **50 баллов**.
+Пример PRD: baseline 2, target 3, avg_basket 600 → margin 90 → max 36 → **30 баллов**. Второй пример: baseline 1.5, target 3, avg_basket 555 → revenue 832.5 → margin 124.875 → max 49.95 → **40 баллов** (округление вниз до кратного 10 без промежуточных округлений).
 
 Deadweight в MVP не моделируем, но поле `economics.deadweight_note` пишет фразу для PM view. В production ожидаемый эффект умножается на `1 − P(выполнил бы без челленджа)`.
 

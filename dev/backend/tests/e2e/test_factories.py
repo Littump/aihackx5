@@ -172,9 +172,11 @@ async def test_make_challenge_overrides_zero_baseline_and_jsonb(conn: AsyncConne
     user = await factories.make_user(conn)
     economics = {
         "avg_basket": 600.0,
+        "expected_incremental_purchases": 1.0,
         "expected_incremental_margin": 90.0,
-        "max_reward": 36.0,
+        "max_reward_rub": 36.0,
         "contribution_margin": 0.15,
+        "reward_share_max": 0.4,
     }
     challenge = await factories.make_challenge(
         conn,

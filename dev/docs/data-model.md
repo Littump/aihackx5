@@ -122,7 +122,7 @@ PostgreSQL 16. Все таблицы создаются SQL-миграциями
 | period_end | TIMESTAMPTZ NOT NULL | deadline |
 | reward_xp | INTEGER NOT NULL | |
 | reward_points | INTEGER NOT NULL | 0, если economics не разрешил денежную награду |
-| economics | JSONB NOT NULL | `{"avg_basket":600,"expected_incremental_margin":90,"max_reward":36,"contribution_margin":0.15}` |
+| economics | JSONB NOT NULL | `{"avg_basket":600,"expected_incremental_purchases":1,"expected_incremental_margin":90,"max_reward_rub":36,"contribution_margin":0.15,"reward_share_max":0.4}` |
 | rationale_features | JSONB NOT NULL | какие features легли в основу, для «Почему это мне?» и PM view |
 | copy_title | TEXT NOT NULL | |
 | copy_body | TEXT NOT NULL | |

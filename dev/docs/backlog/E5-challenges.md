@@ -5,7 +5,7 @@
 **Описание:** `candidate.build(features) -> list[ChallengeDraft]` по §4–5 (frequency при headroom, category при affinity, fallback для пустой истории). `economics.evaluate(draft, features) -> ChallengeEconomics` и `max_reward_points(...)` по §6. `ChallengeDraft` — pydantic-модель в `models.py`: type, category, baseline, target, priority, rationale_features (вложенная модель `RationaleFeatures`).
 **AC:**
 - пример PRD: baseline 2, target 3, basket 600 → margin 90, max 36, reward 30;
-- baseline 1.5, target 3, basket 555 → reward 50;
+- baseline 1.5, target 3, basket 555 → revenue 832.5, margin 124.875, max 49.95, reward 40 (без промежуточных округлений, floor до кратного 10 только в конце);
 - маленькая корзина (basket 150, 2→3) → margin 22.5 → max 9 → reward 0 (только XP);
 - reward никогда > 150;
 - target для baseline 2 = 3, для 5 = 6, для 6 — кандидата frequency нет;

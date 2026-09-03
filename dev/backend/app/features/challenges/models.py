@@ -20,9 +20,27 @@ class RewardLedgerEntry(AppModel):
 
 class ChallengeEconomics(AppModel):
     avg_basket: float
+    expected_incremental_purchases: float
     expected_incremental_margin: float
-    max_reward: float
+    max_reward_rub: float
     contribution_margin: float
+    reward_share_max: float
+
+
+class RationaleFeatures(AppModel):
+    frequency_per_week: float | None = None
+    recency_days: int | None = None
+    share: float | None = None
+    visits: int | None = None
+
+
+class ChallengeDraft(AppModel):
+    type: Literal["frequency", "category"]
+    category: str | None
+    baseline: Decimal
+    target: Decimal
+    priority: float
+    rationale_features: RationaleFeatures
 
 
 class ChallengeRow(AppModel):
