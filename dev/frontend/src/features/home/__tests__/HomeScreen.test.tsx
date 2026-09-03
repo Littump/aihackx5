@@ -12,24 +12,34 @@ describe("HomeScreen", () => {
   it("показывает уровень, XP, экономию, insight и hero challenge", async () => {
     renderWithProviders(<HomeScreen />);
 
-    expect(await screen.findByText("Домовой · уровень 7")).toBeInTheDocument();
-    expect(screen.getByText("XP 2100")).toBeInTheDocument();
+    expect(await screen.findByText("Домовой")).toBeInTheDocument();
+    expect(screen.getByText("2100 XP")).toBeInTheDocument();
     expect(screen.getByText(/Весёлый.*5 разных категорий за неделю/)).toBeInTheDocument();
     expect(screen.getByText(/1.?240\s*₽/)).toBeInTheDocument();
     expect(screen.getByText("Экономия за месяц")).toBeInTheDocument();
     expect(screen.getByText(/\+260\s*₽ к прошлому месяцу/)).toBeInTheDocument();
-    expect(screen.getByText(/сэкономили/)).toBeInTheDocument();
+    expect(screen.getByText(/Домовой заметил/)).toBeInTheDocument();
     expect(screen.getByText("3 покупки за неделю")).toBeInTheDocument();
-    expect(screen.getByText("2 / 3")).toBeInTheDocument();
-    expect(screen.getByText("+50 XP + 30 баллов")).toBeInTheDocument();
+    expect(screen.getByText("2 из 3")).toBeInTheDocument();
+    expect(screen.getByText("+50 XP и 30 баллов")).toBeInTheDocument();
     expect(screen.getByText("Место 5 из 28")).toBeInTheDocument();
     expect(screen.getByText("Приглашено: 3")).toBeInTheDocument();
+  });
+
+  it("инсайт отображается после карточки цели недели", async () => {
+    renderWithProviders(<HomeScreen />);
+    await screen.findByText("2 из 3");
+
+    const heading = await screen.findByText("Домовой заметил");
+    const goalHeading = screen.getByText("Цель недели");
+    const position = goalHeading.compareDocumentPosition(heading);
+    expect(position & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("клик «Почему это мне?» раскрывает explanation", async () => {
     const user = userEvent.setup();
     renderWithProviders(<HomeScreen />);
-    await screen.findByText("2 / 3");
+    await screen.findByText("2 из 3");
 
     const explanation = "Обычно 2 покупки в неделю (baseline 2), цель — 3 до конца недели.";
     expect(screen.queryByText(explanation)).not.toBeInTheDocument();
@@ -63,17 +73,17 @@ describe("HomeScreen", () => {
     );
 
     renderWithProviders(<HomeScreen />);
-    await screen.findByText("2 / 3");
+    await screen.findByText("2 из 3");
 
-    await user.click(screen.getByRole("button", { name: /simulate new purchase/i }));
+    await user.click(screen.getByRole("button", { name: /симулировать покупку/i }));
 
     await waitFor(() => expect(simulateCalled).toBe(true));
-    expect(await screen.findByText("3 / 3")).toBeInTheDocument();
+    expect(await screen.findByText("3 из 3")).toBeInTheDocument();
   });
 
   it("не создаёт элементов шире 390px", async () => {
     const { container } = renderWithProviders(<HomeScreen />);
-    await screen.findByText("2 / 3");
+    await screen.findByText("2 из 3");
 
     const tooWide = Array.from(container.querySelectorAll<HTMLElement>("[style]")).filter((el) => {
       const width = Number.parseInt(el.style.width, 10);
@@ -99,15 +109,66 @@ describe("HomeScreen", () => {
 
     renderWithProviders(<HomeScreen />);
 
-    expect(await screen.findByText(/Не получилось загрузить Home/)).toBeInTheDocument();
+    expect(await screen.findByText(/Не получилось загрузить главный экран/)).toBeInTheDocument();
     expect(screen.getByText(/БД недоступна/)).toBeInTheDocument();
   });
 
   it("показывает заглушку, если hero_challenge отсутствует", async () => {
     renderWithProviders(<HomeScreen />, ["/?user=3"]);
 
-    expect(await screen.findByText("Домовой · уровень 2")).toBeInTheDocument();
+    expect(await screen.findByText(/Уровень 2 · Сонный/)).toBeInTheDocument();
     expect(screen.getByText("Домовой думает над целью недели…")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Почему это мне?" })).not.toBeInTheDocument();
+  });
+
+  it("клик «Из чего сложилось» раскрывает скидки, баллы и топ-категории", async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<HomeScreen />);
+    await screen.findByText("2 из 3");
+
+    expect(screen.queryByText("Скидки")).not.toBeInTheDocument();
+
+    const toggle = screen.getByRole("button", { name: "Из чего сложилось" });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+
+    await user.click(toggle);
+
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText("Скидки")).toBeInTheDocument();
+    expect(screen.getByText("800 ₽")).toBeInTheDocument();
+    expect(screen.getByText("Начислено баллов")).toBeInTheDocument();
+    expect(screen.getByText("300")).toBeInTheDocument();
+    expect(screen.getByText("Потрачено баллов")).toBeInTheDocument();
+    expect(screen.getByText("140")).toBeInTheDocument();
+    expect(screen.getByText("Топ-категории")).toBeInTheDocument();
+    expect(screen.getByText("Молочное")).toBeInTheDocument();
+    expect(screen.getByText("420 ₽")).toBeInTheDocument();
+    expect(screen.getByText("Овощи и фрукты")).toBeInTheDocument();
+    expect(screen.getByText("310 ₽")).toBeInTheDocument();
+
+    await user.click(toggle);
+
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText("Скидки")).not.toBeInTheDocument();
+  });
+
+  it("кнопка симуляции подписана по-русски, без англицизмов в видимом тексте", async () => {
+    renderWithProviders(<HomeScreen />);
+    await screen.findByText("2 из 3");
+
+    expect(screen.getByRole("button", { name: "Симулировать покупку" })).toBeInTheDocument();
+    expect(screen.queryByText(/simulate/i)).not.toBeInTheDocument();
+  });
+
+  it("после симуляции карточки персонажа и экономии подсвечиваются", async () => {
+    const user = userEvent.setup();
+    const { container } = renderWithProviders(<HomeScreen />);
+    await screen.findByText("2 из 3");
+
+    expect(container.querySelector(".bg-accent-50")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /симулировать покупку/i }));
+
+    await waitFor(() => expect(container.querySelectorAll(".bg-accent-50")).toHaveLength(2));
   });
 });

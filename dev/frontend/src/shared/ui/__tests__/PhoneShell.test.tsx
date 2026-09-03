@@ -76,7 +76,7 @@ describe("PhoneShell", () => {
     expect(screen.getByTestId("content")).toBeInTheDocument();
   });
 
-  it("внешняя обёртка — min-h-dvh и bg-desk, чтобы фон не обрезался высотой экрана", () => {
+  it("внешняя обёртка — h-dvh (не min-h-dvh), чтобы страница не скроллилась целиком поверх внутреннего скроллера", () => {
     const { container } = render(
       <PhoneShell>
         <div>Экран</div>
@@ -84,6 +84,7 @@ describe("PhoneShell", () => {
     );
 
     const outer = container.firstElementChild;
-    expect(outer).toHaveClass("min-h-dvh", "bg-desk");
+    expect(outer).toHaveClass("h-dvh", "bg-desk");
+    expect(outer).not.toHaveClass("min-h-dvh");
   });
 });

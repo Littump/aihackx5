@@ -102,9 +102,9 @@ describe("LeagueScreen", () => {
     const user = userEvent.setup();
 
     const home = renderWithProviders(<HomeScreen />, ["/?user=1"], client);
-    await screen.findByText("Домовой · уровень 7");
+    await screen.findByText(/Уровень 7 · Весёлый/);
 
-    await user.click(screen.getByRole("button", { name: /simulate new purchase/i }));
+    await user.click(screen.getByRole("button", { name: /симулировать покупку/i }));
 
     await waitFor(() =>
       expect(client.getQueryData(leagueRankChangeKey(1))).toEqual({ before: 6, after: 5 }),

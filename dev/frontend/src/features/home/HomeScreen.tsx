@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Card } from "@/shared/ui/Card";
 import { Button } from "@/shared/ui/Button";
+import { Card } from "@/shared/ui/Card";
+import { DomovoyAvatar } from "@/features/domovoy/DomovoyAvatar";
 import { useUserContext } from "@/features/users/hooks";
 import { DomovoyHeader } from "./components/DomovoyHeader";
 import { SavingsCard } from "./components/SavingsCard";
@@ -28,17 +29,17 @@ export function HomeScreen() {
 
   if (userId === null || homeQuery.isPending) {
     return (
-      <section className="flex flex-1 flex-col gap-4 p-5">
-        <p className="text-text-secondary">Домовой просыпается…</p>
+      <section className="flex flex-1 flex-col gap-3 px-4 py-3">
+        <p className="text-ink-500">Домовой просыпается…</p>
       </section>
     );
   }
 
   if (homeQuery.isError) {
     return (
-      <section className="flex flex-1 flex-col gap-4 p-5">
-        <p className="text-legacy-accent-600">
-          Не получилось загрузить Home: {homeQuery.error.message}
+      <section className="flex flex-1 flex-col gap-3 px-4 py-3">
+        <p className="text-accent-700">
+          Не получилось загрузить главный экран: {homeQuery.error.message}
         </p>
       </section>
     );
@@ -47,13 +48,9 @@ export function HomeScreen() {
   const home = homeQuery.data;
 
   return (
-    <section className="flex flex-1 flex-col gap-4 p-5">
+    <section className="flex flex-1 flex-col gap-3 px-4 py-3">
       <DomovoyHeader domovoy={home.domovoy} flash={flash} />
       <SavingsCard savings={home.savings} flash={flash} />
-      <Card>
-        <p className="text-xs font-medium uppercase text-text-secondary">Инсайт</p>
-        <p className="mt-1 text-sm text-text">{home.insight}</p>
-      </Card>
       {home.hero_challenge ? (
         <HeroChallengeCard
           challenge={home.hero_challenge}
@@ -62,18 +59,27 @@ export function HomeScreen() {
         />
       ) : (
         <Card>
-          <p className="text-text-secondary">Домовой думает над целью недели…</p>
+          <p className="text-ink-500">Домовой думает над целью недели…</p>
         </Card>
       )}
+      <section className="flex shrink-0 items-start gap-3 rounded-card bg-brand-50 p-4">
+        <DomovoyAvatar mood="cheerful" size={48} className="shrink-0" />
+        <div className="flex flex-col gap-1">
+          <p className="text-caption font-semibold uppercase tracking-wider text-brand-700">
+            Домовой заметил
+          </p>
+          <p className="text-body text-pretty text-ink-900">{home.insight}</p>
+        </div>
+      </section>
+      <QuickLinks league={home.league} referral={home.referral} />
       <Button onClick={handleSimulate} disabled={simulate.isPending}>
-        {simulate.isPending ? "Симулируем покупку…" : "Simulate new purchase"}
+        {simulate.isPending ? "Симулируем покупку…" : "Симулировать покупку"}
       </Button>
       {simulate.isError && (
-        <p role="alert" className="text-sm text-legacy-accent-600">
+        <p role="alert" className="text-body text-accent-700">
           Не получилось: {simulate.error.message}
         </p>
       )}
-      <QuickLinks league={home.league} referral={home.referral} />
     </section>
   );
 }

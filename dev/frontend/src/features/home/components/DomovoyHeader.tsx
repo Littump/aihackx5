@@ -1,5 +1,6 @@
 import { Card } from "@/shared/ui/Card";
 import { ProgressBar } from "@/shared/ui/ProgressBar";
+import { Badge } from "@/shared/ui/Badge";
 import { DomovoyAvatar } from "@/features/domovoy/DomovoyAvatar";
 import { MOOD_LABEL } from "@/features/domovoy/moodLabels";
 import type { HomeResponse } from "../api";
@@ -13,27 +14,28 @@ export function DomovoyHeader({ domovoy, flash }: DomovoyHeaderProps) {
   const xpTotalForNextLevel = domovoy.xp + domovoy.xp_to_next_level;
   return (
     <Card
-      className={
-        flash ? "bg-accent-100 transition-colors duration-700" : "transition-colors duration-700"
-      }
+      className={`flex items-center gap-4 transition-colors duration-700 ${
+        flash ? "bg-accent-50" : ""
+      }`}
     >
-      <div className="flex items-center gap-3">
-        <DomovoyAvatar mood={domovoy.mood} size={80} level={domovoy.level} className="shrink-0" />
-        <div className="flex-1">
-          <h1 className="text-lg font-semibold text-text">Домовой · уровень {domovoy.level}</h1>
-          <p className="text-sm text-text-secondary">
-            {MOOD_LABEL[domovoy.mood]} · {domovoy.mood_reason}
-          </p>
-        </div>
-      </div>
-      <div className="mt-3">
-        <div className="mb-1 flex justify-between text-xs text-text-secondary">
-          <span>XP {domovoy.xp}</span>
-          <span>
-            до уровня {domovoy.level + 1}: {xpTotalForNextLevel}
+      <DomovoyAvatar mood={domovoy.mood} size={80} level={domovoy.level} className="shrink-0" />
+      <div className="flex min-w-0 flex-col gap-1">
+        <h1 className="text-title font-bold leading-tight">Домовой</h1>
+        <p className="text-body text-ink-700">
+          Уровень {domovoy.level} · {MOOD_LABEL[domovoy.mood]} — {domovoy.mood_reason}
+        </p>
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          <div className="w-1/4 shrink-0">
+            <ProgressBar value={domovoy.xp} max={xpTotalForNextLevel} tone="light" />
+          </div>
+          <span className="text-caption font-semibold whitespace-nowrap">{domovoy.xp} XP</span>
+          <span className="text-caption text-ink-500 whitespace-nowrap">
+            ещё {domovoy.xp_to_next_level}
           </span>
+          <Badge tone="brand" className="whitespace-nowrap">
+            серия {domovoy.streak_weeks} нед.
+          </Badge>
         </div>
-        <ProgressBar value={domovoy.xp} max={xpTotalForNextLevel} />
       </div>
     </Card>
   );

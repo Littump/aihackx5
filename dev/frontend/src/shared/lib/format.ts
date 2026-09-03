@@ -10,6 +10,10 @@ export function formatSignedMoney(amount: number): string {
   return `${sign}${moneyFormatter.format(Math.abs(amount))} ₽`;
 }
 
+export function formatNumber(amount: number): string {
+  return moneyFormatter.format(amount);
+}
+
 export function formatDeadline(isoDate: string): string {
   return dateFormatter.format(new Date(isoDate));
 }
