@@ -26,3 +26,8 @@ class MechanicDecisionRow(AppModel):
     mechanic: Mechanic
     reasons: MechanicDecisionReasons
     created_at: datetime
+
+
+class RecommendedMechanicCard(AppModel):
+    mechanic: Mechanic
+    reasons: list[str]

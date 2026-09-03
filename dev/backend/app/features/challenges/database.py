@@ -12,6 +12,7 @@ from app.features.challenges.models import (
     ChallengeRow,
     RewardKind,
     RewardLedgerEntry,
+    RewardLedgerTotals,
 )
 
 REWARD_LEDGER_INSERT = (
@@ -67,6 +68,20 @@ CHALLENGE_COUNT_COMPLETED = (
 CHALLENGE_COUNT_COMPLETED_IN_PERIOD = (
     "SELECT count(*) FROM challenges WHERE user_id = %(user_id)s AND status = 'completed' "
     "AND completed_at >= %(start)s AND completed_at < %(end)s"
+)
+CHALLENGE_LIST_FOR_USER_IN_MONTH = (
+    f"SELECT {CHALLENGE_SELECT_COLUMNS} FROM challenges "
+    "WHERE user_id = %(user_id)s AND status = ANY(%(statuses)s) "
+    "AND period_start >= %(month_start)s AND period_start <= %(month_end)s"
+)
+REWARD_LEDGER_LIST_FOR_USER = (
+    "SELECT id, user_id, kind, xp_delta, points_delta, ref_type, ref_id, created_at "
+    "FROM reward_ledger WHERE user_id = %(user_id)s "
+    "ORDER BY created_at DESC, id DESC LIMIT %(limit)s"
+)
+REWARD_LEDGER_SUM_FOR_USER = (
+    "SELECT COALESCE(SUM(points_delta), 0) AS points, COALESCE(SUM(xp_delta), 0) AS xp "
+    "FROM reward_ledger WHERE user_id = %(user_id)s"
 )
 
 
@@ -215,6 +230,41 @@ async def update_progress(
     }
     async with conn.cursor(row_factory=class_row(ChallengeRow)) as cur:
         await cur.execute(CHALLENGE_UPDATE_PROGRESS, params)
+        row = await cur.fetchone()
+        assert row is not None
+        return row
+
+
+async def list_challenges_for_user_in_month(
+    conn: AsyncConnection,
+    *,
+    user_id: int,
+    month_start: datetime,
+    month_end: datetime,
+    statuses: list[str],
+) -> list[ChallengeRow]:
+    params = {
+        "user_id": user_id,
+        "statuses": statuses,
+        "month_start": month_start,
+        "month_end": month_end,
+    }
+    async with conn.cursor(row_factory=class_row(ChallengeRow)) as cur:
+        await cur.execute(CHALLENGE_LIST_FOR_USER_IN_MONTH, params)
+        return await cur.fetchall()
+
+
+async def list_reward_ledger_for_user(
+    conn: AsyncConnection, *, user_id: int, limit: int
+) -> list[RewardLedgerEntry]:
+    async with conn.cursor(row_factory=class_row(RewardLedgerEntry)) as cur:
+        await cur.execute(REWARD_LEDGER_LIST_FOR_USER, {"user_id": user_id, "limit": limit})
+        return await cur.fetchall()
+
+
+async def sum_reward_ledger_for_user(conn: AsyncConnection, *, user_id: int) -> RewardLedgerTotals:
+    async with conn.cursor(row_factory=class_row(RewardLedgerTotals)) as cur:
+        await cur.execute(REWARD_LEDGER_SUM_FOR_USER, {"user_id": user_id})
         row = await cur.fetchone()
         assert row is not None
         return row

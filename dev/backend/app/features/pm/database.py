@@ -9,6 +9,10 @@ MECHANIC_DECISION_INSERT = (
     "VALUES (%(user_id)s, %(mechanic)s, %(reasons)s) "
     "RETURNING id, user_id, mechanic, reasons, created_at"
 )
+MECHANIC_DECISION_LATEST = (
+    "SELECT id, user_id, mechanic, reasons, created_at FROM mechanic_decisions "
+    "WHERE user_id = %(user_id)s ORDER BY created_at DESC, id DESC LIMIT 1"
+)
 
 
 async def insert_mechanic_decision(
@@ -28,3 +32,11 @@ async def insert_mechanic_decision(
         row = await cur.fetchone()
         assert row is not None
         return row
+
+
+async def get_latest_mechanic_decision(
+    conn: AsyncConnection, user_id: int
+) -> MechanicDecisionRow | None:
+    async with conn.cursor(row_factory=class_row(MechanicDecisionRow)) as cur:
+        await cur.execute(MECHANIC_DECISION_LATEST, {"user_id": user_id})
+        return await cur.fetchone()

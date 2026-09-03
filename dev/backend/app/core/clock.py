@@ -30,6 +30,18 @@ def week_end(moment: datetime | None = None) -> datetime:
     return week_start(moment) + timedelta(days=7) - timedelta(microseconds=1)
 
 
+def month_start(moment: datetime | None = None) -> datetime:
+    local = (moment or now()).astimezone(TZ)
+    return datetime(local.year, local.month, 1, tzinfo=TZ)
+
+
+def month_end(moment: datetime | None = None) -> datetime:
+    start = month_start(moment)
+    year = start.year + 1 if start.month == 12 else start.year
+    month = 1 if start.month == 12 else start.month + 1
+    return datetime(year, month, 1, tzinfo=TZ) - timedelta(microseconds=1)
+
+
 def day_start(moment: datetime | None = None) -> datetime:
     local = (moment or now()).astimezone(TZ)
     return datetime.combine(local.date(), datetime.min.time(), tzinfo=TZ)

@@ -8,7 +8,13 @@ from app import game_rules
 from app.core.clock import day_end, day_start, now
 from app.core.errors import AppError
 from app.features.antifraud import database, scoring
-from app.features.antifraud.models import FraudDecision, ReceiptFraudContext, ReferralFraudContext
+from app.features.antifraud.models import (
+    FraudCheckRow,
+    FraudDecision,
+    FraudDecisionKind,
+    ReceiptFraudContext,
+    ReferralFraudContext,
+)
 from app.features.challenges import service as challenges_service
 from app.features.receipts import service as receipts_service
 from app.features.receipts.models import ReceiptDetail, ReceiptRow
@@ -39,6 +45,16 @@ async def check_referral(conn: AsyncConnection, referral_id: int) -> FraudDecisi
         decision=decision,
     )
     return decision
+
+
+async def list_for_user(conn: AsyncConnection, user_id: int, limit: int) -> list[FraudCheckRow]:
+    return await database.list_fraud_checks_for_user(conn, user_id=user_id, limit=limit)
+
+
+async def list_all(
+    conn: AsyncConnection, *, limit: int, decision: FraudDecisionKind | None
+) -> list[FraudCheckRow]:
+    return await database.list_fraud_checks(conn, limit=limit, decision=decision)
 
 
 async def _get_referral_or_404(conn: AsyncConnection, referral_id: int) -> ReferralRow:

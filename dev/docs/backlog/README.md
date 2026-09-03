@@ -40,7 +40,7 @@
 | BE-021 | E8 | `achievements`: правила §12, on_receipt, `GET` | R | BE-013 | done | 2026-09-03 |
 | FE-004 | E9 | League: дивизион, список под псевдонимами, моё место, зоны, дельта после покупки, «дом vs район» | R | FE-001, BE-016 | done | 2026-09-03 |
 | FE-005 | E9 | Referral: код/QR, правила, приглашённые со статусами, лимиты | R | FE-001, BE-019 | done | 2026-09-03 |
-| BE-022 | E10 | `pm`: `GET /pm/users/{id}`, `GET /pm/fraud`, `mechanic_decisions` | R | BE-019, BE-021 | todo | |
+| BE-022 | E10 | `pm`: `GET /pm/users/{id}`, `GET /pm/fraud`, `mechanic_decisions` | R | BE-019, BE-021 | done | 2026-09-03 |
 | BE-023 | E10 | `GET /pm/simulation/latest`, `GET /pm/eval/latest` | R | BE-002 | todo | |
 | FE-006 | E10 | PM view: features, механика + причины, челлендж + экономика, фрод, ledger, симуляция, eval | R | FE-001, BE-022, BE-023 | todo | |
 | AI-005 | E11 | `app/eval`: relevance по §14 на 30–50 профилях, запись в eval_runs | T | BE-011, AI-003 | todo | |
