@@ -6,12 +6,10 @@ from psycopg import AsyncConnection
 from app.core.clock import day_start
 from app.features.challenges.models import ChallengeProgressDelta
 from app.features.domovoy.models import DomovoyDelta, DomovoyStateRow
-from app.features.receipts import database
+from app.features.receipts import database, outcome
 from app.features.receipts.models import (
-    ChallengeProgressDeltaStub,
     CountedDecision,
     DomovoyStateStub,
-    FraudDecisionStub,
     ReceiptDetail,
     ReceiptItemDraft,
     ReceiptItemInputLike,
@@ -20,9 +18,9 @@ from app.features.receipts.models import (
     ReceiptRow,
     ReceiptTotals,
     ReceiptWithItems,
+    SimulateScenario,
 )
 from app.features.receipts.totals import compute_totals
-from app.features.savings import calc as savings_calc
 from app.features.users import service as users_service
 from app.game_rules import (
     RECEIPT_DEDUP_WINDOW_MIN,
@@ -67,30 +65,23 @@ async def process_receipt(
     receipt_detail = _to_receipt_detail(receipt_row, store_name=store.name, items=item_rows)
     challenge_deltas = await _run_challenges_step(conn, user_id, receipt_detail)
     domovoy_state = await _final_domovoy_state(conn, user_id)
-    xp_delta = domovoy_delta.xp_delta + _completed_challenges_xp(challenge_deltas)
-    return _build_outcome(receipt_detail, decision, xp_delta, domovoy_state, challenge_deltas)
+    return outcome.build_outcome(
+        receipt_detail, decision, domovoy_delta.xp_delta, domovoy_state, challenge_deltas
+    )
 
 
-def _build_outcome(
-    receipt: ReceiptDetail,
-    decision: CountedDecision,
-    xp_delta: int,
-    domovoy_state: DomovoyStateStub,
-    challenge_deltas: list[ChallengeProgressDelta],
+async def simulate_receipt(
+    conn: AsyncConnection,
+    *,
+    user_id: int,
+    scenario: SimulateScenario,
+    store_id: int | None,
 ) -> ReceiptProcessingOutcome:
-    return ReceiptProcessingOutcome(
-        receipt=receipt,
-        counted=decision.counted,
-        counted_reason=decision.counted_reason,
-        xp_delta=xp_delta,
-        domovoy=domovoy_state,
-        savings_delta=savings_calc.receipt_savings(receipt),
-        challenges=_map_challenge_deltas(challenge_deltas),
-        league_rank_before=None,
-        league_rank_after=None,
-        referral_status=None,
-        fraud=_stub_fraud_decision(),
-        achievements_unlocked=[],
+    # отложенный импорт разрывает цикл: simulate.py зовёт process_receipt
+    from app.features.receipts import simulate
+
+    return await simulate.simulate_receipt(
+        conn, user_id=user_id, scenario=scenario, store_id=store_id
     )
 
 
@@ -191,16 +182,6 @@ async def _final_domovoy_state(conn: AsyncConnection, user_id: int) -> DomovoySt
     )
 
 
-def _completed_challenges_xp(deltas: list[ChallengeProgressDelta]) -> int:
-    return sum(delta.reward_xp for delta in deltas if delta.completed)
-
-
-def _map_challenge_deltas(
-    deltas: list[ChallengeProgressDelta],
-) -> list[ChallengeProgressDeltaStub]:
-    return [ChallengeProgressDeltaStub.model_validate(delta) for delta in deltas]
-
-
 async def _decide_counted(
     conn: AsyncConnection, *, user_id: int, store_id: int, purchased_at: datetime
 ) -> CountedDecision:
@@ -293,7 +274,3 @@ def _to_receipt_detail(
         is_returned=row.is_returned,
         items=items,
     )
-
-
-def _stub_fraud_decision() -> FraudDecisionStub:
-    return FraudDecisionStub(score=0.0, decision="approve", signals=[])

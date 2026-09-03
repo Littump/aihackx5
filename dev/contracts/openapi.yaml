@@ -175,6 +175,8 @@ paths:
                 $ref: "#/components/schemas/ReceiptProcessingResult"
         "404":
           $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
 
   /api/v1/users/{user_id}/receipts:
     get:

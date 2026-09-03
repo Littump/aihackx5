@@ -55,12 +55,21 @@ class ReceiptItemDraft(AppModel):
 
 
 class ReceiptItemInputLike(Protocol):
-    product_name: str
-    category: str
-    qty: float
-    regular_price: float
-    paid_price: float
-    is_promo: bool
+    @property
+    def product_name(self) -> str: ...
+    @property
+    def category(self) -> str: ...
+    @property
+    def qty(self) -> Decimal | float: ...
+    @property
+    def regular_price(self) -> Decimal | float: ...
+    @property
+    def paid_price(self) -> Decimal | float: ...
+    @property
+    def is_promo(self) -> bool: ...
+
+
+SimulateScenario = Literal["typical", "category_boost", "fraud_burst"]
 
 
 class ReceiptTotals(AppModel):

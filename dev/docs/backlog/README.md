@@ -27,7 +27,7 @@
 | AI-004 | E5 | `app/llm/`: клиент Anthropic, `render_challenge`, `render_insight`, шаблоны fallback | T | BE-011 | todo | |
 | BE-012 | E5 | Прогресс челленджа от чека, выполнение → reward_ledger + XP + streak, возврат откатывает | R | BE-011, BE-009 | done | 2026-09-03 |
 | BE-013 | E6 | `receipts.process_receipt`: оркестратор по порядку из architecture.md, `ReceiptProcessingResult` | R | BE-012, BE-008 | done | 2026-09-03 |
-| BE-014 | E6 | `POST /users/{id}/receipts/simulate`: генерация правдоподобного чека по features, сценарии | R | BE-013 | todo | |
+| BE-014 | E6 | `POST /users/{id}/receipts/simulate`: генерация правдоподобного чека по features, сценарии | R | BE-013 | done | 2026-09-03 |
 | BE-015 | E6 | `GET /users/{id}/home`: агрегат + recommended_mechanic (правила) + insight | R | BE-013 | todo | |
 | FE-001 | E6 | Оболочка: роутер, нижняя навигация, переключатель пользователя, MSW-хендлеры под контракт | R | INF-002, INF-004 | done | 2026-09-03 |
 | FE-002 | E6 | Home: Домовой, XP, настроение, savings, insight, hero challenge, «Почему это мне?», кнопка Simulate | R | FE-001 | done | 2026-09-03 |
