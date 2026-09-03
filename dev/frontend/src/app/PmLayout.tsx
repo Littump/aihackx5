@@ -5,11 +5,13 @@ import { UserSwitcher } from "@/features/users/UserSwitcher";
 export function PmLayout() {
   return (
     <UserProvider>
-      <div className="min-h-screen bg-bg">
+      <div className="min-h-dvh bg-desk">
         <UserSwitcher />
-        <div className="mx-auto max-w-6xl px-6 py-6">
-          <Outlet />
-        </div>
+        <section className="mx-auto max-w-pm px-6 py-6">
+          <div className="rounded-sheet bg-canvas p-6 shadow-lift">
+            <Outlet />
+          </div>
+        </section>
       </div>
     </UserProvider>
   );

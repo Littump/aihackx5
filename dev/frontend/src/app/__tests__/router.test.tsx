@@ -44,4 +44,12 @@ describe("router", () => {
       screen.queryByRole("navigation", { name: "Основная навигация" }),
     ).not.toBeInTheDocument();
   });
+
+  it("нижняя навигация закреплена вне скроллящейся области Home", async () => {
+    renderApp(["/?user=1"]);
+    await waitFor(() => screen.getByRole("heading", { level: 1 }));
+    const nav = screen.getByRole("navigation", { name: "Основная навигация" });
+    const scroller = screen.getByRole("heading", { level: 1 }).closest(".overflow-y-auto");
+    expect(scroller?.contains(nav)).toBe(false);
+  });
 });
