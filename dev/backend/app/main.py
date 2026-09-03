@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.core.db import create_pool
 from app.core.errors import register_exception_handlers
 from app.core.logging import configure_logging
+from app.features.challenges.router import router as challenges_router
 from app.features.health.router import router as health_router
 from app.features.receipts.router import router as receipts_router
 from app.features.savings.router import router as savings_router
@@ -42,6 +43,7 @@ def create_app(database_url: str | None = None) -> FastAPI:
     app.include_router(users_router, prefix=API_PREFIX)
     app.include_router(receipts_router, prefix=API_PREFIX)
     app.include_router(savings_router, prefix=API_PREFIX)
+    app.include_router(challenges_router, prefix=API_PREFIX)
     return app
 
 

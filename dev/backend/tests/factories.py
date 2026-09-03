@@ -157,7 +157,7 @@ async def make_challenge(conn: AsyncConnection, user_id: int, **overrides: objec
         "copy_source": "template",
     }
     params.update(overrides)
-    return await challenges_db.insert_challenge(conn, params)
+    return await challenges_db.insert_challenge_row(conn, params)
 
 
 async def make_domovoy_state(
