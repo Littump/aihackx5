@@ -1,4 +1,3 @@
-import { Card } from "@/shared/ui/Card";
 import type { LeagueResponse } from "../api";
 import { formatPercent } from "../format";
 
@@ -8,16 +7,23 @@ type HouseVsDistrictCardProps = {
 
 export function HouseVsDistrictCard({ house }: HouseVsDistrictCardProps) {
   return (
-    <Card>
-      <p className="text-xs font-medium uppercase text-text-secondary">Дом vs район</p>
-      <p className="mt-1 text-sm font-semibold text-text">{house.store_name}</p>
-      <p className="mt-2 text-sm text-text">
-        Средняя экономия дома:{" "}
-        <span className="font-semibold">{formatPercent(house.avg_savings_rate)}</span>
-      </p>
-      <p className="mt-1 text-sm text-text-secondary">
-        Место среди домов района: {house.district_rank} из {house.district_size}
-      </p>
-    </Card>
+    <section className="flex shrink-0 flex-col gap-3 rounded-card bg-surface p-4 shadow-card">
+      <h3 className="text-lead font-bold leading-tight">Ваш дом против района</h3>
+      <p className="text-body text-ink-700">{house.store_name}</p>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1 rounded-tile bg-brand-50 p-3">
+          <span className="text-caption text-ink-500">Средняя экономия</span>
+          <span className="text-title font-bold text-brand-700">
+            {formatPercent(house.avg_savings_rate)}
+          </span>
+        </div>
+        <div className="flex flex-col gap-1 rounded-tile bg-brand-50 p-3">
+          <span className="text-caption text-ink-500">Место в районе</span>
+          <span className="text-title font-bold text-brand-700">
+            {house.district_rank} из {house.district_size}
+          </span>
+        </div>
+      </div>
+    </section>
   );
 }

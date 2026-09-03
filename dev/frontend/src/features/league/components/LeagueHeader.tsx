@@ -1,6 +1,5 @@
-import { Card } from "@/shared/ui/Card";
 import type { LeagueResponse } from "../api";
-import { formatWeekRange, zoneBadgeClass, zoneLabel } from "../format";
+import { formatRankChangeMessage, formatWeekRange, zoneLabel } from "../format";
 import type { LeagueRankChange } from "../hooks";
 
 type LeagueHeaderProps = {
@@ -17,37 +16,65 @@ export function LeagueHeader({ league, rankChange }: LeagueHeaderProps) {
   const improved = changed && rankChange.after! < rankChange.before!;
 
   return (
-    <Card
-      className={
-        changed ? "bg-accent-100 transition-colors duration-700" : "transition-colors duration-700"
-      }
+    <div
+      data-testid="league-header"
+      className="flex shrink-0 flex-col gap-3 bg-brand-700 px-4 py-4 text-white"
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs uppercase text-text-secondary">Дивизион {league.division}</p>
-          <h2 className="text-lg font-semibold capitalize text-text">{league.division_name}</h2>
-        </div>
-        <span
-          className={`rounded-full px-3 py-1 text-xs font-semibold ${zoneBadgeClass(league.my_zone)}`}
+      <div className="flex items-center gap-3">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          className="h-6 w-6"
+          aria-hidden="true"
         >
-          {zoneLabel(league.my_zone)}
-        </span>
+          <path d="M15 5l-7 7 7 7" />
+        </svg>
+        <h1 className="text-lead font-bold">Лига домов</h1>
       </div>
-      <p className="mt-1 text-xs text-text-secondary">
-        Неделя {formatWeekRange(league.week_start, league.week_end)}
+      <p className="text-body text-brand-100">
+        Дивизион {league.division} «{league.division_name}» · неделя{" "}
+        {formatWeekRange(league.week_start, league.week_end)}
       </p>
-      <p className="mt-3 text-2xl font-semibold text-text">
-        Место {league.my_rank}{" "}
-        <span className="text-sm font-normal text-text-secondary">из {league.size}</span>
-      </p>
-      <p className="text-sm text-text-secondary">Очки: {league.my_score}</p>
+      <div className="grid grid-cols-3 gap-3">
+        <div className="flex flex-col gap-1 rounded-tile bg-brand-800 p-3">
+          <span className="text-caption text-brand-100">Место</span>
+          <span className="text-lead font-bold">
+            {league.my_rank} из {league.size}
+          </span>
+        </div>
+        <div className="flex flex-col gap-1 rounded-tile bg-brand-800 p-3">
+          <span className="text-caption text-brand-100">Счёт</span>
+          <span className="text-lead font-bold">{league.my_score}</span>
+        </div>
+        <div className="flex flex-col gap-1 rounded-tile bg-brand-800 p-3">
+          <span className="text-caption text-brand-100">Зона</span>
+          <span className="text-body font-bold">{zoneLabel(league.my_zone)}</span>
+        </div>
+      </div>
       {changed && (
-        <p
-          className={`mt-2 text-sm font-medium ${improved ? "text-legacy-brand-600" : "text-legacy-accent-600"}`}
+        <div
+          data-testid="rank-change"
+          className="flex animate-popin items-center gap-2 self-start rounded-tile bg-white px-3 py-2 text-brand-700"
         >
-          {improved ? "▲" : "▼"} Место изменилось: {rankChange.before} → {rankChange.after}
-        </p>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            className="h-6 w-6"
+            aria-hidden="true"
+          >
+            {improved ? <path d="M12 19V5M6 11l6-6 6 6" /> : <path d="M12 5v14M6 13l6 6 6-6" />}
+          </svg>
+          <span className="text-body font-semibold">
+            {formatRankChangeMessage(rankChange!.before!, rankChange!.after!)}
+          </span>
+        </div>
       )}
-    </Card>
+    </div>
   );
 }

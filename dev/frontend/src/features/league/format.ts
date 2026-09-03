@@ -4,20 +4,8 @@ export type LeagueZone = LeagueResponse["my_zone"];
 
 const ZONE_LABELS: Record<LeagueZone, string> = {
   promotion: "Повышение",
-  safe: "Стабильно",
+  safe: "Безопасная",
   demotion: "Понижение",
-};
-
-const ZONE_BADGE_CLASSES: Record<LeagueZone, string> = {
-  promotion: "bg-legacy-brand-100 text-legacy-brand-600",
-  safe: "bg-bg text-text-secondary border border-border",
-  demotion: "bg-accent-100 text-legacy-accent-600",
-};
-
-const ZONE_ROW_CLASSES: Record<LeagueZone, string> = {
-  promotion: "border-l-4 border-legacy-brand-600",
-  safe: "border-l-4 border-border",
-  demotion: "border-l-4 border-legacy-accent-600",
 };
 
 export function zoneForRank(
@@ -34,12 +22,16 @@ export function zoneLabel(zone: LeagueZone): string {
   return ZONE_LABELS[zone];
 }
 
-export function zoneBadgeClass(zone: LeagueZone): string {
-  return ZONE_BADGE_CLASSES[zone];
+export function zoneRowClass(zone: LeagueZone): string {
+  return zone === "demotion" ? "bg-accent-50/50" : "";
 }
 
-export function zoneRowClass(zone: LeagueZone): string {
-  return ZONE_ROW_CLASSES[zone];
+export function isPromotionBoundary(rank: number, promotionCutoff: number): boolean {
+  return rank === promotionCutoff;
+}
+
+export function isDemotionBoundary(rank: number, demotionCutoff: number): boolean {
+  return rank === demotionCutoff;
 }
 
 export function formatWeekRange(weekStart: string, weekEnd: string): string {
@@ -49,4 +41,20 @@ export function formatWeekRange(weekStart: string, weekEnd: string): string {
 
 export function formatPercent(rate: number): string {
   return `${Math.round(rate * 100)}%`;
+}
+
+function placesWord(count: number): string {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod100 >= 11 && mod100 <= 14) return "мест";
+  if (mod10 === 1) return "место";
+  if (mod10 >= 2 && mod10 <= 4) return "места";
+  return "мест";
+}
+
+export function formatRankChangeMessage(before: number, after: number): string {
+  const delta = before - after;
+  const count = Math.abs(delta);
+  const sign = delta > 0 ? "+" : "-";
+  return `${sign}${count} ${placesWord(count)} после покупки`;
 }

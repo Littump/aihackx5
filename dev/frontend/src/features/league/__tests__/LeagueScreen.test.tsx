@@ -6,35 +6,50 @@ import { describe, expect, it } from "vitest";
 import { HomeScreen } from "@/features/home/HomeScreen";
 import { leagueRankChangeKey } from "@/shared/lib/queryKeys";
 import { API } from "@/test/handlers";
+import { getLeague } from "@/test/fixtures";
 import { renderWithProviders } from "@/test/render";
 import { server } from "@/test/setup";
 import { LeagueScreen } from "../LeagueScreen";
 
 describe("LeagueScreen", () => {
-  it("показывает дивизион, неделю, моё место и «дом vs район»", async () => {
+  it("показывает зелёную шапку с дивизионом, неделей, местом/счётом/зоной и «дом vs район»", async () => {
     renderWithProviders(<LeagueScreen />, ["/?user=1"]);
+    const league = getLeague(1);
 
-    expect(await screen.findByText("серебро")).toBeInTheDocument();
-    expect(screen.getByText("Дивизион 2")).toBeInTheDocument();
-    expect(screen.getByText(/31 августа.*6 сентября/)).toBeInTheDocument();
-    expect(screen.getByText(/Место 3/)).toBeInTheDocument();
-    expect(screen.getByText("из 24")).toBeInTheDocument();
-    expect(screen.getByText("Очки: 192")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Лига домов" })).toBeInTheDocument();
+    expect(
+      screen.getByText(/Дивизион 2 «серебро» · неделя 31 августа – 6 сентября/),
+    ).toBeInTheDocument();
 
-    expect(screen.getByText("Дом vs район")).toBeInTheDocument();
+    const header = screen.getByTestId("league-header");
+    expect(within(header).getByText(`${league.my_rank} из ${league.size}`)).toBeInTheDocument();
+    expect(within(header).getByText(`${league.my_score}`)).toBeInTheDocument();
+    expect(within(header).getByText("Повышение")).toBeInTheDocument();
+
+    expect(screen.getByText("Ваш дом против района")).toBeInTheDocument();
     expect(screen.getByText("Пятёрочка на Ленина")).toBeInTheDocument();
     expect(screen.getByText("12%")).toBeInTheDocument();
-    expect(screen.getByText("Место среди домов района: 3 из 12")).toBeInTheDocument();
+    expect(screen.getByText("3 из 12")).toBeInTheDocument();
+  });
+
+  it("показывает заметку о приватности", async () => {
+    renderWithProviders(<LeagueScreen />, ["/?user=1"]);
+
+    expect(
+      await screen.findByText(
+        /Показываем только псевдонимы и очки\. Ни имён, ни адресов, ни сумм и состава чужих покупок\./,
+      ),
+    ).toBeInTheDocument();
   });
 
   it("подсвечивает строку текущего пользователя меткой «Вы»", async () => {
     renderWithProviders(<LeagueScreen />, ["/?user=1"]);
 
-    const myRow = (await screen.findByText("Хомяк-Запасливый")).closest(
-      '[data-testid="league-row"]',
-    );
+    const myRow = (await screen.findByText("Вы")).closest('[data-testid="league-row"]');
     expect(myRow).not.toBeNull();
-    expect(myRow!.textContent).toBe("3Хомяк-ЗапасливыйВыур. 7192");
+    expect(myRow!.textContent).toBe("3Выуровень 7 · зона повышение192");
+    expect(myRow!.className).toContain("bg-brand-700");
+    expect(myRow!.className).toContain("text-white");
 
     const otherRow = screen.getByText("Сосед-Бережливый-1").closest('[data-testid="league-row"]');
     expect(otherRow!.textContent).not.toContain("Вы");
@@ -46,34 +61,109 @@ describe("LeagueScreen", () => {
     const row = (await screen.findByText("Сосед-Бережливый-1")).closest(
       '[data-testid="league-row"]',
     );
-    expect(row!.textContent).toBe("1Сосед-Бережливый-1ур. 6204");
+    expect(row!.textContent).toBe("1Сосед-Бережливый-1уровень 6204");
   });
 
   it.each([
     [1, "Повышение"],
-    [2, "Стабильно"],
+    [2, "Безопасная"],
     [3, "Понижение"],
-  ])("для user=%i карточка «моё место» показывает зону «%s»", async (userId, zoneLabel) => {
+  ])("для user=%i шапка показывает зону «%s»", async (userId, zone) => {
     renderWithProviders(<LeagueScreen />, [`/?user=${userId}`]);
 
-    const heading = await screen.findByRole("heading", { name: "серебро" });
-    const headerRow = heading.closest("div")?.parentElement;
-    expect(headerRow).not.toBeNull();
-    expect(within(headerRow!).getByText(zoneLabel)).toBeInTheDocument();
+    const header = await screen.findByTestId("league-header");
+    expect(within(header).getByText(zone)).toBeInTheDocument();
   });
 
-  it("подсвечивает строки списка цветом зоны: повышение / стабильно / понижение", async () => {
+  it("рендерит все строки лиги из ответа API, а не только часть", async () => {
     renderWithProviders(<LeagueScreen />, ["/?user=1"]);
-    await screen.findByText("серебро");
+    const league = getLeague(1);
 
+    await screen.findByRole("heading", { name: "Лига домов" });
     const rows = screen.getAllByTestId("league-row");
-    expect(rows).toHaveLength(24);
+    expect(rows).toHaveLength(league.members.length);
 
-    expect(rows[0].className).toContain("border-legacy-brand-600");
-    expect(rows[9].className).toContain("border-border");
-    expect(rows[9].className).not.toContain("border-legacy-brand-600");
-    expect(rows[9].className).not.toContain("border-legacy-accent-600");
-    expect(rows[21].className).toContain("border-legacy-accent-600");
+    const ranks = rows.map((row) => row.firstElementChild?.textContent);
+    expect(ranks).toEqual(Array.from({ length: league.size }, (_, index) => `${index + 1}`));
+  });
+
+  it("вставляет разделители зон ровно один раз и в правильной позиции", async () => {
+    renderWithProviders(<LeagueScreen />, ["/?user=1"]);
+    const league = getLeague(1);
+
+    await screen.findByRole("heading", { name: "Лига домов" });
+    const board = screen.getByTestId("leaderboard");
+
+    expect(
+      within(board).getAllByText(`Выше — повышение в дивизион ${league.division + 1}`),
+    ).toHaveLength(1);
+    expect(
+      within(board).getAllByText(`Ниже — понижение в дивизион ${league.division - 1}`),
+    ).toHaveLength(1);
+
+    const children = Array.from(board.children);
+    const promotionIndex = children.findIndex((el) =>
+      (el.textContent ?? "").includes("Выше — повышение"),
+    );
+    const demotionIndex = children.findIndex((el) =>
+      (el.textContent ?? "").includes("Ниже — понижение"),
+    );
+
+    const rowBeforePromotionDivider = children[promotionIndex - 1];
+    expect(rowBeforePromotionDivider.getAttribute("data-testid")).toBe("league-row");
+    expect(rowBeforePromotionDivider.firstElementChild?.textContent).toBe(
+      `${league.promotion_cutoff}`,
+    );
+
+    const rowAfterDemotionDivider = children[demotionIndex + 1];
+    expect(rowAfterDemotionDivider.getAttribute("data-testid")).toBe("league-row");
+    expect(rowAfterDemotionDivider.firstElementChild?.textContent).toBe(
+      `${league.demotion_cutoff}`,
+    );
+  });
+
+  it("разделители зон следуют за promotion_cutoff/demotion_cutoff из ответа, а не за захардкоженной позицией", async () => {
+    const league = getLeague(1);
+    const customLeague = {
+      ...league,
+      promotion_cutoff: 3,
+      demotion_cutoff: 10,
+      members: league.members.map((member) => ({ ...member, is_me: member.rank === 3 })),
+      my_rank: 3,
+      my_zone: "promotion" as const,
+    };
+    server.use(http.get(`${API}/users/:user_id/league`, () => HttpResponse.json(customLeague)));
+
+    renderWithProviders(<LeagueScreen />, ["/?user=1"]);
+    await screen.findByRole("heading", { name: "Лига домов" });
+    const board = screen.getByTestId("leaderboard");
+    const children = Array.from(board.children);
+
+    const promotionIndex = children.findIndex((el) =>
+      (el.textContent ?? "").includes("Выше — повышение"),
+    );
+    const demotionIndex = children.findIndex((el) =>
+      (el.textContent ?? "").includes("Ниже — понижение"),
+    );
+
+    expect(children[promotionIndex - 1].firstElementChild?.textContent).toBe("3");
+    expect(children[demotionIndex + 1].firstElementChild?.textContent).toBe("10");
+    expect(within(board).queryAllByText(/Выше — повышение/)).toHaveLength(1);
+    expect(within(board).queryAllByText(/Ниже — понижение/)).toHaveLength(1);
+  });
+
+  it("зона понижения отображается с полупрозрачным фоном", async () => {
+    renderWithProviders(<LeagueScreen />, ["/?user=1"]);
+    const league = getLeague(1);
+
+    await screen.findByRole("heading", { name: "Лига домов" });
+    const rows = screen.getAllByTestId("league-row");
+
+    const demotionRow = rows[league.demotion_cutoff - 1];
+    expect(demotionRow.className).toContain("bg-accent-50/50");
+
+    const safeRow = rows[league.promotion_cutoff];
+    expect(safeRow.className).not.toContain("bg-accent-50/50");
   });
 
   it("показывает состояние загрузки, пока лига ещё не пришла", () => {
@@ -97,7 +187,7 @@ describe("LeagueScreen", () => {
     expect(screen.getByText(/БД недоступна/)).toBeInTheDocument();
   });
 
-  it("после Simulate на Home показывает изменение места в League", async () => {
+  it("после Simulate на Home показывает улучшение места стрелкой вверх", async () => {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const user = userEvent.setup();
 
@@ -113,18 +203,20 @@ describe("LeagueScreen", () => {
 
     renderWithProviders(<LeagueScreen />, ["/?user=1"], client);
 
-    expect(await screen.findByText(/Место изменилось: 6 → 5/)).toBeInTheDocument();
+    const indicator = await screen.findByTestId("rank-change");
+    expect(indicator.textContent).toContain("+1 место после покупки");
+    expect(indicator.querySelector("path")?.getAttribute("d")).toBe("M12 19V5M6 11l6-6 6 6");
   });
 
-  it("показывает ухудшение места стрелкой вниз и другим цветом", async () => {
+  it("показывает ухудшение места стрелкой вниз", async () => {
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     client.setQueryData(leagueRankChangeKey(1), { before: 5, after: 8 });
 
     renderWithProviders(<LeagueScreen />, ["/?user=1"], client);
 
-    const message = await screen.findByText(/Место изменилось: 5 → 8/);
-    expect(message.textContent).toContain("▼");
-    expect(message.className).toContain("text-legacy-accent-600");
+    const indicator = await screen.findByTestId("rank-change");
+    expect(indicator.textContent).toContain("-3 места после покупки");
+    expect(indicator.querySelector("path")?.getAttribute("d")).toBe("M12 5v14M6 13l6 6 6-6");
   });
 
   it("не показывает изменение места, если ранг до и после совпадает", async () => {
@@ -133,7 +225,7 @@ describe("LeagueScreen", () => {
 
     renderWithProviders(<LeagueScreen />, ["/?user=1"], client);
 
-    await screen.findByText("серебро");
-    expect(screen.queryByText(/Место изменилось/)).not.toBeInTheDocument();
+    await screen.findByRole("heading", { name: "Лига домов" });
+    expect(screen.queryByTestId("rank-change")).not.toBeInTheDocument();
   });
 });
