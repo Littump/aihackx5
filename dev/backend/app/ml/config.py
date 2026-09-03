@@ -1,0 +1,45 @@
+from app import game_rules
+
+LLM_BASE_URL_DEFAULT = "http://localhost:8016/v1"
+LLM_MODEL_DEFAULT = "/opt/Qwen/Qwen3.8-27B-FP8"
+LLM_TIMEOUT_S = 60.0
+
+CATEGORIES: tuple[str, ...] = game_rules.CATEGORIES
+EXCLUDED_CATEGORIES: frozenset[str] = game_rules.CHALLENGE_EXCLUDED_CATEGORIES
+
+CHALLENGE_LIBRARY: tuple[str, ...] = (
+    "frequency",
+    "category",
+    "basket",
+    "streak",
+    "replenishment",
+    "collection",
+)
+REWARD_KINDS: tuple[str, ...] = ("promo", "ladder", "none")
+REWARD_LEVELS: tuple[str, ...] = ("none", "low", "medium", "high")
+
+PROMO_LEVEL_SHARE: dict[str, float] = {"none": 0.0, "low": 0.4, "medium": 0.7, "high": 1.0}
+LADDER_STAGE_BASE_XP: dict[str, int] = {"none": 0, "low": 10, "medium": 20, "high": 30}
+
+CHURN_RISK_CADENCE_FACTOR = 1.8
+CHURN_RISK_HIGH_FACTOR = 2.6
+
+MAX_PLAN_STEPS = 2
+PLANNER_REPAIR_MAX = 2
+PLANNER_PREV_PLANS_MAX = 3
+PLANNER_TIMESERIES_TOP_K = 5
+
+CATALOG_MIN_PER_CATEGORY = 18
+CATALOG_MAX_PER_CATEGORY = 34
+
+INFRA_COST_PER_USER_MONTH_RUB = 1.5
+BUSINESS_METRIC_PURCHASES = 8
+BUSINESS_METRIC_WINDOW_WEEKS = 4
+RELEVANCE_HIT_THRESHOLD = 0.70
+
+CONTRIBUTION_MARGIN = game_rules.CONTRIBUTION_MARGIN
+REWARD_SHARE_MAX = game_rules.REWARD_SHARE_MAX
+REWARD_POINTS_MIN = game_rules.REWARD_POINTS_MIN
+REWARD_POINTS_MAX_WEEKLY = game_rules.REWARD_POINTS_MAX_WEEKLY
+REWARD_POINTS_ROUNDING_STEP = game_rules.REWARD_POINTS_ROUNDING_STEP
+XP_CHALLENGE = game_rules.XP_CHALLENGE
