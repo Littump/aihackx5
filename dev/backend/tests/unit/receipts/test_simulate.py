@@ -12,6 +12,8 @@ from app.game_rules import (
     SIMULATE_CATEGORY_BOOST_ITEMS,
     SIMULATE_DEFAULT_AVG_BASKET,
     SIMULATE_DEFAULT_CATEGORIES,
+    SIMULATE_FRAUD_BURST_COUNT,
+    SIMULATE_FRAUD_BURST_INTERVAL_MIN,
     SIMULATE_ITEMS_MAX,
     SIMULATE_ITEMS_MIN,
     SIMULATE_PROMO_DISCOUNT_MAX,
@@ -148,12 +150,12 @@ def test_fraud_burst_item_is_single_100_rub_item() -> None:
     assert item.is_promo is False
 
 
-def test_fraud_burst_times_are_increasing_and_spaced_by_3_minutes() -> None:
+def test_fraud_burst_times_are_increasing_and_spaced_by_configured_interval() -> None:
     reference = datetime(2026, 9, 3, 12, 0, tzinfo=UTC)
+    interval = timedelta(minutes=SIMULATE_FRAUD_BURST_INTERVAL_MIN)
     times = simulate.fraud_burst_times(reference)
-    assert times == [
-        reference - timedelta(minutes=9),
-        reference - timedelta(minutes=6),
-        reference - timedelta(minutes=3),
-        reference,
+    expected = [
+        reference - interval * offset for offset in range(SIMULATE_FRAUD_BURST_COUNT - 1, -1, -1)
     ]
+    assert times == expected
+    assert len(times) == SIMULATE_FRAUD_BURST_COUNT

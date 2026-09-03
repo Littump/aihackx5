@@ -49,6 +49,11 @@ RECEIPT_INSERT = (
     "RETURNING id, user_id, store_id, purchased_at, regular_total, paid_total, discount_total, "
     "points_earned, points_spent, counted, is_returned, returned_at, source, pos_id, created_at"
 )
+RECEIPT_UPDATE_COUNTED = (
+    "UPDATE receipts SET counted = %(counted)s WHERE id = %(receipt_id)s "
+    "RETURNING id, user_id, store_id, purchased_at, regular_total, paid_total, discount_total, "
+    "points_earned, points_spent, counted, is_returned, returned_at, source, pos_id, created_at"
+)
 RECEIPT_ITEM_INSERT = (
     "INSERT INTO receipt_items (receipt_id, product_name, category, qty, "
     "regular_price, paid_price, is_promo) "
@@ -69,6 +74,16 @@ async def insert_receipt(conn: AsyncConnection, params: dict[str, object]) -> Re
 async def insert_receipt_item(conn: AsyncConnection, params: dict[str, object]) -> ReceiptItemRow:
     async with conn.cursor(row_factory=class_row(ReceiptItemRow)) as cur:
         await cur.execute(RECEIPT_ITEM_INSERT, params)
+        row = await cur.fetchone()
+        assert row is not None
+        return row
+
+
+async def update_receipt_counted(
+    conn: AsyncConnection, *, receipt_id: int, counted: bool
+) -> ReceiptRow:
+    async with conn.cursor(row_factory=class_row(ReceiptRow)) as cur:
+        await cur.execute(RECEIPT_UPDATE_COUNTED, {"receipt_id": receipt_id, "counted": counted})
         row = await cur.fetchone()
         assert row is not None
         return row

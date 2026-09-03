@@ -21,7 +21,7 @@
 ## BE-020 антифрод в pipeline
 **Файлы:** `app/features/receipts/service.py`, тесты.
 **Описание:** шаг 2 оркестратора: `block` → `counted=false, counted_reason=fraud_block`, дальнейшие шаги идут, но без наград; `hold` → чек counted, награды челленджа пишутся в ledger с `kind=challenge` только после... нет: в MVP `hold` откладывает только реферальную награду; чек-награды при `hold` начисляются, но PM view показывает флаг. Зафиксировать это в `domain-rules.md` §11 при реализации.
-**AC:** `fraud_burst` из BE-014 после 4 чеков даёт `decision=hold` или `block` и `counted=false` у заблокированных; approve-путь не меняет поведение BE-013.
+**AC:** `fraud_burst` из BE-014 после 5 чеков (число уточнено при реализации BE-020 — 4 чеков не хватало для срабатывания `same_pos_share`) даёт `decision=hold` или `block` и `counted=false` у заблокированных; approve-путь не меняет поведение BE-013.
 
 ## BE-021 achievements
 **Файлы:** `app/features/achievements/{router,dto,service,database}.py`, тесты.

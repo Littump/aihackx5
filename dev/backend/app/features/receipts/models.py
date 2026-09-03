@@ -78,9 +78,12 @@ class ReceiptTotals(AppModel):
     discount_total: Decimal
 
 
+CountedReason = Literal["dedup_window", "daily_limit", "fraud_block"]
+
+
 class CountedDecision(AppModel):
     counted: bool
-    counted_reason: Literal["dedup_window", "daily_limit"] | None
+    counted_reason: CountedReason | None
 
 
 class ReceiptDetail(AppModel):
@@ -134,7 +137,7 @@ class ChallengeProgressDeltaStub(AppModel):
 class ReceiptProcessingOutcome(AppModel):
     receipt: ReceiptDetail
     counted: bool
-    counted_reason: Literal["dedup_window", "daily_limit"] | None
+    counted_reason: CountedReason | None
     xp_delta: int
     domovoy: DomovoyStateStub
     savings_delta: Decimal
