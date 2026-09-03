@@ -12,6 +12,7 @@ from app.features.challenges.router import router as challenges_router
 from app.features.health.router import router as health_router
 from app.features.league.router import router as league_router
 from app.features.receipts.router import router as receipts_router
+from app.features.referrals.router import router as referrals_router
 from app.features.savings.router import router as savings_router
 from app.features.users.router import router as users_router
 
@@ -46,6 +47,7 @@ def create_app(database_url: str | None = None) -> FastAPI:
     app.include_router(savings_router, prefix=API_PREFIX)
     app.include_router(challenges_router, prefix=API_PREFIX)
     app.include_router(league_router, prefix=API_PREFIX)
+    app.include_router(referrals_router, prefix=API_PREFIX)
     return app
 
 
