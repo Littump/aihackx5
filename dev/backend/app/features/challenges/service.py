@@ -192,6 +192,14 @@ async def count_completed(conn: AsyncConnection, user_id: int) -> int:
     return await database.count_completed_challenges(conn, user_id=user_id)
 
 
+async def count_completed_in_period(
+    conn: AsyncConnection, *, user_id: int, start: datetime, end: datetime
+) -> int:
+    return await database.count_completed_challenges_in_period(
+        conn, user_id=user_id, start=start, end=end
+    )
+
+
 async def get_one(conn: AsyncConnection, user_id: int, challenge_id: int) -> ChallengeRow:
     await users_service.get_user(conn, user_id)
     row = await database.get_challenge_by_id(conn, challenge_id=challenge_id)

@@ -232,3 +232,18 @@ async def test_failure_in_challenges_step_leaves_nothing_written(
 
     state = await domovoy_db.get_domovoy_state(conn, user_id=user.id)
     assert state is None
+
+
+async def test_process_receipt_fills_league_rank_before_and_after(
+    client: AsyncClient, conn: AsyncConnection, freeze_time: Callable[[datetime], None]
+) -> None:
+    freeze_time(PURCHASED_AT)
+    user = await make_user(conn)
+    store = await make_store(conn)
+
+    response = await client.post("/api/v1/receipts", json=_payload(user.id, store.id))
+
+    assert response.status_code == 201
+    body = response.json()
+    assert body["league_rank_before"] == 1
+    assert body["league_rank_after"] == 1

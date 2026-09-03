@@ -6,6 +6,7 @@ from psycopg import AsyncConnection
 from app.core.clock import day_start
 from app.features.challenges.models import ChallengeProgressDelta
 from app.features.domovoy.models import DomovoyDelta, DomovoyStateRow
+from app.features.league.models import LeagueRankChange
 from app.features.receipts import database, outcome
 from app.features.receipts.models import (
     CountedDecision,
@@ -64,9 +65,15 @@ async def process_receipt(
     domovoy_delta = await _run_domovoy_step(conn, user_id, receipt_row)
     receipt_detail = _to_receipt_detail(receipt_row, store_name=store.name, items=item_rows)
     challenge_deltas = await _run_challenges_step(conn, user_id, receipt_detail)
+    league_rank_change = await _run_league_step(conn, user_id, receipt_detail)
     domovoy_state = await _final_domovoy_state(conn, user_id)
     return outcome.build_outcome(
-        receipt_detail, decision, domovoy_delta.xp_delta, domovoy_state, challenge_deltas
+        receipt_detail,
+        decision,
+        domovoy_delta.xp_delta,
+        domovoy_state,
+        challenge_deltas,
+        league_rank_change,
     )
 
 
@@ -165,6 +172,15 @@ async def _run_challenges_step(
     from app.features.challenges import service as challenges_service
 
     return await challenges_service.on_receipt(conn, user_id, receipt)
+
+
+async def _run_league_step(
+    conn: AsyncConnection, user_id: int, receipt: ReceiptDetail
+) -> LeagueRankChange:
+    # отложенный импорт разрывает цикл: league.service импортирует нас
+    from app.features.league import service as league_service
+
+    return await league_service.on_receipt(conn, user_id, receipt)
 
 
 async def _final_domovoy_state(conn: AsyncConnection, user_id: int) -> DomovoyStateStub:

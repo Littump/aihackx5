@@ -128,6 +128,6 @@ async def test_process_receipt_numeric_field_types_match_contract(
     assert body["fraud"]["signals"] == []
     assert body["challenges"] == []
     assert body["achievements_unlocked"] == []
-    assert body["league_rank_before"] is None
-    assert body["league_rank_after"] is None
+    assert isinstance(body["league_rank_before"], int)
+    assert isinstance(body["league_rank_after"], int)
     assert body["referral_status"] is None

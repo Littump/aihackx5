@@ -8,6 +8,8 @@ from app.features.challenges import service as challenges_service
 from app.features.challenges.models import ChallengeProgressDelta
 from app.features.domovoy import service as domovoy_service
 from app.features.domovoy.models import DomovoyDelta, DomovoyStateRow
+from app.features.league import service as league_service
+from app.features.league.models import LeagueRankChange
 from app.features.receipts import database as receipts_db
 from app.features.receipts import service
 from app.features.receipts.dto import ReceiptItemInput
@@ -157,6 +159,14 @@ async def _fake_challenges_on_receipt(
     return [_completed_challenge_delta()]
 
 
+async def _fake_league_on_receipt(
+    _: AsyncConnection, user_id: int, receipt: ReceiptDetail
+) -> LeagueRankChange:
+    assert user_id == 1
+    assert receipt.counted is True
+    return LeagueRankChange(rank_before=2, rank_after=1)
+
+
 def _patch_process_receipt(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(users_service, "get_user", _fake_get_user)
     monkeypatch.setattr(users_service, "get_store", _fake_get_store)
@@ -170,6 +180,7 @@ def _patch_process_receipt(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(domovoy_service, "on_receipt", _fake_domovoy_on_receipt)
     monkeypatch.setattr(domovoy_service, "get_state", _fake_domovoy_get_state)
     monkeypatch.setattr(challenges_service, "on_receipt", _fake_challenges_on_receipt)
+    monkeypatch.setattr(league_service, "on_receipt", _fake_league_on_receipt)
 
 
 async def test_process_receipt_happy_path_combines_domovoy_and_challenges(
@@ -210,6 +221,7 @@ async def test_process_receipt_happy_path_combines_domovoy_and_challenges(
     assert outcome.fraud.decision == "approve"
     assert outcome.receipt.store_name == "Пятёрочка, Ленина 12"
     assert outcome.receipt.items == [_item_row()]
-    assert outcome.league_rank_before is None
+    assert outcome.league_rank_before == 2
+    assert outcome.league_rank_after == 1
     assert outcome.referral_status is None
     assert outcome.achievements_unlocked == []
