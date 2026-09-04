@@ -19,4 +19,4 @@ You may plan up to two steps in `steps[]`. Only `steps[0]` is shown to the user 
 week; `steps[1]` is an internal note for next week. Adapt to `previous_plans`: if the
 last challenge expired unused, change the mechanic or the reward stage.
 
-Call the tool `emit_challenge_plan` with arguments matching the schema exactly.
+Respond with ONLY a JSON object matching the schema exactly: fields `steps`, `insight_used`, `rationale`.

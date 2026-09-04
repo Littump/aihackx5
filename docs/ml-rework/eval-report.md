@@ -10,9 +10,9 @@
 | branch | net_effect ₽ | incr.margin ₽ | reward cost ₽ | incr.visits | biz-metric share | completion | relevance hit | llm plans |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | control_x5 | 0.0 | 0.0 | 0.0 | 0.0 | 0.26 | 0.0 | 0.0 | 0.0 |
-| treatment_llm | 53.86 | 61.51 | 6.15 | 0.72 | 0.38 | 0.68 | 0.92 | 0.98 |
-| treatment_rules | 75.4 | 87.1 | 10.2 | 0.98 | 0.38 | 0.96 | 0.28 | 0.0 |
+| treatment_llm | 66.77 | 75.62 | 7.35 | 0.86 | 0.36 | 0.84 | 0.64 | 0.44 |
+| treatment_rules | 76.68 | 88.68 | 10.5 | 1.0 | 0.4 | 0.98 | 0.28 | 0.0 |
 
-**Business-metric uplift (treatment_llm − control_x5): 12.0 pp**
+**Business-metric uplift (treatment_llm − control_x5): 10.0 pp**
 
 _Run with `--null` to check the zero-uplift invariant._

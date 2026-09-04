@@ -7,7 +7,8 @@ from app.ml import config, llm_client, rules, tool_schemas, validator
 from app.ml.llm_client import ChatClient
 from app.ml.schemas import ChallengePlan, PlannerInput, ValidatedPlan
 
-_TOOL_NAME = "emit_challenge_plan"
+_SCHEMA_NAME = "challenge_plan"
+_MAX_TOKENS = 700
 
 
 async def plan_challenge(client: ChatClient | None, planner_input: PlannerInput) -> ValidatedPlan:
@@ -19,7 +20,9 @@ async def plan_challenge(client: ChatClient | None, planner_input: PlannerInput)
     feedback = ""
     for attempt in range(config.PLANNER_REPAIR_MAX + 1):
         user_prompt = base_user_prompt + feedback
-        arguments = await client.emit_tool(system_prompt, user_prompt, _TOOL_NAME, schema)
+        arguments = await client.emit_json(
+            system_prompt, user_prompt, _SCHEMA_NAME, schema, max_tokens=_MAX_TOKENS
+        )
         plan = _parse_plan(arguments)
         if plan is None:
             feedback = "\n\nPrevious answer was not valid JSON for the schema. Try again."

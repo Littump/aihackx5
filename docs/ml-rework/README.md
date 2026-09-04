@@ -8,6 +8,7 @@
 |---|---|
 | [ml-solution-architecture.md](ml-solution-architecture.md) | Целевая ML-архитектура: Insight Builder → LLM Challenge Planner (structured output, tool-use; `reward_kind` promo/ladder/none + многошаговый план `steps[]` (cap 2)) → Validator → статические Economics/Reward Ladder; фиксированный каталог SKU; синтетическая eval **продолжением истории** (обрезка в точке T, LLM-as-user дописывает хвост, деньги считает код — без LLM-судьи). С обоснованием и ссылками на research. |
 | [product-and-architecture-modifications.md](product-and-architecture-modifications.md) | Карта влияния на уже принятую архитектуру/продукт: сдвиг роли LLM, новые модули и таблицы, константы, контракт, backlog, порядок внедрения, вопросы продукт-овнеру. |
+| [metrics-explained.md](metrics-explained.md) | Метрики eval простыми словами: что такое бизнес-метрики (net_effect, incr.visits, uplift) и системные (completion, relevance hit, llm plans), и что из этого мы оптимизируем. |
 
 ## Суть в одном абзаце
 
