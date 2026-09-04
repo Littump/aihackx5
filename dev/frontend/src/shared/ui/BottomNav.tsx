@@ -1,4 +1,4 @@
-import { NavLink } from "react-router";
+import { NavLink, useSearchParams } from "react-router";
 import { NAV_ICON_PATHS, type NavIconKey } from "./navIcons";
 
 type NavItem = {
@@ -15,6 +15,8 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export function BottomNav() {
+  const [searchParams] = useSearchParams();
+  const search = searchParams.toString();
   return (
     <nav
       className="grid shrink-0 grid-cols-4 bg-surface px-2 pt-2 pb-3 shadow-nav"
@@ -23,7 +25,7 @@ export function BottomNav() {
       {NAV_ITEMS.map((item) => (
         <NavLink
           key={item.to}
-          to={item.to}
+          to={{ pathname: item.to, search }}
           end={item.to === "/"}
           className={({ isActive }) =>
             `flex flex-col items-center gap-1 py-2 ${

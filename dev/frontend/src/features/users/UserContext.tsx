@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSearchParams } from "react-router";
 import { UserContext } from "./context";
 import { useUsers } from "./hooks";
@@ -14,7 +14,9 @@ function readUserId(searchParams: URLSearchParams): number | null {
 export function UserProvider({ children }: { children: ReactNode }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const users = useUsers();
-  const userId = readUserId(searchParams);
+  const urlUserId = readUserId(searchParams);
+  const [lastUserId, setLastUserId] = useState<number | null>(urlUserId);
+  const userId = urlUserId ?? lastUserId;
 
   const setUserId = useCallback(
     (id: number) => {
@@ -31,17 +33,22 @@ export function UserProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    const firstUserId = users.data?.items[0]?.id;
-    if (userId !== null || firstUserId === undefined) return;
+    if (urlUserId !== null && urlUserId !== lastUserId) setLastUserId(urlUserId);
+  }, [urlUserId, lastUserId]);
+
+  useEffect(() => {
+    if (urlUserId !== null) return;
+    const restoredId = lastUserId ?? users.data?.items[0]?.id;
+    if (restoredId === undefined || restoredId === null) return;
     setSearchParams(
       (previous) => {
         const next = new URLSearchParams(previous);
-        next.set(USER_PARAM, String(firstUserId));
+        next.set(USER_PARAM, String(restoredId));
         return next;
       },
       { replace: true },
     );
-  }, [userId, users.data, setSearchParams]);
+  }, [urlUserId, lastUserId, users.data, setSearchParams]);
 
   const value = useMemo(() => ({ userId, setUserId }), [userId, setUserId]);
 

@@ -52,6 +52,18 @@ describe("BottomNav", () => {
     expect(homeLink).toHaveClass("text-ink-500");
   });
 
+  it("переносит текущие query-параметры в каждую ссылку, чтобы не терять демо-пользователя", () => {
+    renderNav(["/challenge?user=3"]);
+    for (const link of screen.getAllByRole("link")) {
+      expect(link).toHaveAttribute("href", expect.stringContaining("?user=3"));
+    }
+  });
+
+  it("без query-параметров ссылки остаются чистыми путями", () => {
+    renderNav(["/"]);
+    expect(screen.getByRole("link", { name: /Лига/ })).toHaveAttribute("href", "/league");
+  });
+
   it("пункт «Дом» активен только на точном /, не на вложенных путях", () => {
     renderNav(["/league"]);
     const homeLink = screen.getByRole("link", { name: /Дом/ });

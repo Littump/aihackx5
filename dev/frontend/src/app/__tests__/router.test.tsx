@@ -26,6 +26,15 @@ describe("router", () => {
     },
   );
 
+  it("все ссылки экрана несут выбранного демо-пользователя", async () => {
+    renderApp(["/?user=2"]);
+    await waitFor(() => screen.getByRole("heading", { level: 1 }));
+
+    for (const link of screen.getAllByRole("link")) {
+      expect(link).toHaveAttribute("href", expect.stringContaining("user=2"));
+    }
+  });
+
   it("нижняя навигация не содержит пункта PM", async () => {
     renderApp(["/?user=1"]);
     await waitFor(() => screen.getByRole("heading", { level: 1 }));
