@@ -21,7 +21,7 @@ describe("PmScreen — пустые состояния", () => {
 
     renderWithProviders(<PmScreen />);
 
-    await screen.findByRole("heading", { name: "Симуляция" });
+    await screen.findByRole("heading", { name: "Симуляция: контроль и тест" });
     expect(await screen.findByText("Ещё не запускали.")).toBeInTheDocument();
   });
 
@@ -30,7 +30,7 @@ describe("PmScreen — пустые состояния", () => {
 
     renderWithProviders(<PmScreen />);
 
-    await screen.findByRole("heading", { name: "Eval" });
+    await screen.findByRole("heading", { name: "Качество подбора целей ИИ" });
     expect(await screen.findByText("Ещё не запускали.")).toBeInTheDocument();
   });
 

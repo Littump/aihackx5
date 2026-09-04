@@ -2,11 +2,22 @@ import { describe, expect, it } from "vitest";
 import {
   decisionBadgeClass,
   decisionLabel,
+  FRAUD_BLOCK_THRESHOLD,
+  FRAUD_HOLD_THRESHOLD,
   formatDateTime,
   formatPercent,
-  mechanicLabel,
 } from "../format";
-import type { FraudDecision, PmUserResponse } from "../api";
+import type { FraudDecision } from "../api";
+
+describe("пороги антифрода — зеркало game_rules.py", () => {
+  it("FRAUD_HOLD_THRESHOLD равен 0.5", () => {
+    expect(FRAUD_HOLD_THRESHOLD).toBe(0.5);
+  });
+
+  it("FRAUD_BLOCK_THRESHOLD равен 0.8", () => {
+    expect(FRAUD_BLOCK_THRESHOLD).toBe(0.8);
+  });
+});
 
 describe("decisionLabel и decisionBadgeClass", () => {
   it.each<[FraudDecision, string]>([
@@ -20,16 +31,6 @@ describe("decisionLabel и decisionBadgeClass", () => {
 
   it("для block и approve использует разные классы бейджа", () => {
     expect(decisionBadgeClass("block")).not.toBe(decisionBadgeClass("approve"));
-  });
-});
-
-describe("mechanicLabel", () => {
-  it.each<[PmUserResponse["recommended_mechanic"]["mechanic"], string]>([
-    ["challenge", "Челлендж"],
-    ["league", "Лига"],
-    ["referral", "Рефералы"],
-  ])("для механики %s возвращает подпись «%s»", (mechanic, label) => {
-    expect(mechanicLabel(mechanic)).toBe(label);
   });
 });
 

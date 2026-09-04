@@ -1,5 +1,4 @@
 import { Card } from "@/shared/ui/Card";
-import { mechanicLabel } from "../format";
 import type { PmUserResponse } from "../api";
 
 type MechanicBlockProps = {
@@ -8,16 +7,17 @@ type MechanicBlockProps = {
 
 export function MechanicBlock({ recommendedMechanic }: MechanicBlockProps) {
   return (
-    <Card>
-      <h2 className="text-lg font-semibold text-text">Механика и почему</h2>
-      <p className="mt-2 text-sm text-text-secondary">Рекомендованная механика</p>
-      <span className="mt-1 inline-block rounded-full bg-legacy-brand-100 px-3 py-1 text-sm font-semibold text-legacy-brand-600">
-        {mechanicLabel(recommendedMechanic.mechanic)}
+    <Card className="flex flex-col gap-3">
+      <h2 className="text-lead font-bold">Механика и обоснование</h2>
+      <span className="self-start rounded-tile bg-brand-50 px-3 py-1 font-mono text-caption font-semibold text-brand-700">
+        {recommendedMechanic.mechanic}
       </span>
-      <p className="mt-3 text-xs font-medium uppercase text-text-secondary">Причины</p>
-      <ul className="mt-1 list-disc pl-5 text-sm text-text">
-        {recommendedMechanic.reasons.map((reason) => (
-          <li key={reason}>{reason}</li>
+      <ul className="m-0 flex list-none flex-col gap-2 pl-0">
+        {recommendedMechanic.reasons.map((reason, index) => (
+          <li key={reason} className="flex gap-2 text-body text-ink-700">
+            <span className="font-bold text-brand-700">{index + 1}.</span>
+            {reason}
+          </li>
         ))}
       </ul>
     </Card>

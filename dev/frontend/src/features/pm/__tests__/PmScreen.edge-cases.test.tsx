@@ -24,8 +24,10 @@ describe("PmScreen — состояния загрузки и ошибок", () 
 
     expect(await screen.findByText(/Не удалось загрузить PM-карточку/)).toBeInTheDocument();
     expect(screen.getByText(/БД недоступна/)).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Features" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Симуляция" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Профиль и признаки" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Симуляция: контроль и тест" }),
+    ).not.toBeInTheDocument();
   });
 
   it("показывает ошибку антифрода, если /pm/fraud недоступен", async () => {
@@ -65,7 +67,7 @@ describe("PmScreen — граничные состояния данных", () =
   it("не рендерит таблицу категорий, если affinity пуст", async () => {
     renderWithProviders(<PmScreen />, ["/?user=3"]);
 
-    await screen.findByRole("heading", { name: "Features" });
+    await screen.findByRole("heading", { name: "Профиль и признаки" });
     expect(screen.queryByText("Категории")).not.toBeInTheDocument();
   });
 
@@ -86,7 +88,36 @@ describe("PmScreen — граничные состояния данных", () =
 
     renderWithProviders(<PmScreen />);
 
-    await screen.findByRole("heading", { name: "Антифрод" });
+    await screen.findByRole("heading", { name: "Все проверки антифрода" });
     expect(await screen.findByText("Проверок нет.")).toBeInTheDocument();
+  });
+});
+
+describe("PmScreen — индикатор бюджета в «Экономике цели»", () => {
+  it("показывает зелёный бейдж, если reward_points не превышает max_reward_rub", async () => {
+    renderWithProviders(<PmScreen />);
+
+    expect(
+      await screen.findByText(/Награда укладывается в бюджет: 30 из 36 ₽/),
+    ).toBeInTheDocument();
+  });
+
+  it("показывает предупреждающий бейдж, если reward_points больше max_reward_rub", async () => {
+    const baseUser = getPmUser(1);
+    const heroChallenge = baseUser.hero_challenge;
+    if (heroChallenge === null) throw new Error("фикстура должна содержать hero-челлендж");
+
+    server.use(
+      http.get(`${API}/pm/users/:user_id`, () =>
+        HttpResponse.json({
+          ...baseUser,
+          hero_challenge: { ...heroChallenge, reward_points: 50 },
+        }),
+      ),
+    );
+
+    renderWithProviders(<PmScreen />);
+
+    expect(await screen.findByText(/Награда превышает бюджет: 50 из 36 ₽/)).toBeInTheDocument();
   });
 });

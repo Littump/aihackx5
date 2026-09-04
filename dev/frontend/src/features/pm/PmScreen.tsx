@@ -7,6 +7,7 @@ import { FraudBlock } from "./components/FraudBlock";
 import { LedgerBlock } from "./components/LedgerBlock";
 import { MechanicBlock } from "./components/MechanicBlock";
 import { SimulationBlock } from "./components/SimulationBlock";
+import { UserFraudBlock } from "./components/UserFraudBlock";
 import { usePmUser } from "./hooks";
 
 export function PmScreen() {
@@ -15,37 +16,60 @@ export function PmScreen() {
 
   return (
     <section className="flex flex-1 flex-col gap-4">
-      <h1 className="text-2xl font-semibold text-text">PM view</h1>
+      <h1 className="text-title font-bold text-ink-900">PM view — экран для продакта</h1>
+
+      <div className="flex items-start gap-2 rounded-tile bg-accent-50 px-4 py-3 text-accent-700">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          className="h-6 w-6 shrink-0"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 8h.01M12 11v5" />
+        </svg>
+        <p className="m-0 text-body font-semibold">
+          Допущения симуляции, не фактические показатели X5.
+        </p>
+      </div>
 
       {(userId === null || pmUserQuery.isPending) && (
         <Card>
-          <p className="text-text-secondary">Загрузка данных пользователя…</p>
+          <p className="text-ink-500">Загрузка данных пользователя…</p>
         </Card>
       )}
 
       {pmUserQuery.isError && (
         <Card>
-          <p className="text-legacy-accent-600">
+          <p className="text-accent-700">
             Не удалось загрузить PM-карточку: {pmUserQuery.error.message}
           </p>
         </Card>
       )}
 
       {pmUserQuery.data && (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <FeaturesBlock features={pmUserQuery.data.features} />
-          <MechanicBlock recommendedMechanic={pmUserQuery.data.recommended_mechanic} />
-          <ChallengeEconomicsBlock
-            heroChallenge={pmUserQuery.data.hero_challenge}
-            rewardsTotalPoints={pmUserQuery.data.rewards_total_points}
-            rewardsTotalXp={pmUserQuery.data.rewards_total_xp}
-            expectedIncrementalMarginMonth={pmUserQuery.data.expected_incremental_margin_month}
-          />
-          <LedgerBlock ledger={pmUserQuery.data.ledger} />
+        <>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <FeaturesBlock features={pmUserQuery.data.features} />
+            <MechanicBlock recommendedMechanic={pmUserQuery.data.recommended_mechanic} />
+            <ChallengeEconomicsBlock
+              heroChallenge={pmUserQuery.data.hero_challenge}
+              rewardsTotalPoints={pmUserQuery.data.rewards_total_points}
+              rewardsTotalXp={pmUserQuery.data.rewards_total_xp}
+              expectedIncrementalMarginMonth={pmUserQuery.data.expected_incremental_margin_month}
+            />
+            <UserFraudBlock fraudChecks={pmUserQuery.data.fraud_checks} />
+            <LedgerBlock ledger={pmUserQuery.data.ledger} />
+            <SimulationBlock />
+            <div className="md:col-span-2">
+              <EvalBlock />
+            </div>
+          </div>
           <FraudBlock />
-          <SimulationBlock />
-          <EvalBlock />
-        </div>
+        </>
       )}
     </section>
   );

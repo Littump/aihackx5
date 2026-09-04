@@ -1,5 +1,6 @@
 import { Card } from "@/shared/ui/Card";
 import { formatMoney } from "@/shared/lib/format";
+import { Stat } from "./Stat";
 import { formatPercent } from "../format";
 import { isNotFoundError, usePmSimulation } from "../hooks";
 import type { SimulationRun } from "../api";
@@ -8,14 +9,12 @@ export function SimulationBlock() {
   const simulationQuery = usePmSimulation();
 
   return (
-    <Card>
-      <h2 className="text-lg font-semibold text-text">Симуляция</h2>
-      {simulationQuery.isPending && <p className="mt-2 text-text-secondary">Загрузка…</p>}
-      {isNotFoundError(simulationQuery) && (
-        <p className="mt-2 text-text-secondary">Ещё не запускали.</p>
-      )}
+    <Card className="flex flex-col gap-3">
+      <h2 className="text-lead font-bold">Симуляция: контроль и тест</h2>
+      {simulationQuery.isPending && <p className="text-ink-500">Загрузка…</p>}
+      {isNotFoundError(simulationQuery) && <p className="text-ink-500">Ещё не запускали.</p>}
       {simulationQuery.isError && !isNotFoundError(simulationQuery) && (
-        <p className="mt-2 text-legacy-accent-600">
+        <p className="text-accent-700">
           Не удалось загрузить симуляцию: {simulationQuery.error.message}
         </p>
       )}
@@ -28,40 +27,55 @@ function SimulationResults({ run }: { run: SimulationRun }) {
   const r = run.results;
   return (
     <>
-      <p className="mt-1 text-xs text-text-secondary">
-        Все показатели — simulation assumptions, не реальные данные X5.
-      </p>
-      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <MetricCard
-          label="Покупок на юзера (control)"
-          value={r.purchases_per_user_control.toFixed(2)}
+      <table className="w-full border-collapse text-body">
+        <thead>
+          <tr className="text-left text-caption text-ink-500">
+            <th className="py-2 font-normal">Показатель</th>
+            <th className="py-2 font-normal">Контроль</th>
+            <th className="py-2 font-normal">Тест</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="border-t border-line">
+            <td className="py-2">Покупок на пользователя</td>
+            <td className="py-2">{r.purchases_per_user_control.toFixed(2)}</td>
+            <td className="py-2 font-semibold text-brand-700">
+              {r.purchases_per_user_treatment.toFixed(2)}
+            </td>
+          </tr>
+          <tr className="border-t border-line">
+            <td className="py-2">Доля с N+ покупками</td>
+            <td className="py-2">{formatPercent(r.share_above_n_control)}</td>
+            <td className="py-2 font-semibold text-brand-700">
+              {formatPercent(r.share_above_n_treatment)}
+            </td>
+          </tr>
+          <tr className="border-t border-line">
+            <td className="py-2">Прирост частоты</td>
+            <td className="py-2">—</td>
+            <td className="py-2 font-semibold text-brand-700">
+              {formatPercent(r.frequency_uplift)}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <dl className="m-0 grid grid-cols-2 gap-3 border-t border-line pt-3">
+        <Stat label="Доп. выручка" value={formatMoney(r.incremental_revenue)} />
+        <Stat label="Доп. маржа" value={formatMoney(r.incremental_margin)} />
+        <Stat label="Стоимость наград" value={formatMoney(r.reward_cost)} />
+        <Stat
+          label="Чистый эффект"
+          value={formatMoney(r.net_effect)}
+          valueClassName="text-brand-700"
         />
-        <MetricCard
-          label="Покупок на юзера (treatment)"
-          value={r.purchases_per_user_treatment.toFixed(2)}
+        <Stat label="Конверсия приглашений" value={formatPercent(r.referral_conversion)} />
+        <Stat
+          label="Точность / полнота антифрода"
+          value={`${formatPercent(r.fraud_precision)} / ${formatPercent(r.fraud_recall)}`}
         />
-        <MetricCard label="Доля ≥N (control)" value={formatPercent(r.share_above_n_control)} />
-        <MetricCard label="Доля ≥N (treatment)" value={formatPercent(r.share_above_n_treatment)} />
-        <MetricCard label="Frequency uplift" value={formatPercent(r.frequency_uplift)} />
-        <MetricCard label="Incremental revenue" value={formatMoney(r.incremental_revenue)} />
-        <MetricCard label="Incremental margin" value={formatMoney(r.incremental_margin)} />
-        <MetricCard label="Reward cost" value={formatMoney(r.reward_cost)} />
-        <MetricCard label="Net effect" value={formatMoney(r.net_effect)} />
-        <MetricCard label="Referral conversion" value={formatPercent(r.referral_conversion)} />
-        <MetricCard label="Fraud precision" value={formatPercent(r.fraud_precision)} />
-        <MetricCard label="Fraud recall" value={formatPercent(r.fraud_recall)} />
-      </div>
+      </dl>
       <AssumptionsList params={run.params} />
     </>
-  );
-}
-
-function MetricCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl bg-legacy-brand-100 p-3">
-      <p className="text-xs text-text-secondary">{label}</p>
-      <p className="mt-1 text-lg font-semibold text-text">{value}</p>
-    </div>
   );
 }
 
@@ -70,9 +84,9 @@ function AssumptionsList({ params }: { params: Record<string, unknown> }) {
   if (entries.length === 0) return null;
 
   return (
-    <div className="mt-4">
-      <p className="text-xs font-medium uppercase text-text-secondary">Assumptions</p>
-      <ul className="mt-1 text-sm text-text">
+    <div>
+      <p className="text-caption font-medium uppercase text-ink-500">Допущения</p>
+      <ul className="mt-1 text-body text-ink-900">
         {entries.map(([key, value]) => (
           <li key={key}>
             {key}: {String(value)}

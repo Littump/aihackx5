@@ -21,14 +21,14 @@ export function FraudBlock() {
   }
 
   return (
-    <Card>
+    <Card className="flex w-full flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-text">Антифрод</h2>
+        <h2 className="text-lead font-bold">Все проверки антифрода</h2>
         <select
           aria-label="Фильтр по решению"
           value={decision ?? ""}
           onChange={handleChange}
-          className="rounded-lg border border-border bg-surface px-2 py-1 text-sm text-text"
+          className="rounded-tile border border-line bg-surface px-2 py-1 text-body text-ink-900"
         >
           {DECISION_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -38,11 +38,9 @@ export function FraudBlock() {
         </select>
       </div>
 
-      {fraudQuery.isPending && <p className="mt-2 text-text-secondary">Загрузка…</p>}
+      {fraudQuery.isPending && <p className="text-ink-500">Загрузка…</p>}
       {fraudQuery.isError && (
-        <p className="mt-2 text-legacy-accent-600">
-          Не удалось загрузить проверки: {fraudQuery.error.message}
-        </p>
+        <p className="text-accent-700">Не удалось загрузить проверки: {fraudQuery.error.message}</p>
       )}
       {fraudQuery.data && <FraudTable items={fraudQuery.data.items} />}
     </Card>
@@ -50,38 +48,38 @@ export function FraudBlock() {
 }
 
 function FraudTable({ items }: { items: FraudCheck[] }) {
-  if (items.length === 0) return <p className="mt-2 text-text-secondary">Проверок нет.</p>;
+  if (items.length === 0) return <p className="text-ink-500">Проверок нет.</p>;
 
   return (
-    <table className="mt-3 w-full text-sm">
+    <table className="w-full border-collapse text-body">
       <thead>
-        <tr className="text-left text-xs text-text-secondary">
-          <th className="pb-1 font-normal">Когда</th>
-          <th className="pb-1 font-normal">Пользователь</th>
-          <th className="pb-1 font-normal">Объект</th>
-          <th className="pb-1 font-normal">Score</th>
-          <th className="pb-1 font-normal">Решение</th>
-          <th className="pb-1 font-normal">Сигналы</th>
+        <tr className="text-left text-caption text-ink-500">
+          <th className="py-2 font-normal">Когда</th>
+          <th className="py-2 font-normal">Пользователь</th>
+          <th className="py-2 font-normal">Объект</th>
+          <th className="py-2 font-normal">Оценка</th>
+          <th className="py-2 font-normal">Решение</th>
+          <th className="py-2 font-normal">Сигналы</th>
         </tr>
       </thead>
       <tbody>
         {items.map((check) => (
-          <tr key={check.id} className="border-t border-border align-top">
-            <td className="py-1 text-text">{formatDateTime(check.created_at)}</td>
-            <td className="py-1 text-text">#{check.user_id}</td>
-            <td className="py-1 text-text">
+          <tr key={check.id} className="border-t border-line align-top">
+            <td className="py-2 text-ink-900">{formatDateTime(check.created_at)}</td>
+            <td className="py-2 text-ink-900">#{check.user_id}</td>
+            <td className="py-2 text-ink-900">
               {check.subject_type} #{check.subject_id}
             </td>
-            <td className="py-1 text-text">{check.score.toFixed(2)}</td>
-            <td className="py-1">
+            <td className="py-2 text-ink-900">{check.score.toFixed(2)}</td>
+            <td className="py-2">
               <span
                 data-testid="fraud-decision-badge"
-                className={`rounded-full px-2 py-0.5 text-xs font-semibold ${decisionBadgeClass(check.decision)}`}
+                className={`rounded-tile px-2 py-0.5 text-caption font-semibold ${decisionBadgeClass(check.decision)}`}
               >
                 {decisionLabel(check.decision)}
               </span>
             </td>
-            <td className="py-1 text-text-secondary">
+            <td className="py-2 text-ink-500">
               {check.signals.map((signal) => signal.detail).join("; ")}
             </td>
           </tr>

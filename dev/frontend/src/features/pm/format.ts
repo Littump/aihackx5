@@ -1,7 +1,14 @@
-import type { FraudDecision, PmUserResponse } from "./api";
+import type { FraudDecision } from "./api";
+
+export const FRAUD_HOLD_THRESHOLD = 0.5; // зеркалит game_rules.FRAUD_HOLD_THRESHOLD
+export const FRAUD_BLOCK_THRESHOLD = 0.8; // зеркалит game_rules.FRAUD_BLOCK_THRESHOLD
 
 export function formatPercent(rate: number): string {
   return `${Math.round(rate * 100)}%`;
+}
+
+export function formatDays(days: number): string {
+  return `${days.toFixed(1)} дн.`;
 }
 
 export function formatDateTime(iso: string): string {
@@ -24,23 +31,11 @@ export function decisionLabel(decision: FraudDecision): string {
 }
 
 const DECISION_BADGE_CLASSES: Record<FraudDecision, string> = {
-  approve: "bg-legacy-brand-100 text-legacy-brand-600",
-  hold: "bg-accent-100 text-legacy-accent-600",
-  block: "bg-legacy-accent-600 text-white",
+  approve: "bg-brand-50 text-brand-700",
+  hold: "bg-accent-50 text-accent-700",
+  block: "bg-accent-600 text-white",
 };
 
 export function decisionBadgeClass(decision: FraudDecision): string {
   return DECISION_BADGE_CLASSES[decision];
-}
-
-type Mechanic = PmUserResponse["recommended_mechanic"]["mechanic"];
-
-const MECHANIC_LABELS: Record<Mechanic, string> = {
-  challenge: "Челлендж",
-  league: "Лига",
-  referral: "Рефералы",
-};
-
-export function mechanicLabel(mechanic: Mechanic): string {
-  return MECHANIC_LABELS[mechanic];
 }

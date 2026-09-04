@@ -155,6 +155,6 @@ def _reasons_from_row(row: MechanicDecisionRow) -> list[str]:
     return [
         reasons.reason,
         f"выполнено челленджей: {reasons.completed_challenges_count}",
-        f"есть лига: {reasons.has_league}",
-        f"склонность делиться: {reasons.social_propensity}",
+        f"есть лига: {'да' if reasons.has_league else 'нет'}",
+        f"склонность делиться: {reasons.social_propensity:.0%}",
     ]

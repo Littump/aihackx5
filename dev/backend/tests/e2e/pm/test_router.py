@@ -107,8 +107,8 @@ async def test_get_pm_user_with_full_history_matches_contract(
         "reasons": [
             "Ты уже опытный",
             "выполнено челленджей: 5",
-            "есть лига: True",
-            "склонность делиться: 0.900",
+            "есть лига: да",
+            "склонность делиться: 90%",
         ],
     }
     assert len(body["fraud_checks"]) == 1
