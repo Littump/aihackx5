@@ -1,7 +1,22 @@
 import { XP_CHALLENGE, XP_RECEIPT } from "./game_rules";
 import { heroChallenge } from "./challenges";
 import { DOMOVOY_BY_USER } from "./users";
-import type { Receipt, ReceiptProcessingResult } from "./types";
+import type { Receipt, ReceiptProcessingResult, SimulateDraft } from "./types";
+
+const CATEGORIES = [
+  "dairy",
+  "bakery",
+  "fruits_veg",
+  "meat_fish",
+  "grocery",
+  "snacks",
+  "drinks",
+  "alcohol",
+  "household",
+  "beauty",
+  "ready_food",
+  "other",
+];
 
 export function getReceipts(): Receipt[] {
   return [
@@ -61,5 +76,48 @@ export function buildReceiptProcessingResult(userId: number): ReceiptProcessingR
     referral_status: null,
     fraud: { score: 0.1, decision: "approve", signals: [] },
     achievements_unlocked: [],
+  };
+}
+
+export function getSimulateDraft(userId: number): SimulateDraft {
+  const hero = heroChallenge(userId);
+  return {
+    store_id: 101,
+    store_name: "Пятёрочка на Ленина",
+    goal:
+      hero === null
+        ? null
+        : {
+            type: hero.type,
+            category: hero.category,
+            title: hero.title,
+            progress: hero.progress,
+            target: hero.target,
+          },
+    items: [
+      {
+        product_name: "Молочный товар 1",
+        category: "dairy",
+        price: 120,
+        is_promo: false,
+        matches_goal: hero?.category === "dairy",
+      },
+      {
+        product_name: "Хлебный товар 2",
+        category: "bakery",
+        price: 80,
+        is_promo: true,
+        matches_goal: false,
+      },
+      {
+        product_name: "Овощной товар 3",
+        category: "fruits_veg",
+        price: 150,
+        is_promo: false,
+        matches_goal: false,
+      },
+    ],
+    categories: CATEGORIES,
+    default_price: 150,
   };
 }

@@ -12,7 +12,9 @@ import { HomeSkeleton } from "./components/HomeSkeleton";
 import { SavingsCard } from "./components/SavingsCard";
 import { HeroChallengeCard } from "./components/HeroChallengeCard";
 import { QuickLinks } from "./components/QuickLinks";
+import { ReceiptSheet } from "./components/ReceiptSheet";
 import { useHome, useSimulateReceipt } from "./hooks";
+import type { SimulateItemInput } from "./api";
 
 const HIGHLIGHT_DURATION_MS = 3300;
 
@@ -23,12 +25,14 @@ export function HomeScreen() {
   const simulate = useSimulateReceipt(userId);
   const [explanationOpen, setExplanationOpen] = useState(false);
   const [justSimulated, setJustSimulated] = useState(false);
+  const [receiptOpen, setReceiptOpen] = useState(false);
   const highlightTimeoutRef = useRef<number | undefined>(undefined);
 
-  function handleSimulate() {
-    simulate.mutate(undefined, {
+  function handleConfirm(items: SimulateItemInput[]) {
+    simulate.mutate(items, {
       onSuccess: () => {
         window.clearTimeout(highlightTimeoutRef.current);
+        setReceiptOpen(false);
         setJustSimulated(true);
         highlightTimeoutRef.current = window.setTimeout(
           () => setJustSimulated(false),
@@ -93,14 +97,21 @@ export function HomeScreen() {
         </div>
       </section>
       <QuickLinks league={home.league} referral={home.referral} />
-      <Button onClick={handleSimulate} disabled={simulate.isPending}>
-        {simulate.isPending ? "Симулируем покупку…" : "Симулировать покупку"}
+      <Button onClick={() => setReceiptOpen(true)} disabled={simulate.isPending}>
+        Симулировать покупку
       </Button>
       {simulate.isError && (
         <p role="alert" className="text-body text-accent-700">
           Не получилось отправить покупку. Попробуйте ещё раз.
         </p>
       )}
+      <ReceiptSheet
+        userId={userId}
+        open={receiptOpen}
+        submitting={simulate.isPending}
+        onClose={() => setReceiptOpen(false)}
+        onConfirm={handleConfirm}
+      />
     </section>
   );
 }

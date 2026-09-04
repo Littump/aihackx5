@@ -206,6 +206,7 @@ describe("LeagueScreen", () => {
     await screen.findByText(/Уровень 7 · Весёлый/);
 
     await user.click(screen.getByRole("button", { name: /симулировать покупку/i }));
+    await user.click(await screen.findByRole("button", { name: /подтвердить покупку/i }));
 
     await waitFor(() =>
       expect(client.getQueryData(leagueRankChangeKey(1))).toEqual({ before: 6, after: 5 }),

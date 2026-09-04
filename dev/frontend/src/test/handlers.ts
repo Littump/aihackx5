@@ -12,6 +12,7 @@ import {
   getPmUser,
   getReceipts,
   getReferral,
+  getSimulateDraft,
   getSimulationRun,
 } from "./fixtures";
 
@@ -51,6 +52,10 @@ export const handlers = [
     const body = (await request.json()) as { user_id: number };
     return HttpResponse.json(buildReceiptProcessingResult(body.user_id), { status: 201 });
   }),
+
+  http.get(`${API}/users/:user_id/receipts/simulate/draft`, ({ params }) =>
+    HttpResponse.json(getSimulateDraft(userIdParam(params))),
+  ),
 
   http.post(`${API}/users/:user_id/receipts/simulate`, ({ params }) =>
     HttpResponse.json(buildReceiptProcessingResult(userIdParam(params)), { status: 201 }),

@@ -6,6 +6,7 @@ from psycopg import AsyncConnection
 
 from app.core.clock import now as clock_now
 from app.features.challenges import service as challenges_service
+from app.features.challenges.models import ChallengeRow
 from app.features.receipts.models import (
     ReceiptItemDraft,
     ReceiptProcessingOutcome,
@@ -98,12 +99,16 @@ def apply_promo(
     return paid_price, True
 
 
+def default_product_name(category: str, index: int) -> str:
+    label = PRODUCT_LABELS.get(category, category)
+    return f"{label} товар {index}"
+
+
 def build_item(
     category: str, index: int, regular_price: Decimal, paid_price: Decimal, is_promo: bool
 ) -> ReceiptItemDraft:
-    label = PRODUCT_LABELS.get(category, category)
     return ReceiptItemDraft(
-        product_name=f"{label} товар {index}",
+        product_name=default_product_name(category, index),
         category=category,
         qty=Decimal("1"),
         regular_price=regular_price,
@@ -112,8 +117,10 @@ def build_item(
     )
 
 
-def generate_typical_items(features: UserFeaturesRow, rng: random.Random) -> list[ReceiptItemDraft]:
-    count = pick_item_count(rng)
+def generate_typical_items(
+    features: UserFeaturesRow, rng: random.Random, count: int | None = None
+) -> list[ReceiptItemDraft]:
+    count = pick_item_count(rng) if count is None else count
     categories = pick_categories(features.category_affinity, count, rng)
     target_total = pick_target_total(features.avg_basket, rng)
     amounts = split_amount(target_total, count, rng)
@@ -160,26 +167,41 @@ async def simulate_receipt(
     user_id: int,
     scenario: SimulateScenario,
     store_id: int | None,
+    items: list[ReceiptItemDraft] | None = None,
+) -> ReceiptProcessingOutcome:
+    await users_service.get_user(conn, user_id)
+    features = await user_features_service.get(conn, user_id)
+    resolved_store_id = await resolve_store_id(conn, store_id=store_id, features=features)
+    if items is not None:
+        return await _process_simulated(
+            conn, user_id=user_id, store_id=resolved_store_id, items=items
+        )
+    if scenario == "fraud_burst":
+        return await _simulate_fraud_burst(conn, user_id=user_id, store_id=resolved_store_id)
+    rng = random.Random()
+    generated = generate_typical_items(features, rng)
+    if scenario == "category_boost":
+        hero_category = await hero_category_of(conn, user_id)
+        if hero_category is not None:
+            generated = generated + boost_items(
+                hero_category, float(features.promo_sensitivity), rng
+            )
+    return await _process_simulated(
+        conn, user_id=user_id, store_id=resolved_store_id, items=generated
+    )
+
+
+async def _process_simulated(
+    conn: AsyncConnection, *, user_id: int, store_id: int, items: list[ReceiptItemDraft]
 ) -> ReceiptProcessingOutcome:
     # отложенный импорт разрывает цикл: service.py зовёт simulate_receipt
     from app.features.receipts import service as receipts_service
 
-    await users_service.get_user(conn, user_id)
-    features = await user_features_service.get(conn, user_id)
-    resolved_store_id = await _resolve_store_id(conn, store_id=store_id, features=features)
-    if scenario == "fraud_burst":
-        return await _simulate_fraud_burst(conn, user_id=user_id, store_id=resolved_store_id)
-    rng = random.Random()
-    items = generate_typical_items(features, rng)
-    if scenario == "category_boost":
-        hero_category = await _hero_boost_category(conn, user_id)
-        if hero_category is not None:
-            items = items + boost_items(hero_category, float(features.promo_sensitivity), rng)
     # demo-кнопка должна давать эффект на каждый клик, не давать словить дедуп/дневной лимит
     return await receipts_service.process_receipt(
         conn,
         user_id=user_id,
-        store_id=resolved_store_id,
+        store_id=store_id,
         purchased_at=clock_now(),
         points_earned=0,
         points_spent=0,
@@ -189,7 +211,7 @@ async def simulate_receipt(
     )
 
 
-async def _resolve_store_id(
+async def resolve_store_id(
     conn: AsyncConnection, *, store_id: int | None, features: UserFeaturesRow
 ) -> int:
     picked = pick_store_id(store_id, features.favourite_store_id)
@@ -199,8 +221,12 @@ async def _resolve_store_id(
     return default_store.id
 
 
-async def _hero_boost_category(conn: AsyncConnection, user_id: int) -> str | None:
-    hero = (await challenges_service.get_list(conn, user_id)).hero
+async def hero_challenge(conn: AsyncConnection, user_id: int) -> ChallengeRow | None:
+    return (await challenges_service.get_list(conn, user_id)).hero
+
+
+async def hero_category_of(conn: AsyncConnection, user_id: int) -> str | None:
+    hero = await hero_challenge(conn, user_id)
     if hero is None or hero.type != "category" or hero.category is None:
         return None
     return hero.category

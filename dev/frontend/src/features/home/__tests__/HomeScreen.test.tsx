@@ -8,6 +8,13 @@ import { buildReceiptProcessingResult, getHome } from "@/test/fixtures";
 import { renderWithProviders } from "@/test/render";
 import { server } from "@/test/setup";
 
+type User = ReturnType<typeof userEvent.setup>;
+
+async function confirmSimulatedPurchase(user: User) {
+  await user.click(screen.getByRole("button", { name: /симулировать покупку/i }));
+  await user.click(await screen.findByRole("button", { name: /подтвердить покупку/i }));
+}
+
 describe("HomeScreen", () => {
   it("показывает уровень, XP, экономию, insight и hero challenge", async () => {
     renderWithProviders(<HomeScreen />);
@@ -75,7 +82,7 @@ describe("HomeScreen", () => {
     renderWithProviders(<HomeScreen />);
     await screen.findByText("2 из 3");
 
-    await user.click(screen.getByRole("button", { name: /симулировать покупку/i }));
+    await confirmSimulatedPurchase(user);
 
     await waitFor(() => expect(simulateCalled).toBe(true));
     expect(await screen.findByText("3 из 3")).toBeInTheDocument();
@@ -185,7 +192,7 @@ describe("HomeScreen", () => {
     const cardsBefore = Array.from(container.querySelectorAll(".rounded-card"));
     expect(cardsBefore.some((card) => card.className.includes("bg-accent"))).toBe(false);
 
-    await user.click(screen.getByRole("button", { name: /симулировать покупку/i }));
+    await confirmSimulatedPurchase(user);
 
     await waitFor(() => {
       const glowing = container.querySelectorAll(".animate-glow");
@@ -204,7 +211,7 @@ describe("HomeScreen", () => {
 
     const setTimeoutSpy = vi.spyOn(window, "setTimeout");
 
-    await user.click(screen.getByRole("button", { name: /симулировать покупку/i }));
+    await confirmSimulatedPurchase(user);
 
     await waitFor(() => {
       expect(container.querySelectorAll(".animate-glow")).toHaveLength(3);
@@ -235,8 +242,7 @@ describe("HomeScreen", () => {
     const findHighlightTimer = (calls: typeof setTimeoutSpy.mock.calls) =>
       calls.find(([, delay]) => typeof delay === "number" && delay >= 3200 && delay <= 4000);
 
-    const button = screen.getByRole("button", { name: /симулировать покупку/i });
-    await user.click(button);
+    await confirmSimulatedPurchase(user);
     await waitFor(() => {
       expect(container.querySelectorAll(".animate-glow")).toHaveLength(3);
     });
@@ -245,7 +251,7 @@ describe("HomeScreen", () => {
     const firstCallIndex = setTimeoutSpy.mock.calls.indexOf(firstTimer!);
     const firstTimerId = setTimeoutSpy.mock.results[firstCallIndex]!.value as number;
 
-    await user.click(button);
+    await confirmSimulatedPurchase(user);
     await waitFor(() => {
       const callsAfterFirst = setTimeoutSpy.mock.calls.slice(firstCallIndex + 1);
       expect(findHighlightTimer(callsAfterFirst)).toBeDefined();
@@ -265,7 +271,7 @@ describe("HomeScreen", () => {
     renderWithProviders(<HomeScreen />);
     await screen.findByText("2 из 3");
 
-    await user.click(screen.getByRole("button", { name: /симулировать покупку/i }));
+    await confirmSimulatedPurchase(user);
 
     const alert = await screen.findByRole("alert");
     expect(alert.textContent).not.toMatch(/failed to fetch/i);

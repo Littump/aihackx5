@@ -16,6 +16,8 @@ from app.features.receipts.models import (
     ReceiptRow,
     ReceiptTotals,
     ReceiptWithItems,
+    SimulateDraft,
+    SimulateItemInputLike,
     SimulateScenario,
 )
 from app.features.receipts.totals import compute_totals
@@ -117,13 +119,23 @@ async def simulate_receipt(
     user_id: int,
     scenario: SimulateScenario,
     store_id: int | None,
+    items: Sequence[SimulateItemInputLike] | None = None,
 ) -> ReceiptProcessingOutcome:
     # отложенный импорт разрывает цикл: simulate.py зовёт process_receipt
-    from app.features.receipts import simulate
+    from app.features.receipts import draft, simulate
 
+    drafts = draft.items_from_input(items) if items is not None else None
     return await simulate.simulate_receipt(
-        conn, user_id=user_id, scenario=scenario, store_id=store_id
+        conn, user_id=user_id, scenario=scenario, store_id=store_id, items=drafts
     )
+
+
+async def get_simulate_draft(
+    conn: AsyncConnection, *, user_id: int, store_id: int | None
+) -> SimulateDraft:
+    from app.features.receipts import draft
+
+    return await draft.build_draft(conn, user_id=user_id, store_id=store_id)
 
 
 async def list_receipts(conn: AsyncConnection, *, user_id: int, limit: int) -> list[ReceiptDetail]:

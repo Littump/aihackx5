@@ -247,6 +247,18 @@ Qualifying: 1-я покупка `≥ REFERRAL_MIN_FIRST_PURCHASE = 500 ₽`; 2-�
 | Чеков в `fraud_burst` | 5 по 100 ₽ с интервалом 3 мин, один `pos_id` | `SIMULATE_FRAUD_BURST_COUNT/AMOUNT/INTERVAL_MIN/POS_ID` |
 | Категория позиции в `fraud_burst` | `grocery` | `SIMULATE_FRAUD_BURST_CATEGORY` |
 
+### Черновик чека (двухшаговая симуляция)
+
+`GET /users/{id}/receipts/simulate/draft` отдаёт корзину на подтверждение: пользователь удаляет и добавляет позиции, затем шлёт их в `POST /users/{id}/receipts/simulate` полем `items`. Переданные `items` отменяют `scenario`.
+
+| Параметр | Значение | Константа |
+|---|---|---|
+| Число позиций в черновике | 3–4 | `SIMULATE_DRAFT_ITEMS_MIN/MAX` |
+| Категория цели недели в черновике | одна позиция гарантированно, если hero — категорийный | — |
+| Скидка позиции, помеченной «по акции» вручную | 20 % от обычной цены | `SIMULATE_DRAFT_PROMO_DISCOUNT` |
+| Цена по умолчанию для добавленной позиции | 150 ₽ | `SIMULATE_DRAFT_DEFAULT_PRICE` |
+| Позиций в подтверждённом чеке | 1–20 | лимит контракта `SimulateReceiptInput.items` |
+
 ## 16. Recommended mechanic (Home)
 
 `GET /users/{id}/home` выбирает одну механику в `recommended_mechanic`. Первое сработавшее правило побеждает, причина — одна фраза.

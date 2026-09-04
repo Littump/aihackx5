@@ -68,6 +68,17 @@ ONE_ITEM_PAYLOAD = [
     }
 ]
 
+SIMULATE_DRAFT_FIELDS = {
+    "store_id",
+    "store_name",
+    "goal",
+    "items",
+    "categories",
+    "default_price",
+}
+SIMULATE_DRAFT_ITEM_FIELDS = {"product_name", "category", "price", "is_promo", "matches_goal"}
+SIMULATE_DRAFT_GOAL_FIELDS = {"type", "category", "title", "progress", "target"}
+
 LIMIT_CASES = [
     (1, 200),
     (200, 200),

@@ -7,6 +7,7 @@ from app.features.receipts.dto import (
     ReceiptInput,
     ReceiptListResponse,
     ReceiptProcessingResult,
+    SimulateDraft,
     SimulateReceiptInput,
 )
 
@@ -40,9 +41,21 @@ async def simulate_receipt(
     user_id: int, conn: Conn, payload: SimulateReceiptInput = DEFAULT_SIMULATE_INPUT
 ) -> ReceiptProcessingResult:
     outcome = await service.simulate_receipt(
-        conn, user_id=user_id, scenario=payload.scenario, store_id=payload.store_id
+        conn,
+        user_id=user_id,
+        scenario=payload.scenario,
+        store_id=payload.store_id,
+        items=payload.items,
     )
     return ReceiptProcessingResult.model_validate(outcome)
+
+
+@router.get("/users/{user_id}/receipts/simulate/draft", response_model=SimulateDraft)
+async def get_simulate_draft(
+    user_id: int, conn: Conn, store_id: int | None = Query(default=None)
+) -> SimulateDraft:
+    draft = await service.get_simulate_draft(conn, user_id=user_id, store_id=store_id)
+    return SimulateDraft.model_validate(draft)
 
 
 @router.get("/users/{user_id}/receipts", response_model=ReceiptListResponse)

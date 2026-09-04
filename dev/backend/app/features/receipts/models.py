@@ -72,6 +72,42 @@ class ReceiptItemInputLike(Protocol):
 SimulateScenario = Literal["typical", "category_boost", "fraud_burst"]
 
 
+class SimulateItemInputLike(Protocol):
+    @property
+    def product_name(self) -> str | None: ...
+    @property
+    def category(self) -> str: ...
+    @property
+    def price(self) -> Decimal | float: ...
+    @property
+    def is_promo(self) -> bool: ...
+
+
+class SimulateDraftItem(AppModel):
+    product_name: str
+    category: str
+    price: Decimal
+    is_promo: bool
+    matches_goal: bool
+
+
+class SimulateDraftGoal(AppModel):
+    type: Literal["frequency", "category"]
+    category: str | None
+    title: str
+    progress: Decimal
+    target: Decimal
+
+
+class SimulateDraft(AppModel):
+    store_id: int
+    store_name: str
+    goal: SimulateDraftGoal | None
+    items: list[SimulateDraftItem]
+    categories: list[str]
+    default_price: Decimal
+
+
 class ReceiptTotals(AppModel):
     regular_total: Decimal
     paid_total: Decimal

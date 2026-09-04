@@ -61,7 +61,7 @@
 
 ## Главный поток: обработка чека
 
-Точка входа — `receipts.service.process_receipt(conn, receipt_input)`. Её зовут и `POST /receipts`, и демо-кнопка `POST /users/{id}/receipts/simulate` (она сначала генерирует правдоподобный чек из features пользователя, потом зовёт ту же функцию). Порядок фиксирован:
+Точка входа — `receipts.service.process_receipt(conn, receipt_input)`. Её зовут и `POST /receipts`, и демо-кнопка `POST /users/{id}/receipts/simulate` (она сначала генерирует правдоподобный чек из features пользователя, потом зовёт ту же функцию). Демо-кнопка работает в два шага: `GET /users/{id}/receipts/simulate/draft` собирает черновик корзины (`receipts/draft.py`), пользователь правит позиции на экране и подтверждает их в том же `POST .../simulate` полем `items`. Порядок фиксирован:
 
 ```
 1. receipts      insert receipt + items; counted=false, если в том же магазине был чек < 30 мин назад

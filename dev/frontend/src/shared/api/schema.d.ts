@@ -148,6 +148,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/{user_id}/receipts/simulate/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getSimulateDraft"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/{user_id}/receipts": {
         parameters: {
             query?: never;
@@ -456,6 +472,38 @@ export interface components {
              */
             scenario: "typical" | "category_boost" | "fraud_burst";
             store_id?: number | null;
+            /** @description Позиции подтверждённого пользователем чека; если заданы, scenario игнорируется */
+            items?: components["schemas"]["SimulateItemInput"][] | null;
+        };
+        SimulateItemInput: {
+            product_name?: string | null;
+            category: string;
+            price: number;
+            /** @default false */
+            is_promo: boolean;
+        };
+        SimulateDraftItem: {
+            product_name: string;
+            category: string;
+            price: number;
+            is_promo: boolean;
+            matches_goal: boolean;
+        };
+        SimulateDraftGoal: {
+            /** @enum {string} */
+            type: "frequency" | "category";
+            category: string | null;
+            title: string;
+            progress: number;
+            target: number;
+        };
+        SimulateDraft: {
+            store_id: number;
+            store_name: string;
+            goal: components["schemas"]["SimulateDraftGoal"] | null;
+            items: components["schemas"]["SimulateDraftItem"][];
+            categories: string[];
+            default_price: number;
         };
         Receipt: {
             id: number;
@@ -940,6 +988,31 @@ export interface operations {
             };
             404: components["responses"]["NotFound"];
             422: components["responses"]["ValidationError"];
+        };
+    };
+    getSimulateDraft: {
+        parameters: {
+            query?: {
+                store_id?: number | null;
+            };
+            header?: never;
+            path: {
+                user_id: components["parameters"]["UserId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Черновик чека для подтверждения пользователем */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulateDraft"];
+                };
+            };
+            404: components["responses"]["NotFound"];
         };
     };
     listReceipts: {

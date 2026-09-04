@@ -178,6 +178,25 @@ paths:
         "422":
           $ref: "#/components/responses/ValidationError"
 
+  /api/v1/users/{user_id}/receipts/simulate/draft:
+    get:
+      tags: [receipts]
+      operationId: getSimulateDraft
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+        - in: query
+          name: store_id
+          schema: { type: [integer, "null"] }
+      responses:
+        "200":
+          description: Черновик чека для подтверждения пользователем
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimulateDraft"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
   /api/v1/users/{user_id}/receipts:
     get:
       tags: [receipts]
@@ -575,6 +594,61 @@ components:
       properties:
         scenario: { type: string, enum: [typical, category_boost, fraud_burst], default: typical }
         store_id: { type: [integer, "null"] }
+        items:
+          description: Позиции подтверждённого пользователем чека; если заданы, scenario игнорируется
+          oneOf:
+            - type: array
+              minItems: 1
+              maxItems: 20
+              items: { $ref: "#/components/schemas/SimulateItemInput" }
+            - type: "null"
+
+    SimulateItemInput:
+      type: object
+      required: [category, price]
+      properties:
+        product_name: { type: [string, "null"] }
+        category: { type: string }
+        price: { type: number, minimum: 0 }
+        is_promo: { type: boolean, default: false }
+
+    SimulateDraftItem:
+      type: object
+      required: [product_name, category, price, is_promo, matches_goal]
+      properties:
+        product_name: { type: string }
+        category: { type: string }
+        price: { type: number }
+        is_promo: { type: boolean }
+        matches_goal: { type: boolean }
+
+    SimulateDraftGoal:
+      type: object
+      required: [type, category, title, progress, target]
+      properties:
+        type: { type: string, enum: [frequency, category] }
+        category: { type: [string, "null"] }
+        title: { type: string }
+        progress: { type: number }
+        target: { type: number }
+
+    SimulateDraft:
+      type: object
+      required: [store_id, store_name, goal, items, categories, default_price]
+      properties:
+        store_id: { type: integer }
+        store_name: { type: string }
+        goal:
+          oneOf:
+            - $ref: "#/components/schemas/SimulateDraftGoal"
+            - type: "null"
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/SimulateDraftItem" }
+        categories:
+          type: array
+          items: { type: string }
+        default_price: { type: number }
 
     Receipt:
       type: object

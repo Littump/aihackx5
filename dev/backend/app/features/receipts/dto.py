@@ -6,9 +6,42 @@ from pydantic import Field
 from app.core.models import AppModel
 
 
+class SimulateItemInput(AppModel):
+    product_name: str | None = None
+    category: str
+    price: float = Field(ge=0)
+    is_promo: bool = False
+
+
 class SimulateReceiptInput(AppModel):
     scenario: Literal["typical", "category_boost", "fraud_burst"] = "typical"
     store_id: int | None = None
+    items: list[SimulateItemInput] | None = Field(default=None, min_length=1, max_length=20)
+
+
+class SimulateDraftItem(AppModel):
+    product_name: str
+    category: str
+    price: float
+    is_promo: bool
+    matches_goal: bool
+
+
+class SimulateDraftGoal(AppModel):
+    type: Literal["frequency", "category"]
+    category: str | None
+    title: str
+    progress: float
+    target: float
+
+
+class SimulateDraft(AppModel):
+    store_id: int
+    store_name: str
+    goal: SimulateDraftGoal | None
+    items: list[SimulateDraftItem]
+    categories: list[str]
+    default_price: float
 
 
 class ReceiptItemInput(AppModel):
