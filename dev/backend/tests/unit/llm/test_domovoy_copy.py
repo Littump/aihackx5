@@ -26,13 +26,27 @@ async def test_render_challenge_category_explanation_has_rationale_number() -> N
 
     assert copy.source == "template"
     assert "30" in copy.explanation
-    assert "dairy" in copy.title
+    assert "Молочное" in copy.title
+    assert "dairy" not in copy.title
+    assert "dairy" not in copy.body
+    assert "dairy" not in copy.explanation
 
 
-async def test_render_insight_contains_savings_amount() -> None:
+async def test_render_challenge_category_label_falls_back_to_raw_key_for_unknown_category() -> None:
+    draft = make_draft(type="category", category="new_category", target=Decimal("2"), share=0.5)
     features = make_features()
-    savings = make_savings_summary(amount=Decimal("450.00"))
+
+    copy = await domovoy_copy.render_challenge(challenge=draft, features=features)
+
+    assert "new_category" in copy.title
+
+
+async def test_render_insight_contains_savings_amount_and_russian_period() -> None:
+    features = make_features()
+    savings = make_savings_summary(amount=Decimal("450.00"), period="month")
 
     text = await domovoy_copy.render_insight(features=features, savings=savings)
 
     assert "450" in text
+    assert "месяц" in text
+    assert "month" not in text

@@ -219,7 +219,7 @@ async def test_get_home_with_receipt_history_computes_real_savings_and_insight(
     assert savings["points_earned"] == 20
     assert savings["points_spent"] == 0
     assert savings["top_categories"][0] == {"category": "dairy", "amount": 60.0}
-    assert body["insight"] == "За month ты сэкономил 100 ₽ — Домовой доволен!"
+    assert body["insight"] == "За месяц ты сэкономил 100 ₽ — Домовой доволен!"
 
 
 async def _active_challenge_count(conn: AsyncConnection, user_id: int) -> int:

@@ -5,6 +5,26 @@ from app.features.challenges.models import ChallengeDraft
 from app.features.savings.models import SavingsSummary
 from app.features.user_features.models import UserFeaturesRow
 
+CATEGORY_LABELS: dict[str, str] = {
+    "dairy": "Молочное",
+    "bakery": "Выпечка",
+    "fruits_veg": "Овощи и фрукты",
+    "meat_fish": "Мясо и рыба",
+    "grocery": "Бакалея",
+    "snacks": "Снеки",
+    "drinks": "Напитки",
+    "alcohol": "Алкоголь",
+    "household": "Хозтовары",
+    "beauty": "Красота и уход",
+    "ready_food": "Готовая еда",
+    "other": "Другое",
+}
+PERIOD_LABELS: dict[str, str] = {"week": "неделю", "month": "месяц"}
+
+
+def _category_label(category: str) -> str:
+    return CATEGORY_LABELS.get(category, category)
+
 
 class ChallengeCopy(AppModel):
     title: str
@@ -22,7 +42,8 @@ async def render_challenge(
 
 
 async def render_insight(*, features: UserFeaturesRow, savings: SavingsSummary) -> str:
-    return f"За {savings.period} ты сэкономил {savings.amount:.0f} ₽ — Домовой доволен!"
+    period_label = PERIOD_LABELS.get(savings.period, savings.period)
+    return f"За {period_label} ты сэкономил {savings.amount:.0f} ₽ — Домовой доволен!"
 
 
 def _frequency_copy(challenge: ChallengeDraft) -> ChallengeCopy:
@@ -41,15 +62,15 @@ def _frequency_copy(challenge: ChallengeDraft) -> ChallengeCopy:
 
 def _category_copy(challenge: ChallengeDraft) -> ChallengeCopy:
     target = int(challenge.target)
-    category = challenge.category or "категории"
+    label = _category_label(challenge.category) if challenge.category else "категории"
     share = challenge.rationale_features.share
     assert share is not None
     share_percent = round(share * 100)
     explanation = (
-        f"Ты берёшь {category} в {share_percent}% покупок — попробуй набрать "
+        f"Категория «{label}» — {share_percent}% твоих покупок. Попробуй набрать "
         f"{target} раз на этой неделе."
     )
-    body = f"Цель недели: {target} покупок категории {category}."
+    body = f"Цель недели: {target} покупок в категории «{label}»."
     return ChallengeCopy(
-        title=f"Больше {category}", body=body, explanation=explanation, source="template"
+        title=f"Больше «{label}»", body=body, explanation=explanation, source="template"
     )

@@ -1,11 +1,14 @@
 from decimal import Decimal
+from typing import Literal
 
 from app.features.savings.models import SavingsSummary
 
 
-def make_savings_summary(*, amount: Decimal = Decimal("450.00")) -> SavingsSummary:
+def make_savings_summary(
+    *, amount: Decimal = Decimal("450.00"), period: Literal["week", "month"] = "week"
+) -> SavingsSummary:
     return SavingsSummary(
-        period="week",
+        period=period,
         amount=amount,
         previous_amount=Decimal("300.00"),
         delta=amount - Decimal("300.00"),
