@@ -8,7 +8,9 @@ import { buildReceiptProcessingResult, getSimulateDraft } from "@/test/fixtures"
 import { renderWithProviders } from "@/test/render";
 import { server } from "@/test/setup";
 
-type SimulatePayload = { items: { category: string; price: number; is_promo: boolean }[] };
+type SimulatePayload = {
+  items: { product_name: string | null; category: string; price: number; is_promo: boolean }[];
+};
 
 const DAIRY_GOAL_DRAFT = {
   ...getSimulateDraft(1),
@@ -21,14 +23,14 @@ const DAIRY_GOAL_DRAFT = {
   },
   items: [
     {
-      product_name: "Молочный товар 1",
+      product_name: "Молоко",
       category: "dairy",
       price: 120,
       is_promo: false,
       matches_goal: true,
     },
     {
-      product_name: "Хлебный товар 2",
+      product_name: "Батон",
       category: "bakery",
       price: 80,
       is_promo: false,
@@ -71,7 +73,7 @@ describe("ReceiptSheet", () => {
     await screen.findByText("2 из 3");
     const dialog = await openReceipt(user);
 
-    await user.click(within(dialog).getByRole("button", { name: "Удалить: Хлебный товар 2" }));
+    await user.click(within(dialog).getByRole("button", { name: "Удалить: Батон" }));
 
     expect(within(dialog).getAllByRole("listitem")).toHaveLength(2);
     expect(within(dialog).getByTestId("receipt-total")).toHaveTextContent("270 ₽");
@@ -112,6 +114,10 @@ describe("ReceiptSheet", () => {
       price: 150,
       is_promo: true,
     });
+    const meatProducts = getSimulateDraft(1).categories.find(
+      (item) => item.code === "meat_fish",
+    )!.products;
+    expect(meatProducts).toContain(payload!.items[3].product_name);
   });
 
   it("подсказка цели меняется, когда из чека убрали категорию цели недели", async () => {
@@ -129,7 +135,7 @@ describe("ReceiptSheet", () => {
     expect(within(dialog).getByText(/цель сдвинется/i)).toBeInTheDocument();
     expect(within(dialog).getAllByText("к цели")).toHaveLength(1);
 
-    await user.click(within(dialog).getByRole("button", { name: "Удалить: Молочный товар 1" }));
+    await user.click(within(dialog).getByRole("button", { name: "Удалить: Молоко" }));
 
     expect(within(dialog).getByText(/цель не сдвинется/i)).toBeInTheDocument();
   });
@@ -146,8 +152,8 @@ describe("ReceiptSheet", () => {
     await screen.findByText("2 из 3");
     const dialog = await openReceipt(user);
 
-    await user.click(within(dialog).getByRole("button", { name: "Удалить: Молочный товар 1" }));
-    await user.click(within(dialog).getByRole("button", { name: "Удалить: Хлебный товар 2" }));
+    await user.click(within(dialog).getByRole("button", { name: "Удалить: Молоко" }));
+    await user.click(within(dialog).getByRole("button", { name: "Удалить: Батон" }));
 
     expect(within(dialog).getByRole("button", { name: "Подтвердить покупку" })).toBeDisabled();
     expect(within(dialog).getByText(/чек пустой/i)).toBeInTheDocument();

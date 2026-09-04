@@ -40,7 +40,8 @@ async def test_draft_returns_editable_basket_by_contract(
     assert body["store_id"] == store.id
     assert body["store_name"] == store.name
     assert body["goal"] is None
-    assert body["categories"] == list(CATEGORIES)
+    assert [item["code"] for item in body["categories"]] == list(CATEGORIES)
+    assert all(item["products"] for item in body["categories"])
     assert body["default_price"] == SIMULATE_DRAFT_DEFAULT_PRICE
     assert SIMULATE_DRAFT_ITEMS_MIN <= len(body["items"]) <= SIMULATE_DRAFT_ITEMS_MAX
     for item in body["items"]:

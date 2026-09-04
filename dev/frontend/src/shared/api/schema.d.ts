@@ -502,8 +502,12 @@ export interface components {
             store_name: string;
             goal: components["schemas"]["SimulateDraftGoal"] | null;
             items: components["schemas"]["SimulateDraftItem"][];
-            categories: string[];
+            categories: components["schemas"]["SimulateDraftCategory"][];
             default_price: number;
+        };
+        SimulateDraftCategory: {
+            code: string;
+            products: string[];
         };
         Receipt: {
             id: number;

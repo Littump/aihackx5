@@ -6,10 +6,11 @@ from psycopg import AsyncConnection
 
 from app.core.errors import AppError
 from app.features.challenges.models import ChallengeRow
-from app.features.receipts import simulate
+from app.features.receipts import catalog, simulate
 from app.features.receipts.models import (
     ReceiptItemDraft,
     SimulateDraft,
+    SimulateDraftCategory,
     SimulateDraftGoal,
     SimulateDraftItem,
     SimulateItemInputLike,
@@ -26,6 +27,7 @@ from app.game_rules import (
 )
 
 CENT = Decimal("0.01")
+RUBLE = Decimal("1")
 
 
 async def build_draft(
@@ -43,7 +45,10 @@ async def build_draft(
         store_name=store.name,
         goal=goal_of(hero),
         items=[to_draft_item(item, goal_category) for item in items],
-        categories=list(CATEGORIES),
+        categories=[
+            SimulateDraftCategory(code=code, products=list(catalog.products_for(code)))
+            for code in CATEGORIES
+        ],
         default_price=Decimal(SIMULATE_DRAFT_DEFAULT_PRICE),
     )
 
@@ -84,7 +89,7 @@ def to_draft_item(item: ReceiptItemDraft, goal_category: str | None) -> Simulate
     return SimulateDraftItem(
         product_name=item.product_name,
         category=item.category,
-        price=item.paid_price,
+        price=item.paid_price.quantize(RUBLE),
         is_promo=item.is_promo,
         matches_goal=goal_category is not None and item.category == goal_category,
     )
@@ -99,7 +104,7 @@ def item_from_input(item: SimulateItemInputLike, index: int) -> ReceiptItemDraft
         raise AppError("unknown_category", f"Неизвестная категория: {item.category}", status=422)
     paid_price = Decimal(str(item.price)).quantize(CENT)
     return ReceiptItemDraft(
-        product_name=item.product_name or simulate.default_product_name(item.category, index),
+        product_name=item.product_name or catalog.product_name(item.category, index),
         category=item.category,
         qty=Decimal("1"),
         regular_price=regular_price_for(paid_price, item.is_promo),

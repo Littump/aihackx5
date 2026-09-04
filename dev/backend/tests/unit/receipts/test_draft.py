@@ -4,7 +4,7 @@ from decimal import Decimal
 import pytest
 
 from app.core.errors import AppError
-from app.features.receipts import draft
+from app.features.receipts import catalog, draft
 from app.features.receipts.dto import SimulateItemInput
 from app.features.receipts.models import ReceiptItemDraft
 from app.game_rules import (
@@ -38,9 +38,27 @@ def test_draft_items_keep_generated_basket_when_goal_category_already_present() 
     assert with_goal == generated
 
 
+@pytest.mark.parametrize("seed", SEED_SAMPLE)
+def test_draft_items_use_catalog_names_without_repeats_inside_category(seed: int) -> None:
+    features = make_features(avg_basket=Decimal("600"), category_affinity=SKEWED_AFFINITY)
+    items = draft.draft_items(features, None, random.Random(seed))
+    names = [item.product_name for item in items]
+    assert len(names) == len(set(names))
+    for item in items:
+        assert item.product_name in catalog.products_for(item.category)
+
+
+@pytest.mark.parametrize("seed", SEED_SAMPLE)
+def test_draft_item_prices_are_whole_rubles(seed: int) -> None:
+    features = make_features(avg_basket=Decimal("600"), category_affinity=SKEWED_AFFINITY)
+    items = draft.draft_items(features, None, random.Random(seed))
+    for item in items:
+        assert draft.to_draft_item(item, None).price == item.paid_price.to_integral_value()
+
+
 def test_to_draft_item_marks_goal_category_and_exposes_paid_price() -> None:
     item = ReceiptItemDraft(
-        product_name="Молочный товар 1",
+        product_name="Молоко",
         category="dairy",
         qty=Decimal("1"),
         regular_price=Decimal("100.00"),
@@ -93,9 +111,9 @@ def test_item_from_input_with_promo_restores_regular_price_by_configured_discoun
     assert item.regular_price > item.paid_price
 
 
-def test_item_from_input_generates_product_name_from_category_when_missing() -> None:
+def test_item_from_input_generates_product_name_from_catalog_when_missing() -> None:
     item = draft.item_from_input(SimulateItemInput(category="bakery", price=50.0), 2)
-    assert item.product_name == "Хлебный товар 2"
+    assert item.product_name == catalog.products_for("bakery")[1]
 
 
 def test_item_from_input_keeps_given_product_name() -> None:

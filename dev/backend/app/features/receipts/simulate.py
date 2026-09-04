@@ -7,6 +7,7 @@ from psycopg import AsyncConnection
 from app.core.clock import now as clock_now
 from app.features.challenges import service as challenges_service
 from app.features.challenges.models import ChallengeRow
+from app.features.receipts import catalog
 from app.features.receipts.models import (
     ReceiptItemDraft,
     ReceiptProcessingOutcome,
@@ -36,20 +37,6 @@ from app.game_rules import (
 )
 
 CENT = Decimal("0.01")
-PRODUCT_LABELS: dict[str, str] = {
-    "dairy": "Молочный",
-    "bakery": "Хлебный",
-    "fruits_veg": "Овощной",
-    "meat_fish": "Мясной",
-    "grocery": "Бакалейный",
-    "snacks": "Снековый",
-    "drinks": "Напиток",
-    "alcohol": "Алкогольный",
-    "household": "Хозяйственный",
-    "beauty": "Косметический",
-    "ready_food": "Готовый",
-    "other": "Прочий",
-}
 
 
 def pick_store_id(store_id: int | None, favourite_store_id: int | None) -> int | None:
@@ -99,16 +86,11 @@ def apply_promo(
     return paid_price, True
 
 
-def default_product_name(category: str, index: int) -> str:
-    label = PRODUCT_LABELS.get(category, category)
-    return f"{label} товар {index}"
-
-
 def build_item(
     category: str, index: int, regular_price: Decimal, paid_price: Decimal, is_promo: bool
 ) -> ReceiptItemDraft:
     return ReceiptItemDraft(
-        product_name=default_product_name(category, index),
+        product_name=catalog.product_name(category, index),
         category=category,
         qty=Decimal("1"),
         regular_price=regular_price,
@@ -126,9 +108,11 @@ def generate_typical_items(
     amounts = split_amount(target_total, count, rng)
     promo_sensitivity = float(features.promo_sensitivity)
     items = []
-    for index, (category, regular_price) in enumerate(zip(categories, amounts, strict=True), 1):
+    seen: dict[str, int] = {}
+    for category, regular_price in zip(categories, amounts, strict=True):
+        seen[category] = seen.get(category, 0) + 1
         paid_price, is_promo = apply_promo(regular_price, promo_sensitivity, rng)
-        items.append(build_item(category, index, regular_price, paid_price, is_promo))
+        items.append(build_item(category, seen[category], regular_price, paid_price, is_promo))
     return items
 
 

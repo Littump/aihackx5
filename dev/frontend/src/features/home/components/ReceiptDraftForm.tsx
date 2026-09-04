@@ -47,9 +47,10 @@ export function ReceiptDraftForm({
     : 0;
 
   function addLine(category: string, price: number, isPromo: boolean) {
+    const products = draft.categories.find((item) => item.code === category)?.products ?? [];
     setLines((current) => [
       ...current,
-      { key: nextKey, productName: null, category, price, isPromo },
+      { key: nextKey, productName: pickProductName(products, current), category, price, isPromo },
     ]);
     setNextKey((key) => key + 1);
   }
@@ -107,6 +108,14 @@ export function ReceiptDraftForm({
       </div>
     </>
   );
+}
+
+function pickProductName(products: string[], lines: DraftLine[]): string | null {
+  if (products.length === 0) return null;
+  const used = new Set(lines.map((line) => line.productName));
+  const free = products.filter((name) => !used.has(name));
+  const pool = free.length > 0 ? free : products;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function toItemInput(line: DraftLine): SimulateItemInput {

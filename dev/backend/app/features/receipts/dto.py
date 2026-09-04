@@ -35,12 +35,17 @@ class SimulateDraftGoal(AppModel):
     target: float
 
 
+class SimulateDraftCategory(AppModel):
+    code: str
+    products: list[str]
+
+
 class SimulateDraft(AppModel):
     store_id: int
     store_name: str
     goal: SimulateDraftGoal | None
     items: list[SimulateDraftItem]
-    categories: list[str]
+    categories: list[SimulateDraftCategory]
     default_price: float
 
 

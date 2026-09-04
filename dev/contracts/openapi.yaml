@@ -647,8 +647,17 @@ components:
           items: { $ref: "#/components/schemas/SimulateDraftItem" }
         categories:
           type: array
-          items: { type: string }
+          items: { $ref: "#/components/schemas/SimulateDraftCategory" }
         default_price: { type: number }
+
+    SimulateDraftCategory:
+      type: object
+      required: [code, products]
+      properties:
+        code: { type: string }
+        products:
+          type: array
+          items: { type: string }
 
     Receipt:
       type: object

@@ -6,6 +6,7 @@ from httpx import AsyncClient
 from psycopg import AsyncConnection
 
 from app.core.clock import week_end, week_start
+from app.features.receipts import catalog
 from tests.e2e.receipts.data import RECEIPT_PROCESSING_RESULT_FIELDS
 from tests.factories import make_challenge, make_store, make_user, make_user_features
 
@@ -122,7 +123,9 @@ async def test_item_without_product_name_gets_generated_name(
     )
 
     assert response.status_code == 201
-    assert response.json()["receipt"]["items"][0]["product_name"] == "Молочный товар 1"
+    assert (
+        response.json()["receipt"]["items"][0]["product_name"] == catalog.products_for("dairy")[0]
+    )
 
 
 async def test_items_override_fraud_burst_scenario(

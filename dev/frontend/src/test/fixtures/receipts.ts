@@ -3,19 +3,19 @@ import { heroChallenge } from "./challenges";
 import { DOMOVOY_BY_USER } from "./users";
 import type { Receipt, ReceiptProcessingResult, SimulateDraft } from "./types";
 
-const CATEGORIES = [
-  "dairy",
-  "bakery",
-  "fruits_veg",
-  "meat_fish",
-  "grocery",
-  "snacks",
-  "drinks",
-  "alcohol",
-  "household",
-  "beauty",
-  "ready_food",
-  "other",
+const CATEGORIES: SimulateDraft["categories"] = [
+  { code: "dairy", products: ["Молоко", "Сыр", "Сметана"] },
+  { code: "bakery", products: ["Батон", "Белый хлеб", "Булочка"] },
+  { code: "fruits_veg", products: ["Яблоки", "Бананы", "Огурцы"] },
+  { code: "meat_fish", products: ["Курица", "Фарш", "Сёмга"] },
+  { code: "grocery", products: ["Гречка", "Рис", "Макароны"] },
+  { code: "snacks", products: ["Чипсы", "Шоколад", "Печенье"] },
+  { code: "drinks", products: ["Вода", "Сок", "Чай"] },
+  { code: "alcohol", products: ["Пиво", "Вино", "Сидр"] },
+  { code: "household", products: ["Стиральный порошок", "Губки", "Салфетки"] },
+  { code: "beauty", products: ["Шампунь", "Зубная паста", "Мыло"] },
+  { code: "ready_food", products: ["Роллы", "Пицца", "Сэндвич"] },
+  { code: "other", products: ["Батарейки", "Цветы", "Свечи"] },
 ];
 
 export function getReceipts(): Receipt[] {
@@ -96,21 +96,21 @@ export function getSimulateDraft(userId: number): SimulateDraft {
           },
     items: [
       {
-        product_name: "Молочный товар 1",
+        product_name: "Молоко",
         category: "dairy",
         price: 120,
         is_promo: false,
         matches_goal: hero?.category === "dairy",
       },
       {
-        product_name: "Хлебный товар 2",
+        product_name: "Батон",
         category: "bakery",
         price: 80,
         is_promo: true,
         matches_goal: false,
       },
       {
-        product_name: "Овощной товар 3",
+        product_name: "Яблоки",
         category: "fruits_veg",
         price: 150,
         is_promo: false,

@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { Button } from "@/shared/ui/Button";
 import { formatCategoryLabel } from "../categoryLabels";
+import type { SimulateDraft } from "../api";
 
 type AddLineFormProps = {
-  categories: string[];
+  categories: SimulateDraft["categories"];
   defaultPrice: number;
   disabled: boolean;
   onAdd: (category: string, price: number, isPromo: boolean) => void;
 };
 
 export function AddLineForm({ categories, defaultPrice, disabled, onAdd }: AddLineFormProps) {
-  const [category, setCategory] = useState(categories[0] ?? "other");
+  const [category, setCategory] = useState(categories[0]?.code ?? "other");
   const [price, setPrice] = useState(defaultPrice);
   const [isPromo, setIsPromo] = useState(false);
 
@@ -33,9 +34,9 @@ export function AddLineForm({ categories, defaultPrice, disabled, onAdd }: AddLi
             onChange={(event) => setCategory(event.target.value)}
             className="w-full rounded-tile border border-line bg-surface px-2 py-2 text-body"
           >
-            {categories.map((code) => (
-              <option key={code} value={code}>
-                {formatCategoryLabel(code)}
+            {categories.map((item) => (
+              <option key={item.code} value={item.code}>
+                {formatCategoryLabel(item.code)}
               </option>
             ))}
           </select>
@@ -47,7 +48,7 @@ export function AddLineForm({ categories, defaultPrice, disabled, onAdd }: AddLi
             min={0}
             step={10}
             value={price}
-            onChange={(event) => setPrice(Number(event.target.value))}
+            onChange={(event) => setPrice(Math.round(Number(event.target.value)))}
             className="w-20 rounded-tile border border-line bg-surface px-2 py-2 text-right text-body"
           />
           <span className="text-body text-ink-500">₽</span>

@@ -21,7 +21,11 @@ export function ReceiptLineRow({
         <span className="truncate text-body font-semibold">{line.productName ?? label}</span>
         <span className="flex flex-wrap items-center gap-1 text-caption text-ink-500">
           <span>{label}</span>
-          {line.isPromo && <span className="whitespace-nowrap text-accent-700">−акция</span>}
+          {line.isPromo && (
+            <span className="whitespace-nowrap rounded-tile bg-accent-50 px-2 text-accent-700">
+              акция
+            </span>
+          )}
           {matchesGoal && (
             <span className="whitespace-nowrap rounded-tile bg-brand-100 px-2 text-brand-700">
               к цели
@@ -36,7 +40,7 @@ export function ReceiptLineRow({
           min={0}
           step={10}
           value={line.price}
-          onChange={(event) => onPriceChange(Number(event.target.value))}
+          onChange={(event) => onPriceChange(Math.round(Number(event.target.value)))}
           className="w-20 rounded-tile border border-line bg-surface px-2 py-1 text-right text-body"
         />
         <span className="text-body text-ink-500">₽</span>

@@ -12,7 +12,7 @@
 | `GET /users/{user_id}/challenges/{challenge_id}` | Challenge | challenges | с `explanation` и `rationale_features` |
 | `POST /users/{user_id}/challenges/refresh` | демо, недельный job | challenges | сгенерировать новый набор на неделю |
 | `POST /receipts` | интеграция / тесты | receipts | полный чек с позициями → `ReceiptProcessingResult` |
-| `GET /users/{user_id}/receipts/simulate/draft` | шаг 1 кнопки «Симулировать покупку» | receipts | черновик чека на 3–4 позиции, цель недели, список категорий |
+| `GET /users/{user_id}/receipts/simulate/draft` | шаг 1 кнопки «Симулировать покупку» | receipts | черновик чека на 3–4 позиции, цель недели, категории с названиями товаров |
 | `POST /users/{user_id}/receipts/simulate` | кнопка «Simulate new purchase» | receipts | сценарий `typical` / `category_boost` / `fraud_burst` либо подтверждённые `items` |
 | `GET /users/{user_id}/receipts?limit=` | PM view, отладка | receipts | |
 | `GET /users/{user_id}/league` | League | league | дивизион, 30 участников под псевдонимами, моё место, зоны, дельта позиции |
