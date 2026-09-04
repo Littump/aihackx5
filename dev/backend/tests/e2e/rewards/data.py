@@ -4,8 +4,6 @@ NOW = datetime(2026, 9, 4, 12, 0, tzinfo=UTC)
 
 REWARDS_FIELDS = {
     "points_balance",
-    "points_from_rewards",
-    "points_from_receipts",
     "xp",
     "level",
     "xp_to_next_level",

@@ -59,8 +59,6 @@ export function getRewards(userId: number): RewardsResponse {
   const balance = POINTS_BALANCE_BY_USER[userId] ?? POINTS_BALANCE_BY_USER[1];
   return {
     points_balance: balance,
-    points_from_rewards: balance,
-    points_from_receipts: 0,
     xp: domovoy.xp,
     level: domovoy.level,
     xp_to_next_level: domovoy.xp_to_next_level,

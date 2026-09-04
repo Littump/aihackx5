@@ -903,11 +903,9 @@ components:
 
     RewardsResponse:
       type: object
-      required: [points_balance, points_from_rewards, points_from_receipts, xp, level, xp_to_next_level, rules, history]
+      required: [points_balance, xp, level, xp_to_next_level, rules, history]
       properties:
         points_balance: { type: integer }
-        points_from_rewards: { type: integer }
-        points_from_receipts: { type: integer }
         xp: { type: integer }
         level: { type: integer }
         xp_to_next_level: { type: integer }

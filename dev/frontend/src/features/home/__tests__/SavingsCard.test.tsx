@@ -116,13 +116,20 @@ describe("SavingsCard — объяснение цифры", () => {
     expect(screen.getByText("По 1 чеку за месяц")).toBeInTheDocument();
   });
 
-  it("раскрывает формулу экономии по кнопке подсказки", async () => {
+  it("показывает формулу экономии при наведении на подсказку", async () => {
+    const user = userEvent.setup();
+    renderCard();
+    await user.hover(screen.getByRole("button", { name: "Как считается экономия" }));
+    expect(screen.getByRole("tooltip")).toHaveTextContent(
+      /разница между обычными ценами и тем, что вы заплатили/,
+    );
+  });
+
+  it("на тач-устройстве подсказка открывается тапом", async () => {
     const user = userEvent.setup();
     renderCard();
     await user.click(screen.getByRole("button", { name: "Как считается экономия" }));
-    expect(screen.getByRole("note")).toHaveTextContent(
-      /разница между обычными ценами и тем, что вы заплатили/,
-    );
+    expect(screen.getByRole("tooltip")).toBeInTheDocument();
   });
 
   it("расшифровывает сумму категории числом позиций и товарами", async () => {

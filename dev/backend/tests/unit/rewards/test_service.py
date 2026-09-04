@@ -135,8 +135,6 @@ async def test_balance_sums_rewards_and_receipt_points(
 
     result = await service.get_rewards(None, 1, limit=50)  # type: ignore[arg-type]
 
-    assert result.points_from_rewards == 180
-    assert result.points_from_receipts == 50
     assert result.points_balance == 230
 
 

@@ -8,12 +8,13 @@ import { renderWithProviders } from "@/test/render";
 import { RewardsScreen } from "../RewardsScreen";
 
 describe("RewardsScreen", () => {
-  it("показывает баланс баллов и его источники", async () => {
+  it("показывает баланс баллов одной цифрой, без разбивки по источникам", async () => {
     renderWithProviders(<RewardsScreen />);
 
     expect(await screen.findByText("480")).toBeInTheDocument();
-    expect(screen.getByText("480 баллов")).toBeInTheDocument();
-    expect(screen.getByText("0 баллов")).toBeInTheDocument();
+    expect(screen.getByText("баллов")).toBeInTheDocument();
+    expect(screen.queryByText("По чекам X5 Клуба")).not.toBeInTheDocument();
+    expect(screen.queryByText("За цели и приглашения")).not.toBeInTheDocument();
   });
 
   it("показывает уровень и остаток опыта до следующего", async () => {
@@ -43,14 +44,17 @@ describe("RewardsScreen", () => {
     expect(screen.getByText("+30 баллов")).toBeInTheDocument();
   });
 
-  it("раскрывает подсказку, откуда берутся баллы", async () => {
+  it("показывает подсказку про баллы при наведении и прячет при уходе курсора", async () => {
     const user = userEvent.setup();
     renderWithProviders(<RewardsScreen />);
     await screen.findByText("480");
+    const hint = screen.getByRole("button", { name: "Откуда берутся баллы" });
 
-    await user.click(screen.getByRole("button", { name: "Откуда берутся баллы" }));
+    await user.hover(hint);
+    expect(screen.getByRole("tooltip")).toHaveTextContent(/За обычную покупку баллов нет/);
 
-    expect(screen.getByRole("note")).toHaveTextContent(/Один балл равен одному рублю скидки/);
+    await user.unhover(hint);
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
   });
 
   it("даёт вернуться на главную, сохранив выбранного пользователя", async () => {

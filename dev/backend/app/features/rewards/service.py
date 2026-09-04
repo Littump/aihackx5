@@ -16,13 +16,9 @@ from app.game_rules import level_for_xp, xp_to_next_level
 async def get_rewards(conn: AsyncConnection, user_id: int, *, limit: int) -> RewardsSummary:
     await users_service.get_user(conn, user_id)
     state = await domovoy_service.get_state(conn, user_id)
-    ledger_totals = await challenges_service.sum_ledger_for_user(conn, user_id)
-    from_receipts = await points_from_receipts(conn, user_id)
     entries = await challenges_service.list_ledger_for_user(conn, user_id, limit)
     return RewardsSummary(
-        points_balance=ledger_totals.points + from_receipts,
-        points_from_rewards=ledger_totals.points,
-        points_from_receipts=from_receipts,
+        points_balance=await points_balance(conn, user_id),
         xp=state.xp,
         level=level_for_xp(state.xp),
         xp_to_next_level=xp_to_next_level(state.xp),
@@ -33,10 +29,10 @@ async def get_rewards(conn: AsyncConnection, user_id: int, *, limit: int) -> Rew
 
 async def points_balance(conn: AsyncConnection, user_id: int) -> int:
     ledger_totals = await challenges_service.sum_ledger_for_user(conn, user_id)
-    return ledger_totals.points + await points_from_receipts(conn, user_id)
+    return ledger_totals.points + await _points_from_receipts(conn, user_id)
 
 
-async def points_from_receipts(conn: AsyncConnection, user_id: int) -> int:
+async def _points_from_receipts(conn: AsyncConnection, user_id: int) -> int:
     totals = await receipts_service.sum_points(conn, user_id=user_id)
     return totals.earned - totals.spent
 

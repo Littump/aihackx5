@@ -54,8 +54,6 @@ async def test_get_rewards_returns_balance_history_and_rules(
     assert response.status_code == 200
     body = response.json()
     assert set(body.keys()) == REWARDS_FIELDS
-    assert body["points_from_rewards"] == 30
-    assert body["points_from_receipts"] == 20
     assert body["points_balance"] == 50
     assert body["xp"] == 160
     assert body["level"] == 2

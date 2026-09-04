@@ -24,8 +24,6 @@ class RewardRule(AppModel):
 
 class RewardsResponse(AppModel):
     points_balance: int
-    points_from_rewards: int
-    points_from_receipts: int
     xp: int
     level: int
     xp_to_next_level: int

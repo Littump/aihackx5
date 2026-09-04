@@ -690,8 +690,6 @@ export interface components {
         };
         RewardsResponse: {
             points_balance: number;
-            points_from_rewards: number;
-            points_from_receipts: number;
             xp: number;
             level: number;
             xp_to_next_level: number;
