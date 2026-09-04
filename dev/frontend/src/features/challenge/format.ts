@@ -13,9 +13,11 @@ export function formatChallengeType(type: ChallengeType): string {
 }
 
 export function formatDeadline(periodEnd: string): string {
-  return new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long" }).format(
-    new Date(periodEnd),
-  );
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long",
+    timeZone: "Europe/Moscow",
+  }).format(new Date(periodEnd));
 }
 
 export function formatReward(rewardXp: number, rewardPoints: number): string {

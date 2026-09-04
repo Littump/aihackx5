@@ -35,7 +35,11 @@ export function isDemotionBoundary(rank: number, demotionCutoff: number): boolea
 }
 
 export function formatWeekRange(weekStart: string, weekEnd: string): string {
-  const formatter = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long" });
+  const formatter = new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long",
+    timeZone: "Europe/Moscow",
+  });
   return `${formatter.format(new Date(weekStart))} – ${formatter.format(new Date(weekEnd))}`;
 }
 

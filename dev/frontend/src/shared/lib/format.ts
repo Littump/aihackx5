@@ -1,5 +1,9 @@
 const moneyFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 });
-const dateFormatter = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long" });
+const dateFormatter = new Intl.DateTimeFormat("ru-RU", {
+  day: "numeric",
+  month: "long",
+  timeZone: "Europe/Moscow",
+});
 
 export function formatMoney(amount: number): string {
   return `${moneyFormatter.format(amount)} ₽`;
