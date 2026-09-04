@@ -175,6 +175,7 @@ async def simulate_receipt(
         hero_category = await _hero_boost_category(conn, user_id)
         if hero_category is not None:
             items = items + boost_items(hero_category, float(features.promo_sensitivity), rng)
+    # demo-кнопка должна давать эффект на каждый клик, не давать словить дедуп/дневной лимит
     return await receipts_service.process_receipt(
         conn,
         user_id=user_id,
@@ -184,6 +185,7 @@ async def simulate_receipt(
         points_spent=0,
         pos_id=None,
         items=items,
+        force_counted=True,
     )
 
 

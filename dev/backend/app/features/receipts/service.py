@@ -33,13 +33,18 @@ async def process_receipt(
     points_spent: int,
     pos_id: str | None,
     items: Sequence[ReceiptItemInputLike],
+    force_counted: bool = False,
 ) -> ReceiptProcessingOutcome:
     await users_service.get_user(conn, user_id)
     store = await users_service.get_store(conn, store_id)
     drafts = _draft_items(items)
     totals = compute_totals(drafts)
-    decision = await _decide_counted(
-        conn, user_id=user_id, store_id=store_id, purchased_at=purchased_at
+    decision = (
+        CountedDecision(counted=True, counted_reason=None)
+        if force_counted
+        else await _decide_counted(
+            conn, user_id=user_id, store_id=store_id, purchased_at=purchased_at
+        )
     )
     receipt_row = await _insert_receipt(
         conn,

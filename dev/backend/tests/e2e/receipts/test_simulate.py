@@ -9,11 +9,13 @@ from psycopg.types.json import Jsonb
 
 from app.core.clock import week_end, week_start
 from app.game_rules import (
+    RECEIPTS_PER_DAY_MAX,
     SIMULATE_BASKET_VARIATION_MAX,
     SIMULATE_BASKET_VARIATION_MIN,
     SIMULATE_DEFAULT_AVG_BASKET,
     SIMULATE_FRAUD_BURST_COUNT,
     SIMULATE_FRAUD_BURST_INTERVAL_MIN,
+    XP_RECEIPT,
 )
 from tests.e2e.receipts.data import RECEIPT_FIELDS, RECEIPT_PROCESSING_RESULT_FIELDS
 from tests.factories import make_challenge, make_store, make_user, make_user_features
@@ -45,6 +47,36 @@ async def test_simulate_typical_returns_counted_receipt_with_sum_in_range(
     upper = 600 * SIMULATE_BASKET_VARIATION_MAX
     assert lower <= body["receipt"]["regular_total"] <= upper
     assert 3 <= len(body["receipt"]["items"]) <= 6
+
+
+async def test_simulate_typical_repeated_clicks_stay_counted_and_grow_xp(
+    client: AsyncClient, conn: AsyncConnection, freeze_time: Callable[[datetime], None]
+) -> None:
+    freeze_time(NOW)
+    user = await make_user(conn)
+    store = await make_store(conn)
+    await make_user_features(conn, user.id, favourite_store_id=store.id)
+
+    click_count = RECEIPTS_PER_DAY_MAX + 2
+    xp_values: list[int] = []
+    for _ in range(click_count):
+        response = await client.post(f"/api/v1/users/{user.id}/receipts/simulate")
+        assert response.status_code == 201
+        body = response.json()
+        assert body["counted"] is True
+        assert body["counted_reason"] is None
+        assert body["xp_delta"] >= XP_RECEIPT
+        xp_values.append(body["domovoy"]["xp"])
+
+    assert xp_values == sorted(xp_values)
+    assert xp_values[-1] > xp_values[0]
+
+    counted_cursor = await conn.execute(
+        "SELECT count(*) FROM receipts WHERE user_id = %s AND counted = true", (user.id,)
+    )
+    counted_row = await counted_cursor.fetchone()
+    assert counted_row is not None
+    assert counted_row[0] == click_count
 
 
 @pytest.mark.parametrize("payload", NO_BODY_VARIANTS)
