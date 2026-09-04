@@ -59,9 +59,10 @@ async def process_receipt(
     )
     item_rows = await _insert_items(conn, receipt_id=receipt_row.id, items=drafts)
     fraud_decision = await pipeline.run_antifraud_step(conn, user_id, receipt_row)
-    receipt_row, decision = await _apply_fraud_decision(
-        conn, receipt_row=receipt_row, decision=decision, fraud_decision=fraud_decision
-    )
+    if not force_counted:
+        receipt_row, decision = await _apply_fraud_decision(
+            conn, receipt_row=receipt_row, decision=decision, fraud_decision=fraud_decision
+        )
     return await _apply_rewards(
         conn,
         user_id=user_id,

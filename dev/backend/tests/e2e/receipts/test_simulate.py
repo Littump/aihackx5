@@ -57,8 +57,10 @@ async def test_simulate_typical_repeated_clicks_stay_counted_and_grow_xp(
     store = await make_store(conn)
     await make_user_features(conn, user.id, favourite_store_id=store.id)
 
-    click_count = RECEIPTS_PER_DAY_MAX + 2
+    # с запасом за daily_limit и burst-порог антифрода — оба не должны срывать демо-эффект
+    click_count = RECEIPTS_PER_DAY_MAX + 10
     xp_values: list[int] = []
+    fraud_blocked_at_least_once = False
     for _ in range(click_count):
         response = await client.post(f"/api/v1/users/{user.id}/receipts/simulate")
         assert response.status_code == 201
@@ -67,7 +69,10 @@ async def test_simulate_typical_repeated_clicks_stay_counted_and_grow_xp(
         assert body["counted_reason"] is None
         assert body["xp_delta"] >= XP_RECEIPT
         xp_values.append(body["domovoy"]["xp"])
+        if body["fraud"]["decision"] == "block":
+            fraud_blocked_at_least_once = True
 
+    assert fraud_blocked_at_least_once
     assert xp_values == sorted(xp_values)
     assert xp_values[-1] > xp_values[0]
 
