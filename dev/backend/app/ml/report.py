@@ -7,7 +7,8 @@ def render_markdown(report: EvalReport) -> str:
     lines: list[str] = []
     lines.append("# ML planner eval report")
     lines.append("")
-    lines.append(f"- model: `{report.model}`")
+    lines.append(f"- planner model: `{report.planner_model}`")
+    lines.append(f"- actor model: `{report.actor_model}`")
     lines.append(f"- seed: {report.seed}, profiles: {report.profiles}")
     lines.append(f"- horizon: {report.horizon_weeks} weeks, cut point T: week {report.cut_week}")
     lines.append(f"- null_test: {report.null_test}")

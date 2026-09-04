@@ -183,7 +183,8 @@ class EvalReport(BaseModel):
     profiles: int
     horizon_weeks: int
     cut_week: int
-    model: str
+    planner_model: str
+    actor_model: str
     null_test: bool
     business_metric_purchases: int
     business_metric_window_weeks: int

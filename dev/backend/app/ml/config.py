@@ -1,7 +1,16 @@
 from app import game_rules
 
-LLM_BASE_URL_DEFAULT = "http://localhost:8016/v1"
-LLM_MODEL_DEFAULT = "/opt/Qwen/Qwen3.8-27B-FP8"
+LLM_QWEN_BASE_URL_DEFAULT = "http://localhost:8016/v1"
+LLM_QWEN_MODEL_DEFAULT = "qwen38-27b-fp8"
+LLM_DEEPSEEK_BASE_URL_DEFAULT = "http://localhost:8017/v1"
+LLM_DEEPSEEK_MODEL_DEFAULT = "deepseek-v4-flash"
+
+# Actor (shopper) uses the stronger DeepSeek; planner (rewards) uses the cheaper Qwen.
+PLANNER_BASE_URL_DEFAULT = LLM_QWEN_BASE_URL_DEFAULT
+PLANNER_MODEL_DEFAULT = LLM_QWEN_MODEL_DEFAULT
+ACTOR_BASE_URL_DEFAULT = LLM_DEEPSEEK_BASE_URL_DEFAULT
+ACTOR_MODEL_DEFAULT = LLM_DEEPSEEK_MODEL_DEFAULT
+
 LLM_TIMEOUT_S = 60.0
 
 CATEGORIES: tuple[str, ...] = game_rules.CATEGORIES

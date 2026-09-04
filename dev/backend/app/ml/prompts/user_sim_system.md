@@ -10,4 +10,4 @@ Guidelines:
 - `extra_visits` are visits caused ONLY by the offer, on top of the shopper's normal tail.
 - Never mention money, rubles, points, or discounts in `reason`.
 
-Call the tool `emit_offer_response` with arguments matching the schema exactly.
+Respond with ONLY a JSON object matching the schema exactly: fields `engaged`, `extra_visits`, `completed_challenge`, `reason`.

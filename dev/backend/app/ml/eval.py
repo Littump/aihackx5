@@ -3,7 +3,7 @@ from collections.abc import Iterable
 
 from app.ml import catalog as catalog_module
 from app.ml import config, history, insight, planner, profiles, user_sim
-from app.ml.llm_client import QwenClient
+from app.ml.llm_client import ChatClient
 from app.ml.schemas import (
     Branch,
     BranchAggregate,
@@ -23,6 +23,12 @@ _CONTROL_CASHBACK_RATE = 0.10
 _MAX_CONCURRENCY = 8
 
 
+class EvalClients:
+    def __init__(self, planner: ChatClient | None, actor: ChatClient | None) -> None:
+        self.planner = planner
+        self.actor = actor
+
+
 class EvalSettings:
     def __init__(
         self,
@@ -30,18 +36,20 @@ class EvalSettings:
         profile_count: int,
         horizon_weeks: int,
         cut_week: int,
-        model: str,
+        planner_model: str,
+        actor_model: str,
         null_test: bool,
     ) -> None:
         self.seed = seed
         self.profile_count = profile_count
         self.horizon_weeks = horizon_weeks
         self.cut_week = cut_week
-        self.model = model
+        self.planner_model = planner_model
+        self.actor_model = actor_model
         self.null_test = null_test
 
 
-async def run_eval(client: QwenClient | None, settings: EvalSettings) -> EvalReport:
+async def run_eval(clients: EvalClients | None, settings: EvalSettings) -> EvalReport:
     catalog = catalog_module.build_catalog(settings.seed)
     eligible = catalog_module.eligible_catalog(catalog)
     people = profiles.build_profiles(settings.seed, settings.profile_count)
@@ -49,7 +57,7 @@ async def run_eval(client: QwenClient | None, settings: EvalSettings) -> EvalRep
 
     async def _guarded(profile: UserProfile) -> ProfileEvalResult:
         async with semaphore:
-            return await _evaluate_profile(client, profile, eligible, settings)
+            return await _evaluate_profile(clients, profile, eligible, settings)
 
     results = await asyncio.gather(*[_guarded(profile) for profile in people])
     aggregates = _aggregate(results)
@@ -59,7 +67,8 @@ async def run_eval(client: QwenClient | None, settings: EvalSettings) -> EvalRep
         profiles=settings.profile_count,
         horizon_weeks=settings.horizon_weeks,
         cut_week=settings.cut_week,
-        model=settings.model,
+        planner_model=settings.planner_model,
+        actor_model=settings.actor_model,
         null_test=settings.null_test,
         business_metric_purchases=config.BUSINESS_METRIC_PURCHASES,
         business_metric_window_weeks=config.BUSINESS_METRIC_WINDOW_WEEKS,
@@ -70,7 +79,7 @@ async def run_eval(client: QwenClient | None, settings: EvalSettings) -> EvalRep
 
 
 async def _evaluate_profile(
-    client: QwenClient | None,
+    clients: EvalClients | None,
     profile: UserProfile,
     eligible: list[SkuCatalogItem],
     settings: EvalSettings,
@@ -81,15 +90,18 @@ async def _evaluate_profile(
     planner_input = insight.build_insight(profile, past, eligible, [])
     tail_weeks = settings.horizon_weeks - settings.cut_week
 
-    llm_plan = await planner.plan_challenge(client, planner_input)
+    planner_client = clients.planner if clients is not None else None
+    actor_client = clients.actor if clients is not None else None
+
+    llm_plan = await planner.plan_challenge(planner_client, planner_input)
     rules_plan = _rules_only_plan(planner_input)
 
     branches: dict[str, BranchOutcome] = {}
     branches["control_x5"] = await _control_branch(
-        client, profile, planner_input, baseline_tail, tail_weeks, settings
+        actor_client, profile, planner_input, baseline_tail, tail_weeks, settings
     )
     branches["treatment_llm"] = await _treatment_branch(
-        client,
+        actor_client,
         profile,
         planner_input,
         llm_plan,
@@ -99,7 +111,7 @@ async def _evaluate_profile(
         settings,
     )
     branches["treatment_rules"] = await _treatment_branch(
-        client,
+        actor_client,
         profile,
         planner_input,
         rules_plan,
@@ -122,7 +134,7 @@ def _rules_only_plan(planner_input: PlannerInput) -> ValidatedPlan:
 
 
 async def _control_branch(
-    client: QwenClient | None,
+    actor_client: ChatClient | None,
     profile: UserProfile,
     planner_input: PlannerInput,
     baseline_tail: list[ShopVisit],
@@ -130,7 +142,7 @@ async def _control_branch(
     settings: EvalSettings,
 ) -> BranchOutcome:
     response = await user_sim.offer_response(
-        client,
+        actor_client,
         profile,
         planner_input,
         user_sim.CONTROL_OFFER_SUMMARY,
@@ -157,7 +169,7 @@ async def _control_branch(
 
 
 async def _treatment_branch(
-    client: QwenClient | None,
+    actor_client: ChatClient | None,
     profile: UserProfile,
     planner_input: PlannerInput,
     validated: ValidatedPlan,
@@ -168,7 +180,7 @@ async def _treatment_branch(
 ) -> BranchOutcome:
     offer = validated.offers[0]
     response = await user_sim.offer_response(
-        client,
+        actor_client,
         profile,
         planner_input,
         user_sim.offer_summary_for(offer),

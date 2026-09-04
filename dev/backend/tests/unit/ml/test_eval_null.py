@@ -9,7 +9,8 @@ def _run_null() -> eval_module.EvalReport:
         profile_count=10,
         horizon_weeks=12,
         cut_week=6,
-        model="test",
+        planner_model="test",
+        actor_model="test",
         null_test=True,
     )
     return asyncio.run(eval_module.run_eval(None, settings))

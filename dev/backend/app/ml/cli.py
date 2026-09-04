@@ -7,9 +7,10 @@ import httpx
 
 from app.ml import catalog as catalog_module
 from app.ml import eval as eval_module
+from app.ml import llm_client as llm_client_module
 from app.ml import profiles as profiles_module
 from app.ml import report as report_module
-from app.ml.llm_client import LLMConfig, QwenClient
+from app.ml.llm_client import ChatClient
 
 
 def main() -> None:
@@ -32,8 +33,10 @@ def main() -> None:
     eval_cmd.add_argument("--cut", type=int, default=6)
     eval_cmd.add_argument("--null", action="store_true")
     eval_cmd.add_argument("--no-llm", action="store_true")
-    eval_cmd.add_argument("--base-url", type=str, default=None)
-    eval_cmd.add_argument("--model", type=str, default=None)
+    eval_cmd.add_argument("--planner-base-url", type=str, default=None)
+    eval_cmd.add_argument("--planner-model", type=str, default=None)
+    eval_cmd.add_argument("--actor-base-url", type=str, default=None)
+    eval_cmd.add_argument("--actor-model", type=str, default=None)
     eval_cmd.add_argument("--out-json", type=Path, default=Path("build/eval_report.json"))
     eval_cmd.add_argument("--out-md", type=Path, default=Path("build/eval_report.md"))
 
@@ -62,21 +65,26 @@ def _run_gen_profiles(args: argparse.Namespace) -> None:
 
 
 async def _run_eval(args: argparse.Namespace) -> None:
-    llm_config = LLMConfig(base_url=args.base_url, model=args.model)
+    planner_llm = llm_client_module.planner_config(args.planner_base_url, args.planner_model)
+    actor_llm = llm_client_module.actor_config(args.actor_base_url, args.actor_model)
     settings = eval_module.EvalSettings(
         seed=args.seed,
         profile_count=args.profiles,
         horizon_weeks=args.horizon,
         cut_week=args.cut,
-        model=llm_config.model,
+        planner_model=planner_llm.model,
+        actor_model=actor_llm.model,
         null_test=args.null,
     )
     if args.no_llm:
         report = await eval_module.run_eval(None, settings)
     else:
         async with httpx.AsyncClient() as http_client:
-            client = QwenClient(llm_config, http_client)
-            report = await eval_module.run_eval(client, settings)
+            clients = eval_module.EvalClients(
+                planner=ChatClient(planner_llm, http_client),
+                actor=ChatClient(actor_llm, http_client),
+            )
+            report = await eval_module.run_eval(clients, settings)
     _write_json(args.out_json, report.model_dump())
     markdown = report_module.render_markdown(report)
     args.out_md.parent.mkdir(parents=True, exist_ok=True)

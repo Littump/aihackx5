@@ -75,26 +75,33 @@ make contract-check # сравнить openapi.yaml с тем, что отдаё
 
 Модуль `dev/backend/app/ml/` — самодостаточный LLM-планировщик челленджей (E14 AI-008..012): синтетический каталог/профили/история, планировщик на qwen через tool-use с валидатором и rule-fallback, экономика наград и контрфактический eval из одной точки T. Промпты — в `app/ml/prompts/*.md`, схемы — pydantic v2 в `app/ml/schemas.py`, метрики — `app/ml/eval.py`. Отчёт последнего прогона — `docs/ml-rework/eval-report.md`.
 
-### Модель для eval (qwen на GPU-кластере)
-- Кластер `root@inference-node.local`, vLLM OpenAI API на `localhost:8016`, модель `/opt/Qwen/Qwen3.8-27B-FP8`, tool-calling включён.
+### Модели для eval (vLLM на GPU-кластере)
+- Кластер `root@inference-node.local`, HGX H100. Два OpenAI-совместимых сервера vLLM подняты бок о бок на GPU 3-6 (TP4, FP8, offline, ctx 32k):
+  - Cheap/fast: **Qwen3-VL 27B FP8** — порт `8016`, модель `qwen38-27b-fp8` (для structured JSON слать `chat_template_kwargs.enable_thinking=false`; tool-calling включён).
+  - Larger: **DeepSeek-V4-Flash** (160B MoE, MLA, kv fp8) — порт `8017`, модель `deepseek-v4-flash`.
 - Локально `sshpass` нет → запускать через `nix-shell -p sshpass`. Пароль — в `<pass-file>`.
-- Поднять туннель (локальный `18016` → кластерный `8016`) и проверить, что vLLM отвечает:
+- Поднять туннель (локальный `18016` → кластерный `8016`, при необходимости `18017` → `8017`) и проверить, что vLLM отвечает:
 
 ```bash
-nix-shell -p sshpass --run 'sshpass -f <pass-file> ssh -o StrictHostKeyChecking=no -o ExitOnForwardFailure=yes -fN -L 18016:localhost:8016 root@inference-node.local'
-curl -s http://localhost:18016/v1/models
+nix-shell -p sshpass --run 'sshpass -f <pass-file> ssh -o StrictHostKeyChecking=no -o ExitOnForwardFailure=yes -fN -L 18016:localhost:8016 -L 18017:localhost:8017 root@inference-node.local'
+curl -s http://localhost:18016/v1/models   # Qwen
+curl -s http://localhost:18017/v1/models   # DeepSeek-V4-Flash
 ```
 
-- После прогона обязательно гасить туннель: найти PID через `pgrep -af 18016:localhost:8016` и `kill <PID>`.
+- После прогона обязательно гасить туннель: найти PID через `pgrep -af '1801[67]:localhost'` и `kill <PID>`.
 
 ### Перезапуск eval
-Из `dev/backend`. База URL — через `--base-url` или `ML_LLM_BASE_URL`, модель — через `--model` или `ML_LLM_MODEL` (дефолты в `app/ml/config.py`):
+Из `dev/backend`. Планировщик (награды) и actor (симуляция покупателя) — строго разные модели.
+Planner — дешёвый Qwen (`--planner-base-url`/`--planner-model` или `ML_PLANNER_BASE_URL`/`ML_PLANNER_MODEL`);
+actor — сильный DeepSeek (`--actor-base-url`/`--actor-model` или `ML_ACTOR_BASE_URL`/`ML_ACTOR_MODEL`).
+Дефолты — в `app/ml/config.py` (planner→:8016, actor→:8017):
 
 ```bash
 cd dev/backend
-ML_LLM_BASE_URL=http://localhost:18016/v1 uv run python -m app.ml.cli run-eval \
+uv run python -m app.ml.cli run-eval \
   --seed 7 --profiles 50 --horizon 12 --cut 6 \
-  --base-url http://localhost:18016/v1 \
+  --planner-base-url http://localhost:18016/v1 \
+  --actor-base-url http://localhost:18017/v1 \
   --out-md ../../docs/ml-rework/eval-report.md \
   --out-json build/eval_report.json
 ```
@@ -103,19 +110,19 @@ ML_LLM_BASE_URL=http://localhost:18016/v1 uv run python -m app.ml.cli run-eval \
 - `gen-catalog` / `gen-profiles` — отдельно выгрузить синтетические данные (флаг `--out`).
 
 ### Null-инвариант (без сети)
-При нулевом uplift ветки обязаны совпадать (AC AI-010/011). Гоняется без qwen:
+При нулевом uplift ветки обязаны совпадать (AC AI-010/011). Гоняется без сети:
 
 ```bash
 uv run python -m app.ml.cli run-eval --seed 7 --profiles 50 --null --no-llm \
   --out-md build/eval_null.md --out-json build/eval_null.json
 ```
 
-Ожидаемо: incremental visits = 0, `net_effect` ≤ 0, uplift `0.0 pp`, строка «Null test PASS». `--no-llm` использует rule-fallback вместо qwen.
+Ожидаемо: incremental visits = 0, `net_effect` ≤ 0, uplift `0.0 pp`, строка «Null test PASS». `--no-llm` использует rule-fallback вместо planner и null-ответ вместо actor.
 
 ### Переиспользуемые отчёты
 - `--out-md` — человекочитаемый отчёт (таблица веток: `net_effect`, incr.margin, reward cost, incr.visits, доля ≥8 покупок за 4 недели, completion, relevance hit, доля llm-планов, uplift). Это артефакт для PM — коммить в `docs/ml-rework/eval-report.md`.
 - `--out-json` — те же метрики машинно (`EvalReport`) для дальнейшей обработки; `build/` в `.gitignore`, JSON не коммитим.
-- Шапка отчёта самодокументирована (model / seed / profiles / horizon / cut / null_test) — по ней прогон повторяется один в один.
+- Шапка отчёта самодокументирована (planner model / actor model / seed / profiles / horizon / cut / null_test) — по ней прогон повторяется один в один.
 - Прогонять один раз на фиксированном `--seed`; новый прогон перезаписывает `--out-md`, поэтому обновлять метрики только вместе с кодом и в одном коммите.
 
 ### Проверки перед коммитом ML

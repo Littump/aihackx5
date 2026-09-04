@@ -4,13 +4,13 @@ from typing import Any
 from pydantic import ValidationError
 
 from app.ml import config, llm_client, rules, tool_schemas, validator
-from app.ml.llm_client import QwenClient
+from app.ml.llm_client import ChatClient
 from app.ml.schemas import ChallengePlan, PlannerInput, ValidatedPlan
 
 _TOOL_NAME = "emit_challenge_plan"
 
 
-async def plan_challenge(client: QwenClient | None, planner_input: PlannerInput) -> ValidatedPlan:
+async def plan_challenge(client: ChatClient | None, planner_input: PlannerInput) -> ValidatedPlan:
     if client is None:
         return _fallback(planner_input)
     system_prompt = llm_client.load_prompt("planner_system.md")

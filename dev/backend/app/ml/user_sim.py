@@ -3,10 +3,10 @@ from typing import Any
 from pydantic import ValidationError
 
 from app.ml import llm_client, tool_schemas
-from app.ml.llm_client import QwenClient
+from app.ml.llm_client import ChatClient
 from app.ml.schemas import ChallengeOffer, OfferResponse, PlannerInput, UserProfile
 
-_TOOL_NAME = "emit_offer_response"
+_SCHEMA_NAME = "offer_response"
 
 _NULL_RESPONSE = OfferResponse(
     engaged=False, extra_visits=0, completed_challenge=False, reason="offer ignored (null test)"
@@ -19,7 +19,7 @@ CONTROL_OFFER_SUMMARY = (
 
 
 async def offer_response(
-    client: QwenClient | None,
+    client: ChatClient | None,
     profile: UserProfile,
     planner_input: PlannerInput,
     offer_summary: str,
@@ -33,8 +33,12 @@ async def offer_response(
     user_prompt = _render_user_prompt(
         profile, planner_input, offer_summary, tail_weeks, baseline_tail_visits
     )
-    arguments = await client.emit_tool(
-        system_prompt, user_prompt, _TOOL_NAME, tool_schemas.offer_response_schema(), max_tokens=300
+    arguments = await client.emit_json(
+        system_prompt,
+        user_prompt,
+        _SCHEMA_NAME,
+        tool_schemas.offer_response_schema(),
+        max_tokens=300,
     )
     parsed = _parse_response(arguments)
     return parsed if parsed is not None else _NULL_RESPONSE.model_copy()
