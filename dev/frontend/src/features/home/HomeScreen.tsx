@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import { Button } from "@/shared/ui/Button";
 import { Card } from "@/shared/ui/Card";
@@ -23,12 +23,17 @@ export function HomeScreen() {
   const simulate = useSimulateReceipt(userId);
   const [explanationOpen, setExplanationOpen] = useState(false);
   const [justSimulated, setJustSimulated] = useState(false);
+  const highlightTimeoutRef = useRef<number | undefined>(undefined);
 
   function handleSimulate() {
     simulate.mutate(undefined, {
       onSuccess: () => {
+        window.clearTimeout(highlightTimeoutRef.current);
         setJustSimulated(true);
-        window.setTimeout(() => setJustSimulated(false), HIGHLIGHT_DURATION_MS);
+        highlightTimeoutRef.current = window.setTimeout(
+          () => setJustSimulated(false),
+          HIGHLIGHT_DURATION_MS,
+        );
       },
     });
   }

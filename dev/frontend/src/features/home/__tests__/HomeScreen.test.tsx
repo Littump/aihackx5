@@ -225,6 +225,39 @@ describe("HomeScreen", () => {
     setTimeoutSpy.mockRestore();
   });
 
+  it("повторный клик до истечения таймера не снимает подсветку раньше времени", async () => {
+    const user = userEvent.setup();
+    const { container } = renderWithProviders(<HomeScreen />);
+    await screen.findByText("2 из 3");
+
+    const setTimeoutSpy = vi.spyOn(window, "setTimeout");
+    const clearTimeoutSpy = vi.spyOn(window, "clearTimeout");
+    const findHighlightTimer = (calls: typeof setTimeoutSpy.mock.calls) =>
+      calls.find(([, delay]) => typeof delay === "number" && delay >= 3200 && delay <= 4000);
+
+    const button = screen.getByRole("button", { name: /симулировать покупку/i });
+    await user.click(button);
+    await waitFor(() => {
+      expect(container.querySelectorAll(".animate-glow")).toHaveLength(3);
+    });
+    const firstTimer = findHighlightTimer(setTimeoutSpy.mock.calls);
+    expect(firstTimer).toBeDefined();
+    const firstCallIndex = setTimeoutSpy.mock.calls.indexOf(firstTimer!);
+    const firstTimerId = setTimeoutSpy.mock.results[firstCallIndex]!.value as number;
+
+    await user.click(button);
+    await waitFor(() => {
+      const callsAfterFirst = setTimeoutSpy.mock.calls.slice(firstCallIndex + 1);
+      expect(findHighlightTimer(callsAfterFirst)).toBeDefined();
+    });
+
+    expect(clearTimeoutSpy).toHaveBeenCalledWith(firstTimerId);
+    expect(container.querySelectorAll(".animate-glow")).toHaveLength(3);
+
+    setTimeoutSpy.mockRestore();
+    clearTimeoutSpy.mockRestore();
+  });
+
   it("ошибка симуляции не показывает сырой error.message пользователю", async () => {
     server.use(http.post(`${API}/users/:user_id/receipts/simulate`, () => HttpResponse.error()));
 
