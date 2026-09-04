@@ -36,9 +36,7 @@ describe("LeagueScreen", () => {
     renderWithProviders(<LeagueScreen />, ["/?user=1"]);
 
     expect(
-      await screen.findByText(
-        /Показываем только псевдонимы и очки\. Ни имён, ни адресов, ни сумм и состава чужих покупок\./,
-      ),
+      await screen.findByText(/В рейтинге — реальные покупатели вашего магазина\./),
     ).toBeInTheDocument();
   });
 

@@ -25,12 +25,7 @@ export function ReceiptSheet({ userId, open, submitting, onClose, onConfirm }: R
         className="animate-popin flex max-h-full w-full max-w-[414px] flex-col gap-3 overflow-y-auto rounded-card bg-surface p-4 shadow-lift"
       >
         <header className="flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-title font-bold leading-tight">Чек покупки</h2>
-            <p className="text-caption text-ink-500">
-              {draftQuery.data ? draftQuery.data.store_name : "Собираем корзину…"}
-            </p>
-          </div>
+          <h2 className="text-title font-bold leading-tight">Чек покупки</h2>
           <button
             type="button"
             onClick={onClose}

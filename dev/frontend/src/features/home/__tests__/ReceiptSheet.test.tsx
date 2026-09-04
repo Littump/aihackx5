@@ -54,7 +54,7 @@ describe("ReceiptSheet", () => {
 
     const dialog = await openReceipt(user);
 
-    expect(within(dialog).getByText("Пятёрочка на Ленина")).toBeInTheDocument();
+    expect(within(dialog).queryByText("Пятёрочка на Ленина")).not.toBeInTheDocument();
     expect(within(dialog).getAllByRole("listitem")).toHaveLength(3);
     expect(within(dialog).getByTestId("receipt-total")).toHaveTextContent("350 ₽");
   });
