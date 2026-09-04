@@ -8,9 +8,10 @@ SAVINGS_FIELDS = {
     "discount_amount",
     "points_earned",
     "points_spent",
+    "receipts_count",
     "top_categories",
 }
-SAVINGS_CATEGORY_FIELDS = {"category", "amount"}
+SAVINGS_CATEGORY_FIELDS = {"category", "amount", "items_count", "top_products"}
 
 AC_ITEM = [
     {

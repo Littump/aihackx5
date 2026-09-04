@@ -12,6 +12,7 @@ from app.features.receipts.models import (
     ReceiptItemDraft,
     ReceiptItemInputLike,
     ReceiptItemRow,
+    ReceiptPointsTotals,
     ReceiptProcessingOutcome,
     ReceiptRow,
     ReceiptTotals,
@@ -195,6 +196,18 @@ async def list_receipts_since(
     conn: AsyncConnection, *, user_id: int, since: datetime
 ) -> list[ReceiptRow]:
     return await database.list_receipts_since(conn, user_id=user_id, since=since)
+
+
+async def list_receipts_by_ids(
+    conn: AsyncConnection, *, receipt_ids: list[int]
+) -> list[ReceiptRow]:
+    if not receipt_ids:
+        return []
+    return await database.list_receipts_by_ids(conn, receipt_ids=receipt_ids)
+
+
+async def sum_points(conn: AsyncConnection, *, user_id: int) -> ReceiptPointsTotals:
+    return await database.sum_counted_receipt_points(conn, user_id=user_id)
 
 
 async def _recompute_user_features(conn: AsyncConnection, user_id: int) -> None:

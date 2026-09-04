@@ -45,6 +45,11 @@ class ReceiptWithItems(AppModel):
     items: list[ReceiptItemRow]
 
 
+class ReceiptPointsTotals(AppModel):
+    earned: int
+    spent: int
+
+
 class ReceiptItemDraft(AppModel):
     product_name: str
     category: str

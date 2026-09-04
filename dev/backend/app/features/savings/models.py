@@ -22,6 +22,8 @@ class SavingsPeriodRange(AppModel):
 class SavingsCategory(AppModel):
     category: str
     amount: Decimal
+    items_count: int
+    top_products: list[str]
 
 
 class SavingsSummary(AppModel):
@@ -32,4 +34,5 @@ class SavingsSummary(AppModel):
     discount_amount: Decimal
     points_earned: int
     points_spent: int
+    receipts_count: int
     top_categories: list[SavingsCategory]

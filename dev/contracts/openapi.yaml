@@ -14,6 +14,7 @@ tags:
   - name: league
   - name: referrals
   - name: achievements
+  - name: rewards
   - name: pm
 
 paths:
@@ -304,6 +305,25 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
 
+  /api/v1/users/{user_id}/rewards:
+    get:
+      tags: [rewards]
+      operationId: getRewards
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+        - in: query
+          name: limit
+          schema: { type: integer, default: 50, minimum: 1, maximum: 200 }
+      responses:
+        "200":
+          description: Баланс баллов, опыт и история начислений
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RewardsResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
   /api/v1/pm/users/{user_id}:
     get:
       tags: [pm]
@@ -441,14 +461,18 @@ components:
 
     SavingsCategory:
       type: object
-      required: [category, amount]
+      required: [category, amount, items_count, top_products]
       properties:
         category: { type: string }
         amount: { type: number }
+        items_count: { type: integer }
+        top_products:
+          type: array
+          items: { type: string }
 
     SavingsSummary:
       type: object
-      required: [period, amount, previous_amount, delta, discount_amount, points_earned, points_spent, top_categories]
+      required: [period, amount, previous_amount, delta, discount_amount, points_earned, points_spent, receipts_count, top_categories]
       properties:
         period: { type: string, enum: [week, month] }
         amount: { type: number }
@@ -457,6 +481,7 @@ components:
         discount_amount: { type: number }
         points_earned: { type: integer }
         points_spent: { type: integer }
+        receipts_count: { type: integer }
         top_categories:
           type: array
           items: { $ref: "#/components/schemas/SavingsCategory" }
@@ -541,11 +566,12 @@ components:
 
     HomeResponse:
       type: object
-      required: [user, domovoy, savings, insight, hero_challenge, league, referral, recommended_mechanic]
+      required: [user, domovoy, savings, points_balance, insight, hero_challenge, league, referral, recommended_mechanic]
       properties:
         user: { $ref: "#/components/schemas/UserSummary" }
         domovoy: { $ref: "#/components/schemas/DomovoyState" }
         savings: { $ref: "#/components/schemas/SavingsSummary" }
+        points_balance: { type: integer }
         insight: { type: string }
         hero_challenge:
           oneOf:
@@ -852,6 +878,45 @@ components:
         items:
           type: array
           items: { $ref: "#/components/schemas/Achievement" }
+
+    RewardEvent:
+      type: object
+      required: [id, kind, title, detail, xp_delta, points_delta, created_at]
+      properties:
+        id: { type: integer }
+        kind: { type: string, enum: [receipt_xp, challenge, streak, league, referral, achievement] }
+        title: { type: string }
+        detail: { type: [string, "null"] }
+        xp_delta: { type: integer }
+        points_delta: { type: integer }
+        created_at: { type: string, format: date-time }
+
+    RewardRule:
+      type: object
+      required: [code, title, xp, points_min, points_max]
+      properties:
+        code: { type: string }
+        title: { type: string }
+        xp: { type: integer }
+        points_min: { type: integer }
+        points_max: { type: integer }
+
+    RewardsResponse:
+      type: object
+      required: [points_balance, points_from_rewards, points_from_receipts, xp, level, xp_to_next_level, rules, history]
+      properties:
+        points_balance: { type: integer }
+        points_from_rewards: { type: integer }
+        points_from_receipts: { type: integer }
+        xp: { type: integer }
+        level: { type: integer }
+        xp_to_next_level: { type: integer }
+        rules:
+          type: array
+          items: { $ref: "#/components/schemas/RewardRule" }
+        history:
+          type: array
+          items: { $ref: "#/components/schemas/RewardEvent" }
 
     UserFeatures:
       type: object

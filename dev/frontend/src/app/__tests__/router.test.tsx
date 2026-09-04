@@ -16,7 +16,7 @@ function renderApp(initialEntries: string[]) {
 }
 
 describe("router", () => {
-  it.each(["/", "/challenge", "/league", "/referral", "/pm"])(
+  it.each(["/", "/challenge", "/league", "/referral", "/rewards", "/pm"])(
     "рендерит маршрут %s с моками",
     async (path) => {
       renderApp([`${path}?user=1`]);

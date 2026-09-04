@@ -33,6 +33,15 @@ describe("HomeScreen", () => {
     expect(screen.getByText("Приглашено: 3")).toBeInTheDocument();
   });
 
+  it("показывает баланс баллов и ведёт на историю начислений", async () => {
+    renderWithProviders(<HomeScreen />);
+    await screen.findByText("2 из 3");
+
+    const link = screen.getByRole("link", { name: /480 баллов на счету/ });
+    expect(link).toHaveAttribute("href", expect.stringContaining("/rewards"));
+    expect(link).toHaveTextContent("За что начисляют");
+  });
+
   it("инсайт отображается после карточки цели недели", async () => {
     renderWithProviders(<HomeScreen />);
     await screen.findByText("2 из 3");
@@ -162,7 +171,7 @@ describe("HomeScreen", () => {
     expect(screen.getByText("300")).toBeInTheDocument();
     expect(screen.getByText("Потрачено баллов")).toBeInTheDocument();
     expect(screen.getByText("140")).toBeInTheDocument();
-    expect(screen.getByText("Топ-категории")).toBeInTheDocument();
+    expect(screen.getByText("Где сэкономили больше всего")).toBeInTheDocument();
     expect(screen.getByText("Молочное")).toBeInTheDocument();
     expect(screen.getByText("420 ₽")).toBeInTheDocument();
     expect(screen.getByText("Овощи и фрукты")).toBeInTheDocument();

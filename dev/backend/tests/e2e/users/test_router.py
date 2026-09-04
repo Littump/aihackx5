@@ -218,7 +218,13 @@ async def test_get_home_with_receipt_history_computes_real_savings_and_insight(
     assert savings["discount_amount"] == 80.0
     assert savings["points_earned"] == 20
     assert savings["points_spent"] == 0
-    assert savings["top_categories"][0] == {"category": "dairy", "amount": 60.0}
+    assert savings["receipts_count"] == 2
+    assert savings["top_categories"][0] == {
+        "category": "dairy",
+        "amount": 60.0,
+        "items_count": 4,
+        "top_products": ["Творог", "Молоко"],
+    }
     assert body["insight"] == "За месяц ты сэкономил 100 ₽ — Домовой доволен!"
 
 

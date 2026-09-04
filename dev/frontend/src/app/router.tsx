@@ -6,6 +6,7 @@ import { HomeScreen } from "@/features/home/HomeScreen";
 import { ChallengeScreen } from "@/features/challenge/ChallengeScreen";
 import { LeagueScreen } from "@/features/league/LeagueScreen";
 import { ReferralScreen } from "@/features/referral/ReferralScreen";
+import { RewardsScreen } from "@/features/rewards/RewardsScreen";
 import { PmScreen } from "@/features/pm/PmScreen";
 
 export const routes: RouteObject[] = [
@@ -20,6 +21,7 @@ export const routes: RouteObject[] = [
           { path: "challenge", element: <ChallengeScreen /> },
           { path: "league", element: <LeagueScreen /> },
           { path: "referral", element: <ReferralScreen /> },
+          { path: "rewards", element: <RewardsScreen /> },
         ],
       },
     ],

@@ -18,3 +18,4 @@ export type EvalRun = Schemas["EvalRun"];
 export type Receipt = Schemas["Receipt"];
 export type ReceiptProcessingResult = Schemas["ReceiptProcessingResult"];
 export type SimulateDraft = Schemas["SimulateDraft"];
+export type RewardsResponse = Schemas["RewardsResponse"];

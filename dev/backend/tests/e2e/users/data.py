@@ -6,6 +6,7 @@ HOME_FIELDS = {
     "user",
     "domovoy",
     "savings",
+    "points_balance",
     "insight",
     "hero_challenge",
     "league",

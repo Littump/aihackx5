@@ -3,7 +3,7 @@ from datetime import datetime
 from psycopg import AsyncConnection
 from psycopg.rows import class_row
 
-from app.features.receipts.models import ReceiptItemRow, ReceiptRow
+from app.features.receipts.models import ReceiptItemRow, ReceiptPointsTotals, ReceiptRow
 
 RECEIPT_LIST_SELECT = (
     "SELECT id, user_id, store_id, purchased_at, regular_total, paid_total, discount_total, "
@@ -28,6 +28,15 @@ RECEIPT_LIST_SINCE_SELECT = (
     "points_earned, points_spent, counted, is_returned, returned_at, source, pos_id, created_at "
     "FROM receipts WHERE user_id = %(user_id)s AND purchased_at >= %(since)s "
     "ORDER BY purchased_at DESC, id DESC"
+)
+RECEIPT_LIST_BY_IDS_SELECT = (
+    "SELECT id, user_id, store_id, purchased_at, regular_total, paid_total, discount_total, "
+    "points_earned, points_spent, counted, is_returned, returned_at, source, pos_id, created_at "
+    "FROM receipts WHERE id = ANY(%(receipt_ids)s) ORDER BY id"
+)
+RECEIPT_POINTS_SUM = (
+    "SELECT coalesce(sum(points_earned), 0) AS earned, coalesce(sum(points_spent), 0) AS spent "
+    "FROM receipts WHERE user_id = %(user_id)s AND counted = true AND is_returned = false"
 )
 DEDUP_WINDOW_EXISTS = (
     "SELECT EXISTS (SELECT 1 FROM receipts WHERE user_id = %(user_id)s "
@@ -122,6 +131,22 @@ async def list_receipts_since(
     async with conn.cursor(row_factory=class_row(ReceiptRow)) as cur:
         await cur.execute(RECEIPT_LIST_SINCE_SELECT, {"user_id": user_id, "since": since})
         return await cur.fetchall()
+
+
+async def list_receipts_by_ids(
+    conn: AsyncConnection, *, receipt_ids: list[int]
+) -> list[ReceiptRow]:
+    async with conn.cursor(row_factory=class_row(ReceiptRow)) as cur:
+        await cur.execute(RECEIPT_LIST_BY_IDS_SELECT, {"receipt_ids": receipt_ids})
+        return await cur.fetchall()
+
+
+async def sum_counted_receipt_points(conn: AsyncConnection, *, user_id: int) -> ReceiptPointsTotals:
+    async with conn.cursor(row_factory=class_row(ReceiptPointsTotals)) as cur:
+        await cur.execute(RECEIPT_POINTS_SUM, {"user_id": user_id})
+        row = await cur.fetchone()
+        assert row is not None
+        return row
 
 
 async def exists_counted_receipt_in_store_within_window(

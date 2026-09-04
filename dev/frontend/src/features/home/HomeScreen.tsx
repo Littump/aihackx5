@@ -64,7 +64,11 @@ export function HomeScreen() {
 
   return (
     <section className="flex flex-1 flex-col gap-3 px-4 py-3">
-      <DomovoyHeader domovoy={home.domovoy} justSimulated={justSimulated} />
+      <DomovoyHeader
+        domovoy={home.domovoy}
+        pointsBalance={home.points_balance}
+        justSimulated={justSimulated}
+      />
       <SavingsCard savings={home.savings} justSimulated={justSimulated} />
       {home.hero_challenge ? (
         <HeroChallengeCard

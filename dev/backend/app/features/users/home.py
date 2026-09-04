@@ -7,6 +7,7 @@ from app.features.domovoy import service as domovoy_service
 from app.features.domovoy.models import DomovoyStateRow
 from app.features.pm import service as pm_service
 from app.features.pm.models import MechanicDecisionContext
+from app.features.rewards import service as rewards_service
 from app.features.savings import service as savings_service
 from app.features.savings.models import SavingsSummary
 from app.features.user_features import service as user_features_service
@@ -29,6 +30,7 @@ class HomeAggregate(AppModel):
     user: UserRow
     domovoy: DomovoyStateSummary
     savings: SavingsSummary
+    points_balance: int
     insight: str
     hero_challenge: ChallengeRow | None
     referral: ReferralTeaserRow
@@ -63,6 +65,7 @@ async def get_home(conn: AsyncConnection, user_id: int) -> HomeAggregate:
         user=user,
         domovoy=_domovoy_summary(domovoy_state),
         savings=savings,
+        points_balance=await rewards_service.points_balance(conn, user_id),
         insight=insight,
         hero_challenge=hero_challenge,
         referral=ReferralTeaserRow(code=user.referral_code, invited_count=0, rewarded_count=0),

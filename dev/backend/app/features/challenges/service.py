@@ -202,6 +202,12 @@ async def count_completed_in_period(
     )
 
 
+async def list_by_ids(conn: AsyncConnection, challenge_ids: list[int]) -> list[ChallengeRow]:
+    if not challenge_ids:
+        return []
+    return await database.list_challenges_by_ids(conn, challenge_ids=challenge_ids)
+
+
 async def list_ledger_for_user(
     conn: AsyncConnection, user_id: int, limit: int
 ) -> list[RewardLedgerEntry]:

@@ -45,10 +45,21 @@ export const SAVINGS_BY_USER: Record<number, SavingsSummary> = {
     discount_amount: 800,
     points_earned: 300,
     points_spent: 140,
+    receipts_count: 12,
     top_categories: [
-      { category: "dairy", amount: 420 },
-      { category: "fruits_veg", amount: 310 },
-      { category: "bakery", amount: 180 },
+      {
+        category: "dairy",
+        amount: 420,
+        items_count: 9,
+        top_products: ["Молоко Простоквашино", "Творог 5%", "Кефир"],
+      },
+      {
+        category: "fruits_veg",
+        amount: 310,
+        items_count: 6,
+        top_products: ["Яблоки Голден", "Огурцы"],
+      },
+      { category: "bakery", amount: 180, items_count: 4, top_products: ["Батон нарезной"] },
     ],
   },
   2: {
@@ -59,9 +70,10 @@ export const SAVINGS_BY_USER: Record<number, SavingsSummary> = {
     discount_amount: 540,
     points_earned: 210,
     points_spent: 60,
+    receipts_count: 8,
     top_categories: [
-      { category: "meat_fish", amount: 260 },
-      { category: "grocery", amount: 200 },
+      { category: "meat_fish", amount: 260, items_count: 5, top_products: ["Куриное филе"] },
+      { category: "grocery", amount: 200, items_count: 3, top_products: ["Гречка"] },
     ],
   },
   3: {
@@ -72,9 +84,14 @@ export const SAVINGS_BY_USER: Record<number, SavingsSummary> = {
     discount_amount: 80,
     points_earned: 20,
     points_spent: 0,
-    top_categories: [{ category: "snacks", amount: 60 }],
+    receipts_count: 1,
+    top_categories: [
+      { category: "snacks", amount: 60, items_count: 1, top_products: ["Чипсы Лейс"] },
+    ],
   },
 };
+
+export const POINTS_BALANCE_BY_USER: Record<number, number> = { 1: 480, 2: 260, 3: 0 };
 
 export function getUserSummary(userId: number): UserSummary {
   return USERS.find((user) => user.id === userId) ?? USERS[0];

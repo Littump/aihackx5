@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Card } from "@/shared/ui/Card";
+import { InfoHint } from "@/shared/ui/InfoHint";
 import { formatMoney, formatNumber, formatSignedMoney } from "@/shared/lib/format";
 import { formatCategoryLabel } from "../categoryLabels";
+import { formatDiscountedItems, formatReceiptsCount } from "../format";
 import type { HomeResponse } from "../api";
 
 type SavingsCardProps = {
@@ -16,7 +18,14 @@ export function SavingsCard({ savings, justSimulated }: SavingsCardProps) {
 
   return (
     <Card className="flex flex-col gap-2">
-      <h3 className="text-caption text-ink-500">Экономия за месяц</h3>
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="text-caption text-ink-500">Экономия за месяц</h3>
+        <InfoHint label="Как считается экономия">
+          Экономия — это разница между обычными ценами и тем, что вы заплатили на кассе, плюс
+          начисленные и списанные баллы. Считаем только по засчитанным чекам за текущий месяц, без
+          возвратов.
+        </InfoHint>
+      </div>
       <p className="m-0 flex flex-wrap items-baseline gap-2">
         <span
           className={`text-hero font-bold leading-none ${
@@ -30,6 +39,9 @@ export function SavingsCard({ savings, justSimulated }: SavingsCardProps) {
         >
           {formatSignedMoney(savings.delta)} к прошлому месяцу
         </span>
+      </p>
+      <p className="m-0 text-caption text-ink-500">
+        По {formatReceiptsCount(savings.receipts_count)} за месяц
       </p>
       <button
         type="button"
@@ -57,17 +69,27 @@ export function SavingsCard({ savings, justSimulated }: SavingsCardProps) {
               <dt className="text-ink-700">Скидки</dt>
               <dd className="m-0 font-semibold">{formatMoney(savings.discount_amount)}</dd>
             </div>
-            <div className="flex justify-between text-body">
-              <dt className="text-ink-700">Начислено баллов</dt>
-              <dd className="m-0 font-semibold">{formatNumber(savings.points_earned)}</dd>
-            </div>
-            <div className="flex justify-between text-body">
-              <dt className="text-ink-700">Потрачено баллов</dt>
-              <dd className="m-0 font-semibold">{formatNumber(savings.points_spent)}</dd>
-            </div>
+            {savings.points_earned > 0 && (
+              <div className="flex justify-between text-body">
+                <dt className="text-ink-700">Начислено баллов</dt>
+                <dd className="m-0 font-semibold">{formatNumber(savings.points_earned)}</dd>
+              </div>
+            )}
+            {savings.points_spent > 0 && (
+              <div className="flex justify-between text-body">
+                <dt className="text-ink-700">Потрачено баллов</dt>
+                <dd className="m-0 font-semibold">{formatNumber(savings.points_spent)}</dd>
+              </div>
+            )}
           </dl>
           <div className="flex flex-col gap-2 border-t border-line pt-3">
-            <p className="text-caption text-ink-500">Топ-категории</p>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-caption text-ink-500">Где сэкономили больше всего</p>
+              <InfoHint label="Как считается экономия по категории">
+                Для каждой позиции чека берём разницу между обычной ценой и ценой по акции и
+                умножаем на количество. Суммы по всем товарам категории за месяц и дают эту цифру.
+              </InfoHint>
+            </div>
             {savings.top_categories.map((item) => (
               <div key={item.category} className="flex flex-col gap-1">
                 <div className="flex justify-between text-body">
@@ -80,6 +102,11 @@ export function SavingsCard({ savings, justSimulated }: SavingsCardProps) {
                     style={{ width: `${Math.round((item.amount / maxCategoryAmount) * 100)}%` }}
                   />
                 </div>
+                {item.items_count > 0 && (
+                  <p className="m-0 text-caption text-ink-500">
+                    {formatDiscountedItems(item.items_count)}: {item.top_products.join(", ")}
+                  </p>
+                )}
               </div>
             ))}
           </div>

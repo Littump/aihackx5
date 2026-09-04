@@ -39,6 +39,7 @@ class HomeResponse(AppModel):
     user: UserSummary
     domovoy: DomovoyState
     savings: SavingsSummary
+    points_balance: int
     insight: str
     hero_challenge: ChallengeDetail | None
     league: LeagueTeaser | None

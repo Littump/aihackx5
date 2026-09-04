@@ -12,6 +12,7 @@ import {
   getPmUser,
   getReceipts,
   getReferral,
+  getRewards,
   getSimulateDraft,
   getSimulationRun,
 } from "./fixtures";
@@ -80,6 +81,10 @@ export const handlers = [
 
   http.get(`${API}/users/:user_id/achievements`, () =>
     HttpResponse.json({ items: getAchievements() }),
+  ),
+
+  http.get(`${API}/users/:user_id/rewards`, ({ params }) =>
+    HttpResponse.json(getRewards(userIdParam(params))),
   ),
 
   http.get(`${API}/pm/users/:user_id`, ({ params }) =>

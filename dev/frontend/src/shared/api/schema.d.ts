@@ -260,6 +260,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/{user_id}/rewards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getRewards"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/pm/users/{user_id}": {
         parameters: {
             query?: never;
@@ -363,6 +379,8 @@ export interface components {
         SavingsCategory: {
             category: string;
             amount: number;
+            items_count: number;
+            top_products: string[];
         };
         SavingsSummary: {
             /** @enum {string} */
@@ -373,6 +391,7 @@ export interface components {
             discount_amount: number;
             points_earned: number;
             points_spent: number;
+            receipts_count: number;
             top_categories: components["schemas"]["SavingsCategory"][];
         };
         SavingsResponse: components["schemas"]["SavingsSummary"];
@@ -434,6 +453,7 @@ export interface components {
             user: components["schemas"]["UserSummary"];
             domovoy: components["schemas"]["DomovoyState"];
             savings: components["schemas"]["SavingsSummary"];
+            points_balance: number;
             insight: string;
             hero_challenge: components["schemas"]["ChallengeDetail"] | null;
             league: components["schemas"]["LeagueTeaser"] | null;
@@ -649,6 +669,34 @@ export interface components {
         };
         AchievementListResponse: {
             items: components["schemas"]["Achievement"][];
+        };
+        RewardEvent: {
+            id: number;
+            /** @enum {string} */
+            kind: "receipt_xp" | "challenge" | "streak" | "league" | "referral" | "achievement";
+            title: string;
+            detail: string | null;
+            xp_delta: number;
+            points_delta: number;
+            /** Format: date-time */
+            created_at: string;
+        };
+        RewardRule: {
+            code: string;
+            title: string;
+            xp: number;
+            points_min: number;
+            points_max: number;
+        };
+        RewardsResponse: {
+            points_balance: number;
+            points_from_rewards: number;
+            points_from_receipts: number;
+            xp: number;
+            level: number;
+            xp_to_next_level: number;
+            rules: components["schemas"]["RewardRule"][];
+            history: components["schemas"]["RewardEvent"][];
         };
         UserFeatures: {
             /** Format: date-time */
@@ -1163,6 +1211,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AchievementListResponse"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getRewards: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                user_id: components["parameters"]["UserId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Баланс баллов, опыт и история начислений */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RewardsResponse"];
                 };
             };
             404: components["responses"]["NotFound"];

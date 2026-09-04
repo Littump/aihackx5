@@ -48,6 +48,7 @@
 | `referrals` | `referrals` | код/ссылка, статусы, qualifying purchases, награда |
 | `antifraud` | `fraud_checks` | скоринг чека и реферала, решение approve/hold/block, причины |
 | `achievements` | `achievements` | ачивки по событиям |
+| `rewards` | — (читает `reward_ledger` и `receipts` через сервисы соседей) | баланс баллов, XP и уровень, история начислений, справочник «за что начисляем» |
 | `pm` | `simulation_runs`, `eval_runs` | PM-карточка пользователя, список фрод-проверок, результаты симуляции и eval |
 
 Вне `features/`, потому что это не HTTP-функциональность:

@@ -47,6 +47,10 @@ CHALLENGE_LIST_BY_USER = (
 CHALLENGE_GET_BY_ID = (
     f"SELECT {CHALLENGE_SELECT_COLUMNS} FROM challenges WHERE id = %(challenge_id)s"
 )
+CHALLENGE_LIST_BY_IDS = (
+    f"SELECT {CHALLENGE_SELECT_COLUMNS} FROM challenges "
+    "WHERE id = ANY(%(challenge_ids)s) ORDER BY id"
+)
 CHALLENGE_LIST_ACTIVE_FOR_PERIOD = (
     f"SELECT {CHALLENGE_SELECT_COLUMNS} FROM challenges "
     "WHERE user_id = %(user_id)s AND status = 'active' "
@@ -175,6 +179,14 @@ async def get_challenge_by_id(conn: AsyncConnection, *, challenge_id: int) -> Ch
     async with conn.cursor(row_factory=class_row(ChallengeRow)) as cur:
         await cur.execute(CHALLENGE_GET_BY_ID, {"challenge_id": challenge_id})
         return await cur.fetchone()
+
+
+async def list_challenges_by_ids(
+    conn: AsyncConnection, *, challenge_ids: list[int]
+) -> list[ChallengeRow]:
+    async with conn.cursor(row_factory=class_row(ChallengeRow)) as cur:
+        await cur.execute(CHALLENGE_LIST_BY_IDS, {"challenge_ids": challenge_ids})
+        return await cur.fetchall()
 
 
 async def list_active_challenges_for_period(

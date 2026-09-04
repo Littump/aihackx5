@@ -35,6 +35,7 @@ async def get_home(user_id: int, conn: Conn) -> HomeResponse:
         ),
         domovoy=DomovoyState.model_validate(aggregate.domovoy),
         savings=SavingsSummary.model_validate(aggregate.savings),
+        points_balance=aggregate.points_balance,
         insight=aggregate.insight,
         hero_challenge=ChallengeDetail.model_validate(hero) if hero is not None else None,
         league=None,

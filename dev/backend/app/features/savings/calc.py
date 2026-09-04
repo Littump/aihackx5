@@ -6,7 +6,12 @@ from zoneinfo import ZoneInfo
 from app.core.clock import day_start
 from app.features.receipts.models import ReceiptWithItems
 from app.features.savings.models import ReceiptSavingsLike, SavingsCategory, SavingsPeriodRange
-from app.game_rules import SAVINGS_TOP_CATEGORIES_LIMIT, SAVINGS_WEEK_WINDOW_DAYS, TIMEZONE
+from app.game_rules import (
+    SAVINGS_TOP_CATEGORIES_LIMIT,
+    SAVINGS_TOP_PRODUCTS_LIMIT,
+    SAVINGS_WEEK_WINDOW_DAYS,
+    TIMEZONE,
+)
 
 MONEY_PRECISION = Decimal("0.01")
 TZ = ZoneInfo(TIMEZONE)
@@ -42,15 +47,33 @@ def total_points_spent(receipts: list[ReceiptWithItems]) -> int:
 
 def top_categories(receipts: list[ReceiptWithItems]) -> list[SavingsCategory]:
     totals: dict[str, Decimal] = {}
+    counts: dict[str, int] = {}
+    products: dict[str, dict[str, Decimal]] = {}
     for receipt in receipts:
         for item in receipt.items:
             contribution = (item.regular_price - item.paid_price) * item.qty
             totals[item.category] = totals.get(item.category, Decimal("0")) + contribution
+            if contribution > 0:
+                counts[item.category] = counts.get(item.category, 0) + 1
+                by_product = products.setdefault(item.category, {})
+                by_product[item.product_name] = (
+                    by_product.get(item.product_name, Decimal("0")) + contribution
+                )
     ranked = sorted(totals.items(), key=lambda pair: pair[1], reverse=True)
     return [
-        SavingsCategory(category=category, amount=amount.quantize(MONEY_PRECISION))
+        SavingsCategory(
+            category=category,
+            amount=amount.quantize(MONEY_PRECISION),
+            items_count=counts.get(category, 0),
+            top_products=_top_products(products.get(category, {})),
+        )
         for category, amount in ranked[:SAVINGS_TOP_CATEGORIES_LIMIT]
     ]
+
+
+def _top_products(contributions: dict[str, Decimal]) -> list[str]:
+    ranked = sorted(contributions.items(), key=lambda pair: (-pair[1], pair[0]))
+    return [name for name, _ in ranked[:SAVINGS_TOP_PRODUCTS_LIMIT]]
 
 
 def _week_range(moment: datetime) -> SavingsPeriodRange:

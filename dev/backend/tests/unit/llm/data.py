@@ -15,5 +15,6 @@ def make_savings_summary(
         discount_amount=Decimal("120.00"),
         points_earned=10,
         points_spent=0,
+        receipts_count=2,
         top_categories=[],
     )

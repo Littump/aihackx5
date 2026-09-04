@@ -33,5 +33,6 @@ async def summary(
         discount_amount=calc.total_discount(current),
         points_earned=calc.total_points_earned(current),
         points_spent=calc.total_points_spent(current),
+        receipts_count=len(current),
         top_categories=calc.top_categories(current),
     )

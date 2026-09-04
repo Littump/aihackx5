@@ -82,6 +82,10 @@
 | FE-D09 | E15 | PM view по макету: широкая раскладка, плашка допущений, шкала антифрода с засечками | R | FE-D01, FE-D03 | done | 2026-09-04 |
 | BE-D01 | E12 | Черновик чека: `GET /users/{id}/receipts/simulate/draft` и подтверждённые `items` в `POST .../simulate` | R | BE-014 | done | 2026-09-04 |
 | FE-D10 | E12 | Экран чека перед симуляцией: список позиций, удалить, добавить категорию и цену, подсказка цели, подтверждение | R | BE-D01, FE-D04 | done | 2026-09-04 |
+| BE-T01 | E16 | Ручка `GET /users/{id}/rewards`: баланс баллов, опыт, справочник начислений, история; `points_balance` в `/home` | R | BE-012 | done | 2026-09-04 |
+| BE-T02 | E16 | Объяснимая экономия: `receipts_count`, `items_count` и `top_products` в savings | R | BE-009 | done | 2026-09-04 |
+| FE-T01 | E16 | Экран «Баллы и опыт» на `/rewards` и вход с карточки Домового | R | BE-T01, FE-D04 | done | 2026-09-04 |
+| FE-T02 | E16 | Подсказки «?» (`InfoHint`) и расшифровка экономии по категориям | R | BE-T02, FE-D04 | done | 2026-09-04 |
 
 ## Эпики
 
@@ -103,3 +107,4 @@
 | E13 Deploy | [E13-deploy.md](E13-deploy.md) | Yandex Cloud VM, образы, CD |
 | E14 ML Planner | [E14-ml-planner.md](E14-ml-planner.md) | LLM-планировщик, каталог SKU, reward ladder, синтет-eval |
 | E15 Redesign | [E15-redesign.md](E15-redesign.md) | Перерисовка фронта по дизайн-макету |
+| E16 Transparency | [E16-transparency.md](E16-transparency.md) | За что баллы и опыт, из чего экономия |

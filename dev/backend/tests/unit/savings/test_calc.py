@@ -100,7 +100,14 @@ def test_top_categories_tie_break_preserves_item_order() -> None:
 
 def test_top_categories_aggregates_same_category_across_receipts() -> None:
     result = calc.top_categories(SAME_CATEGORY_ACROSS_RECEIPTS)
-    assert result == [SavingsCategory(category="dairy", amount=EXPECTED_SAME_CATEGORY_TOTAL)]
+    assert result == [
+        SavingsCategory(
+            category="dairy",
+            amount=EXPECTED_SAME_CATEGORY_TOTAL,
+            items_count=2,
+            top_products=["товар"],
+        )
+    ]
 
 
 def _bucket(range_: SavingsPeriodRange, moment: datetime) -> str:

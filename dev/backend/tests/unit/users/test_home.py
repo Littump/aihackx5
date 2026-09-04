@@ -15,6 +15,7 @@ from app.features.pm.models import (
     MechanicDecisionReasons,
     MechanicDecisionRow,
 )
+from app.features.rewards import service as rewards_service
 from app.features.savings import service as savings_service
 from app.features.savings.models import SavingsSummary
 from app.features.user_features import service as user_features_service
@@ -26,6 +27,7 @@ from app.llm import domovoy_copy
 from tests.unit.challenges.data import NO_HISTORY_FEATURES, make_challenge_row, make_user_row
 
 NOW = datetime(2026, 9, 2, 12, 0, tzinfo=UTC)
+POINTS_BALANCE = 250
 
 
 def _savings_summary() -> SavingsSummary:
@@ -37,8 +39,16 @@ def _savings_summary() -> SavingsSummary:
         discount_amount=Decimal("150.00"),
         points_earned=10,
         points_spent=50,
+        receipts_count=3,
         top_categories=[],
     )
+
+
+def _patch_points_balance(monkeypatch: pytest.MonkeyPatch) -> None:
+    async def fake_points_balance(_: AsyncConnection, user_id: int) -> int:
+        return POINTS_BALANCE
+
+    monkeypatch.setattr(rewards_service, "points_balance", fake_points_balance)
 
 
 def _domovoy_state() -> DomovoyStateRow:
@@ -122,10 +132,12 @@ async def test_get_home_happy_path_reuses_active_hero_and_records_decision(
     monkeypatch.setattr(user_features_service, "get", fake_features_get)
     monkeypatch.setattr(domovoy_copy, "render_insight", fake_render_insight)
     monkeypatch.setattr(pm_service, "record_decision", fake_record_decision)
+    _patch_points_balance(monkeypatch)
 
     result = await home.get_home(None, 1)  # type: ignore[arg-type]
 
     assert result.hero_challenge == hero
+    assert result.points_balance == POINTS_BALANCE
     assert result.domovoy.xp == domovoy_state.xp
     assert result.savings == savings
     assert result.insight == "инсайт"
@@ -207,6 +219,7 @@ async def test_get_home_refreshes_challenges_when_no_active_hero(
     monkeypatch.setattr(user_features_service, "get", fake_features_get)
     monkeypatch.setattr(domovoy_copy, "render_insight", fake_render_insight)
     monkeypatch.setattr(pm_service, "record_decision", fake_record_decision)
+    _patch_points_balance(monkeypatch)
 
     result = await home.get_home(None, 1)  # type: ignore[arg-type]
 
@@ -274,6 +287,7 @@ async def test_get_home_does_not_refresh_when_side_is_still_active(
     monkeypatch.setattr(user_features_service, "get", fake_features_get)
     monkeypatch.setattr(domovoy_copy, "render_insight", fake_render_insight)
     monkeypatch.setattr(pm_service, "record_decision", fake_record_decision)
+    _patch_points_balance(monkeypatch)
 
     result = await home.get_home(None, 1)  # type: ignore[arg-type]
 
