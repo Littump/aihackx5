@@ -9,6 +9,8 @@
 - `signals[*].detail` — человекочитаемая строка с числами;
 - `fraud_checks` получает строку на каждую проверку.
 
+**Найдено при проверке прод-деплоя (2026-09-04):** `_burst_same_store`/`_daily_volume` в `scoring.py` не склоняют числительное — «24 чеков» вместо «24 чека». Нужен помощник склонения (1 чек / 2–4 чека / 5+ чеков) и применить его во всех `detail`-строках файла. Не блокирует демо, косметика для PM view.
+
 ## BE-019 referrals
 **Файлы:** `app/features/referrals/{router,dto,service,database}.py`, тесты.
 **Описание:** `POST /referrals/redeem` — создаёт пользователя-приглашённого (сегмент `dormant`/`regular_mid` для демо задаётся `referee_kind` по правилу: новый → `new`), проверяет лимиты (`referral_limit_reached` 409), связывает. `service.on_receipt(conn, referee_user_id, receipt)`: первая покупка ≥ 500 → `first_purchase` + награда приглашённому; вторая через ≥ 7 дней → `antifraud.check_referral` → `rewarded` / `on_review` / `blocked`, награда пригласившему через `record_reward` (`kind=referral`). `GET /users/{id}/referral` с `invitees` под метками «Сосед №N».

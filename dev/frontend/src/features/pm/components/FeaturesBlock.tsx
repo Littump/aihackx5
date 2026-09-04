@@ -45,26 +45,28 @@ function CategoryAffinityTable({
   return (
     <div>
       <p className="text-caption font-medium uppercase text-ink-500">Категории</p>
-      <table className="mt-2 w-full text-body">
-        <thead>
-          <tr className="text-left text-caption text-ink-500">
-            <th className="pb-1 pr-3 font-normal">Категория</th>
-            <th className="pb-1 pr-3 font-normal">Доля</th>
-            <th className="pb-1 pr-3 font-normal">Визитов</th>
-            <th className="pb-1 font-normal">Каденс</th>
-          </tr>
-        </thead>
-        <tbody>
-          {categories.map(([category, affinity]) => (
-            <tr key={category} className="border-t border-line">
-              <td className="py-1 pr-3 text-ink-900">{category}</td>
-              <td className="py-1 pr-3 text-ink-900">{formatPercent(affinity.share)}</td>
-              <td className="py-1 pr-3 text-ink-900">{affinity.visits}</td>
-              <td className="py-1 text-ink-900">{formatDays(affinity.cadence_days)}</td>
+      <div className="w-full overflow-x-auto">
+        <table className="mt-2 w-full min-w-[320px] text-body">
+          <thead>
+            <tr className="text-left text-caption text-ink-500">
+              <th className="pb-1 pr-3 font-normal">Категория</th>
+              <th className="pb-1 pr-3 font-normal">Доля</th>
+              <th className="pb-1 pr-3 font-normal">Визитов</th>
+              <th className="pb-1 font-normal">Каденс</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {categories.map(([category, affinity]) => (
+              <tr key={category} className="border-t border-line">
+                <td className="py-1 pr-3 text-ink-900">{category}</td>
+                <td className="py-1 pr-3 text-ink-900">{formatPercent(affinity.share)}</td>
+                <td className="py-1 pr-3 text-ink-900">{affinity.visits}</td>
+                <td className="py-1 text-ink-900">{formatDays(affinity.cadence_days)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

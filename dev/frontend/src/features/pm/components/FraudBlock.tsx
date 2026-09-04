@@ -51,40 +51,42 @@ function FraudTable({ items }: { items: FraudCheck[] }) {
   if (items.length === 0) return <p className="text-ink-500">Проверок нет.</p>;
 
   return (
-    <table className="w-full border-collapse text-body">
-      <thead>
-        <tr className="text-left text-caption text-ink-500">
-          <th className="py-2 font-normal">Когда</th>
-          <th className="py-2 font-normal">Пользователь</th>
-          <th className="py-2 font-normal">Объект</th>
-          <th className="py-2 font-normal">Оценка</th>
-          <th className="py-2 font-normal">Решение</th>
-          <th className="py-2 font-normal">Сигналы</th>
-        </tr>
-      </thead>
-      <tbody>
-        {items.map((check) => (
-          <tr key={check.id} className="border-t border-line align-top">
-            <td className="py-2 text-ink-900">{formatDateTime(check.created_at)}</td>
-            <td className="py-2 text-ink-900">#{check.user_id}</td>
-            <td className="py-2 text-ink-900">
-              {check.subject_type} #{check.subject_id}
-            </td>
-            <td className="py-2 text-ink-900">{check.score.toFixed(2)}</td>
-            <td className="py-2">
-              <span
-                data-testid="fraud-decision-badge"
-                className={`rounded-tile px-2 py-0.5 text-caption font-semibold ${decisionBadgeClass(check.decision)}`}
-              >
-                {decisionLabel(check.decision)}
-              </span>
-            </td>
-            <td className="py-2 text-ink-500">
-              {check.signals.map((signal) => signal.detail).join("; ")}
-            </td>
+    <div className="w-full overflow-x-auto">
+      <table className="w-full min-w-[640px] border-collapse text-body">
+        <thead>
+          <tr className="text-left text-caption text-ink-500">
+            <th className="py-2 font-normal">Когда</th>
+            <th className="py-2 font-normal">Пользователь</th>
+            <th className="py-2 font-normal">Объект</th>
+            <th className="py-2 font-normal">Оценка</th>
+            <th className="py-2 font-normal">Решение</th>
+            <th className="py-2 font-normal">Сигналы</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {items.map((check) => (
+            <tr key={check.id} className="border-t border-line align-top">
+              <td className="py-2 text-ink-900">{formatDateTime(check.created_at)}</td>
+              <td className="py-2 text-ink-900">#{check.user_id}</td>
+              <td className="py-2 text-ink-900">
+                {check.subject_type} #{check.subject_id}
+              </td>
+              <td className="py-2 text-ink-900">{check.score.toFixed(2)}</td>
+              <td className="py-2">
+                <span
+                  data-testid="fraud-decision-badge"
+                  className={`rounded-tile px-2 py-0.5 text-caption font-semibold ${decisionBadgeClass(check.decision)}`}
+                >
+                  {decisionLabel(check.decision)}
+                </span>
+              </td>
+              <td className="py-2 text-ink-500">
+                {check.signals.map((signal) => signal.detail).join("; ")}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

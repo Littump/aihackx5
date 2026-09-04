@@ -72,27 +72,29 @@ function ProfilesTable({ details }: { details: Record<string, unknown>[] }) {
   const columns = Array.from(new Set(details.flatMap((row) => Object.keys(row))));
 
   return (
-    <table className="w-full border-collapse text-body">
-      <thead>
-        <tr className="text-left text-caption text-ink-500">
-          {columns.map((column) => (
-            <th key={column} className="py-2 font-normal">
-              {column}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {details.map((row, index) => (
-          <tr key={index} className="border-t border-line">
+    <div className="w-full overflow-x-auto">
+      <table className="w-full min-w-[480px] border-collapse text-body">
+        <thead>
+          <tr className="text-left text-caption text-ink-500">
             {columns.map((column) => (
-              <td key={column} className="py-2 text-ink-900">
-                {String(row[column] ?? "—")}
-              </td>
+              <th key={column} className="py-2 font-normal">
+                {column}
+              </th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {details.map((row, index) => (
+            <tr key={index} className="border-t border-line">
+              {columns.map((column) => (
+                <td key={column} className="py-2 text-ink-900">
+                  {String(row[column] ?? "—")}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
