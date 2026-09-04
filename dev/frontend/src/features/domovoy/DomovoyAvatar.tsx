@@ -1,6 +1,6 @@
 import { MOOD_LABEL, type DomovoyMood } from "./moodLabels";
 
-type DomovoyAvatarSize = 32 | 48 | 80;
+export type DomovoyAvatarSize = 32 | 48 | 80 | 160;
 
 type CozinessLayerId = "dom-blanket" | "dom-cup" | "dom-shelf";
 

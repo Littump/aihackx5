@@ -19,7 +19,7 @@ const BASE_SAVINGS: Savings = {
 
 function renderCard(overrides: Partial<Savings> = {}) {
   const savings: Savings = { ...BASE_SAVINGS, ...overrides };
-  return render(<SavingsCard savings={savings} flash={false} />);
+  return render(<SavingsCard savings={savings} justSimulated={false} />);
 }
 
 async function openAccordion() {

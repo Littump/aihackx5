@@ -1,4 +1,5 @@
 import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
 import { PmScreen } from "../PmScreen";
@@ -12,22 +13,35 @@ function serverError(message: string) {
 }
 
 describe("PmScreen — состояния загрузки и ошибок", () => {
-  it("показывает статус загрузки, пока PM-карточка ещё не пришла", () => {
-    renderWithProviders(<PmScreen />);
-    expect(screen.getByText("Загрузка данных пользователя…")).toBeInTheDocument();
+  it("показывает скелетон, пока PM-карточка ещё не пришла", () => {
+    const { container } = renderWithProviders(<PmScreen />);
+    expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
   });
 
-  it("показывает ошибку, если PM-карточка не загрузилась", async () => {
-    server.use(http.get(`${API}/pm/users/:user_id`, serverError("БД недоступна")));
+  it("показывает ошибку с персонажем и повторяет запрос по клику «Повторить»", async () => {
+    let calls = 0;
+    server.use(
+      http.get(`${API}/pm/users/:user_id`, ({ params }) => {
+        calls += 1;
+        if (calls === 1) return serverError("БД недоступна")();
+        return HttpResponse.json(getPmUser(Number(params.user_id)));
+      }),
+    );
 
+    const user = userEvent.setup();
     renderWithProviders(<PmScreen />);
 
-    expect(await screen.findByText(/Не удалось загрузить PM-карточку/)).toBeInTheDocument();
-    expect(screen.getByText(/БД недоступна/)).toBeInTheDocument();
+    expect(await screen.findByText("Не получилось загрузить")).toBeInTheDocument();
+    expect(screen.queryByText(/БД недоступна/)).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Профиль и признаки" })).not.toBeInTheDocument();
     expect(
       screen.queryByRole("heading", { name: "Симуляция: контроль и тест" }),
     ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Повторить" }));
+
+    expect(await screen.findByRole("heading", { name: "Профиль и признаки" })).toBeInTheDocument();
+    expect(calls).toBe(2);
   });
 
   it("показывает ошибку антифрода, если /pm/fraud недоступен", async () => {

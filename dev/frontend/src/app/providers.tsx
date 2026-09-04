@@ -3,7 +3,13 @@ import { useState, type ReactNode } from "react";
 
 export function Providers({ children }: { children: ReactNode }) {
   const [client] = useState(
-    () => new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 5_000 } } }),
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: { retry: 1, staleTime: 5_000, networkMode: "always" },
+          mutations: { networkMode: "always" },
+        },
+      }),
   );
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }

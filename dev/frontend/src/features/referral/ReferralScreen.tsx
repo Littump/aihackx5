@@ -1,8 +1,11 @@
 import { useUserContext } from "@/features/users/hooks";
+import { DomovoyMessageScreen } from "@/features/domovoy/DomovoyMessageScreen";
 import { NAV_ICON_PATHS } from "@/shared/ui/navIcons";
+import { RetryButton } from "@/shared/ui/RetryButton";
 import { InviteeList } from "./components/InviteeList";
 import { PaidLimitCard } from "./components/PaidLimitCard";
 import { ReferralCodeCard } from "./components/ReferralCodeCard";
+import { ReferralSkeleton } from "./components/ReferralSkeleton";
 import { RewardCard } from "./components/RewardCard";
 import { RulesList } from "./components/RulesList";
 import { StatusLegend } from "./components/StatusLegend";
@@ -30,14 +33,17 @@ export function ReferralScreen() {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
-        {(userId === null || referralQuery.isPending) && (
-          <p className="text-ink-500">Загружаем приглашения…</p>
-        )}
+        {(userId === null || referralQuery.isPending) && <ReferralSkeleton />}
 
         {referralQuery.isError && (
-          <p className="text-accent-700">
-            Не получилось загрузить приглашения: {referralQuery.error.message}
-          </p>
+          <DomovoyMessageScreen
+            mood="bored"
+            heading="Не получилось загрузить"
+            body="Домовой не дозвонился до кассы. Проверьте связь и попробуйте ещё раз — данные не потеряются."
+            className="flex-1 min-h-0"
+          >
+            <RetryButton onClick={() => referralQuery.refetch()} />
+          </DomovoyMessageScreen>
         )}
 
         {referralQuery.data && (

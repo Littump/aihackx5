@@ -99,21 +99,57 @@ describe("ChallengeScreen", () => {
     expect(within(heroCard).getByText("3")).toBeInTheDocument();
   });
 
-  it("показывает ошибку, если список челленджей не загрузился", async () => {
+  it("показывает ошибку с персонажем и повторяет запрос по клику «Повторить»", async () => {
+    let calls = 0;
+    server.use(
+      http.get(`${API}/users/:user_id/challenges`, () => {
+        calls += 1;
+        if (calls === 1) {
+          return HttpResponse.json(
+            { error: { code: "down", message: "домовой недоступен" } },
+            { status: 500 },
+          );
+        }
+        return HttpResponse.json({ hero: heroChallenge(1), side: sideChallenges(1), history: [] });
+      }),
+    );
+
+    const user = userEvent.setup();
+    renderScreen();
+
+    expect(await screen.findByText("Не получилось загрузить")).toBeInTheDocument();
+    expect(screen.queryByText(/домовой недоступен/)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Повторить" }));
+
+    expect(await screen.findByRole("heading", { name: "3 покупки за неделю" })).toBeInTheDocument();
+    expect(calls).toBe(2);
+  });
+
+  it("показывает скелетон, пока челленджи загружаются", () => {
+    const { container } = renderScreen();
+    expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
+  });
+
+  it("пустое состояние показывает ссылки на Home и Соседей с сохранением ?user=", async () => {
     server.use(
       http.get(`${API}/users/:user_id/challenges`, () =>
-        HttpResponse.json(
-          { error: { code: "down", message: "домовой недоступен" } },
-          { status: 500 },
-        ),
+        HttpResponse.json({ hero: null, side: [], history: [] }),
       ),
     );
 
-    renderScreen();
+    renderScreen("/challenge?user=3");
 
-    expect(
-      await screen.findByText(/Не удалось загрузить челленджи: домовой недоступен/),
-    ).toBeInTheDocument();
+    await screen.findByText("Домовой думает над целью недели…");
+
+    expect(screen.getByRole("link", { name: "Посмотреть экономию за месяц" })).toHaveAttribute(
+      "href",
+      "/?user=3",
+    );
+    expect(screen.getByRole("link", { name: "Позвать соседа" })).toHaveAttribute(
+      "href",
+      "/referral?user=3",
+    );
   });
 
   it("если hero отсутствует, но есть side-челленджи, пустое состояние не показывается", async () => {

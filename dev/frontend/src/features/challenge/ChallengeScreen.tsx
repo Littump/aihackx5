@@ -1,16 +1,25 @@
+import { useSearchParams } from "react-router";
 import { useUserContext } from "@/features/users/hooks";
+import { DomovoyMessageScreen } from "@/features/domovoy/DomovoyMessageScreen";
 import { Button } from "@/shared/ui/Button";
-import { Card } from "@/shared/ui/Card";
+import { LinkButton } from "@/shared/ui/LinkButton";
 import { NAV_ICON_PATHS } from "@/shared/ui/navIcons";
+import { RetryButton } from "@/shared/ui/RetryButton";
 import { ChallengeHistoryList } from "./components/ChallengeHistoryList";
+import { ChallengeSkeleton } from "./components/ChallengeSkeleton";
 import { HeroChallengeCard } from "./components/HeroChallengeCard";
 import { SideChallengeCard } from "./components/SideChallengeCard";
 import { useChallenges, useRefreshChallenges } from "./hooks";
 
+const ERROR_BODY =
+  "Домовой не дозвонился до кассы. Проверьте связь и попробуйте ещё раз — данные не потеряются.";
+
 export function ChallengeScreen() {
   const { userId } = useUserContext();
+  const [searchParams] = useSearchParams();
   const challenges = useChallenges(userId);
   const refresh = useRefreshChallenges(userId);
+  const suffix = `?${searchParams.toString()}`;
 
   const isEmpty =
     challenges.data !== undefined &&
@@ -35,19 +44,38 @@ export function ChallengeScreen() {
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
-        {challenges.isPending && <p className="text-ink-500">Загрузка…</p>}
+        {challenges.isPending && <ChallengeSkeleton />}
 
         {challenges.isError && (
-          <p className="text-ink-500">Не удалось загрузить челленджи: {challenges.error.message}</p>
+          <DomovoyMessageScreen
+            mood="bored"
+            heading="Не получилось загрузить"
+            body={ERROR_BODY}
+            className="flex-1 min-h-0"
+          >
+            <RetryButton onClick={() => challenges.refetch()} />
+          </DomovoyMessageScreen>
         )}
 
         {isEmpty && (
-          <Card className="flex flex-col items-center gap-3 py-6 text-center">
-            <p className="text-ink-700">Домовой думает над целью недели…</p>
-            <Button onClick={() => refresh.mutate()} disabled={refresh.isPending}>
+          <DomovoyMessageScreen
+            mood="sleepy"
+            heading="Домовой думает над целью недели…"
+            body="Ему нужна ещё одна ваша покупка, чтобы понять ваш ритм. Обычно это занимает пару дней."
+            className="flex-1 min-h-0"
+          >
+            <Button
+              onClick={() => refresh.mutate()}
+              disabled={refresh.isPending}
+              className="w-full"
+            >
               {refresh.isPending ? "Обновляем…" : "Обновить"}
             </Button>
-          </Card>
+            <LinkButton to={`/${suffix}`}>Посмотреть экономию за месяц</LinkButton>
+            <LinkButton to={`/referral${suffix}`} variant="secondary">
+              Позвать соседа
+            </LinkButton>
+          </DomovoyMessageScreen>
         )}
 
         {challenges.data && !isEmpty && (

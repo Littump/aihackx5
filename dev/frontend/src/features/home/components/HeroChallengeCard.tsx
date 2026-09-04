@@ -8,12 +8,14 @@ type HeroChallengeCardProps = {
   challenge: HeroChallenge;
   explanationOpen: boolean;
   onToggleExplanation: () => void;
+  justSimulated: boolean;
 };
 
 export function HeroChallengeCard({
   challenge,
   explanationOpen,
   onToggleExplanation,
+  justSimulated,
 }: HeroChallengeCardProps) {
   return (
     <section className="flex shrink-0 flex-col gap-3 rounded-card bg-brand-700 p-4 text-white shadow-card">
@@ -39,7 +41,11 @@ export function HeroChallengeCard({
       <div className="flex flex-col gap-2">
         <ProgressBar value={challenge.progress} max={challenge.target} tone="dark" />
         <div className="flex justify-between text-body">
-          <span className="font-semibold">
+          <span
+            className={`font-semibold ${
+              justSimulated ? "animate-glow rounded-tile bg-white px-2 py-1 text-accent-700" : ""
+            }`}
+          >
             {challenge.progress} из {challenge.target}
           </span>
           <span className="text-brand-100">до {formatDeadline(challenge.period_end)}</span>

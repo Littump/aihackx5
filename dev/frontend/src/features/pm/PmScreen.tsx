@@ -1,11 +1,14 @@
 import { useUserContext } from "@/features/users/hooks";
+import { DomovoyMessageScreen } from "@/features/domovoy/DomovoyMessageScreen";
 import { Card } from "@/shared/ui/Card";
+import { RetryButton } from "@/shared/ui/RetryButton";
 import { ChallengeEconomicsBlock } from "./components/ChallengeEconomicsBlock";
 import { EvalBlock } from "./components/EvalBlock";
 import { FeaturesBlock } from "./components/FeaturesBlock";
 import { FraudBlock } from "./components/FraudBlock";
 import { LedgerBlock } from "./components/LedgerBlock";
 import { MechanicBlock } from "./components/MechanicBlock";
+import { PmSkeleton } from "./components/PmSkeleton";
 import { SimulationBlock } from "./components/SimulationBlock";
 import { UserFraudBlock } from "./components/UserFraudBlock";
 import { usePmUser } from "./hooks";
@@ -36,17 +39,17 @@ export function PmScreen() {
         </p>
       </div>
 
-      {(userId === null || pmUserQuery.isPending) && (
-        <Card>
-          <p className="text-ink-500">Загрузка данных пользователя…</p>
-        </Card>
-      )}
+      {(userId === null || pmUserQuery.isPending) && <PmSkeleton />}
 
       {pmUserQuery.isError && (
         <Card>
-          <p className="text-accent-700">
-            Не удалось загрузить PM-карточку: {pmUserQuery.error.message}
-          </p>
+          <DomovoyMessageScreen
+            mood="bored"
+            heading="Не получилось загрузить"
+            body="Домовой не дозвонился до кассы. Проверьте связь и попробуйте ещё раз — данные не потеряются."
+          >
+            <RetryButton onClick={() => pmUserQuery.refetch()} />
+          </DomovoyMessageScreen>
         </Card>
       )}
 

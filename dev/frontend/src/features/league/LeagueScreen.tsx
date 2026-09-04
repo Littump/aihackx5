@@ -1,7 +1,10 @@
 import { useUserContext } from "@/features/users/hooks";
+import { DomovoyMessageScreen } from "@/features/domovoy/DomovoyMessageScreen";
+import { RetryButton } from "@/shared/ui/RetryButton";
 import { HouseVsDistrictCard } from "./components/HouseVsDistrictCard";
 import { LeaderboardList } from "./components/LeaderboardList";
 import { LeagueHeader } from "./components/LeagueHeader";
+import { LeagueSkeleton } from "./components/LeagueSkeleton";
 import { useLeague, useLeagueRankChange } from "./hooks";
 
 export function LeagueScreen() {
@@ -10,18 +13,19 @@ export function LeagueScreen() {
   const rankChange = useLeagueRankChange(userId);
 
   if (userId === null || leagueQuery.isPending) {
-    return (
-      <section className="flex flex-1 flex-col gap-4 px-4 py-4">
-        <p className="text-ink-500">Загружаем таблицу лиги…</p>
-      </section>
-    );
+    return <LeagueSkeleton />;
   }
 
   if (leagueQuery.isError) {
     return (
-      <section className="flex flex-1 flex-col gap-4 px-4 py-4">
-        <p className="text-accent-700">Не получилось загрузить лигу: {leagueQuery.error.message}</p>
-      </section>
+      <DomovoyMessageScreen
+        mood="bored"
+        heading="Не получилось загрузить"
+        body="Домовой не дозвонился до кассы. Проверьте связь и попробуйте ещё раз — данные не потеряются."
+        className="flex-1 min-h-0 overflow-y-auto px-4 py-4"
+      >
+        <RetryButton onClick={() => leagueQuery.refetch()} />
+      </DomovoyMessageScreen>
     );
   }
 

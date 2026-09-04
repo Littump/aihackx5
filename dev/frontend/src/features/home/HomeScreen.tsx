@@ -1,65 +1,81 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router";
 import { Button } from "@/shared/ui/Button";
 import { Card } from "@/shared/ui/Card";
+import { LinkButton } from "@/shared/ui/LinkButton";
+import { RetryButton } from "@/shared/ui/RetryButton";
 import { DomovoyAvatar } from "@/features/domovoy/DomovoyAvatar";
+import { DomovoyMessageScreen } from "@/features/domovoy/DomovoyMessageScreen";
 import { useUserContext } from "@/features/users/hooks";
 import { DomovoyHeader } from "./components/DomovoyHeader";
+import { HomeSkeleton } from "./components/HomeSkeleton";
 import { SavingsCard } from "./components/SavingsCard";
 import { HeroChallengeCard } from "./components/HeroChallengeCard";
 import { QuickLinks } from "./components/QuickLinks";
 import { useHome, useSimulateReceipt } from "./hooks";
 
-const FLASH_DURATION_MS = 900;
+const HIGHLIGHT_DURATION_MS = 3300;
 
 export function HomeScreen() {
   const { userId } = useUserContext();
+  const [searchParams] = useSearchParams();
   const homeQuery = useHome(userId);
   const simulate = useSimulateReceipt(userId);
   const [explanationOpen, setExplanationOpen] = useState(false);
-  const [flash, setFlash] = useState(false);
+  const [justSimulated, setJustSimulated] = useState(false);
 
   function handleSimulate() {
     simulate.mutate(undefined, {
       onSuccess: () => {
-        setFlash(true);
-        window.setTimeout(() => setFlash(false), FLASH_DURATION_MS);
+        setJustSimulated(true);
+        window.setTimeout(() => setJustSimulated(false), HIGHLIGHT_DURATION_MS);
       },
     });
   }
 
   if (userId === null || homeQuery.isPending) {
-    return (
-      <section className="flex flex-1 flex-col gap-3 px-4 py-3">
-        <p className="text-ink-500">Домовой просыпается…</p>
-      </section>
-    );
+    return <HomeSkeleton />;
   }
 
   if (homeQuery.isError) {
     return (
-      <section className="flex flex-1 flex-col gap-3 px-4 py-3">
-        <p className="text-accent-700">
-          Не получилось загрузить главный экран: {homeQuery.error.message}
-        </p>
-      </section>
+      <DomovoyMessageScreen
+        mood="bored"
+        heading="Не получилось загрузить"
+        body="Домовой не дозвонился до кассы. Проверьте связь и попробуйте ещё раз — данные не потеряются."
+        className="flex-1 min-h-0 overflow-y-auto px-4 py-4"
+      >
+        <RetryButton onClick={() => homeQuery.refetch()} />
+      </DomovoyMessageScreen>
     );
   }
 
   const home = homeQuery.data;
+  const suffix = `?${searchParams.toString()}`;
 
   return (
     <section className="flex flex-1 flex-col gap-3 px-4 py-3">
-      <DomovoyHeader domovoy={home.domovoy} flash={flash} />
-      <SavingsCard savings={home.savings} flash={flash} />
+      <DomovoyHeader domovoy={home.domovoy} justSimulated={justSimulated} />
+      <SavingsCard savings={home.savings} justSimulated={justSimulated} />
       {home.hero_challenge ? (
         <HeroChallengeCard
           challenge={home.hero_challenge}
           explanationOpen={explanationOpen}
           onToggleExplanation={() => setExplanationOpen((open) => !open)}
+          justSimulated={justSimulated}
         />
       ) : (
         <Card>
-          <p className="text-ink-500">Домовой думает над целью недели…</p>
+          <DomovoyMessageScreen
+            mood="sleepy"
+            heading="Домовой думает над целью недели…"
+            body="Ему нужна ещё одна ваша покупка, чтобы понять ваш ритм. Обычно это занимает пару дней."
+            avatarSize={80}
+          >
+            <LinkButton to={`/referral${suffix}`} variant="secondary">
+              Позвать соседа
+            </LinkButton>
+          </DomovoyMessageScreen>
         </Card>
       )}
       <section className="flex shrink-0 items-start gap-3 rounded-card bg-brand-50 p-4">
@@ -77,7 +93,7 @@ export function HomeScreen() {
       </Button>
       {simulate.isError && (
         <p role="alert" className="text-body text-accent-700">
-          Не получилось: {simulate.error.message}
+          Не получилось отправить покупку. Попробуйте ещё раз.
         </p>
       )}
     </section>

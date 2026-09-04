@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { API } from "@/test/handlers";
+import { getReferral } from "@/test/fixtures";
 import { renderWithProviders } from "@/test/render";
 import { server } from "@/test/setup";
 import { ReferralScreen } from "../ReferralScreen";
@@ -154,24 +155,35 @@ describe("ReferralScreen", () => {
     expect(screen.queryByTestId("referral-invitee-row")).not.toBeInTheDocument();
   });
 
-  it("показывает состояние загрузки, пока данные не пришли", () => {
-    renderWithProviders(<ReferralScreen />, ["/?user=1"]);
-    expect(screen.getByText("Загружаем приглашения…")).toBeInTheDocument();
+  it("показывает скелетон, пока данные не пришли", () => {
+    const { container } = renderWithProviders(<ReferralScreen />, ["/?user=1"]);
+    expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
   });
 
-  it("показывает ошибку, если приглашения не загрузились", async () => {
+  it("показывает ошибку с персонажем и повторяет запрос по клику «Повторить»", async () => {
+    let calls = 0;
     server.use(
-      http.get(`${API}/users/:user_id/referral`, () =>
-        HttpResponse.json(
-          { error: { code: "internal_error", message: "БД недоступна" } },
-          { status: 500 },
-        ),
-      ),
+      http.get(`${API}/users/:user_id/referral`, () => {
+        calls += 1;
+        if (calls === 1) {
+          return HttpResponse.json(
+            { error: { code: "internal_error", message: "БД недоступна" } },
+            { status: 500 },
+          );
+        }
+        return HttpResponse.json(getReferral(1));
+      }),
     );
 
+    const user = userEvent.setup();
     renderWithProviders(<ReferralScreen />, ["/?user=1"]);
 
-    expect(await screen.findByText(/Не получилось загрузить приглашения/)).toBeInTheDocument();
-    expect(screen.getByText(/БД недоступна/)).toBeInTheDocument();
+    expect(await screen.findByText("Не получилось загрузить")).toBeInTheDocument();
+    expect(screen.queryByText(/БД недоступна/)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Повторить" }));
+
+    expect(await screen.findByText("DOM-1F2B")).toBeInTheDocument();
+    expect(calls).toBe(2);
   });
 });

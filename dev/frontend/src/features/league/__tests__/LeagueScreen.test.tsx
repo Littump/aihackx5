@@ -166,25 +166,36 @@ describe("LeagueScreen", () => {
     expect(safeRow.className).not.toContain("bg-accent-50/50");
   });
 
-  it("показывает состояние загрузки, пока лига ещё не пришла", () => {
-    renderWithProviders(<LeagueScreen />, ["/?user=1"]);
-    expect(screen.getByText("Загружаем таблицу лиги…")).toBeInTheDocument();
+  it("показывает скелетон, пока лига ещё не пришла", () => {
+    const { container } = renderWithProviders(<LeagueScreen />, ["/?user=1"]);
+    expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
   });
 
-  it("показывает ошибку, если лига не загрузилась", async () => {
+  it("показывает ошибку с персонажем и повторяет запрос по клику «Повторить»", async () => {
+    let calls = 0;
     server.use(
-      http.get(`${API}/users/:user_id/league`, () =>
-        HttpResponse.json(
-          { error: { code: "internal_error", message: "БД недоступна" } },
-          { status: 500 },
-        ),
-      ),
+      http.get(`${API}/users/:user_id/league`, () => {
+        calls += 1;
+        if (calls === 1) {
+          return HttpResponse.json(
+            { error: { code: "internal_error", message: "БД недоступна" } },
+            { status: 500 },
+          );
+        }
+        return HttpResponse.json(getLeague(1));
+      }),
     );
 
+    const user = userEvent.setup();
     renderWithProviders(<LeagueScreen />, ["/?user=1"]);
 
-    expect(await screen.findByText(/Не получилось загрузить лигу/)).toBeInTheDocument();
-    expect(screen.getByText(/БД недоступна/)).toBeInTheDocument();
+    expect(await screen.findByText("Не получилось загрузить")).toBeInTheDocument();
+    expect(screen.queryByText(/БД недоступна/)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Повторить" }));
+
+    expect(await screen.findByRole("heading", { name: "Лига домов" })).toBeInTheDocument();
+    expect(calls).toBe(2);
   });
 
   it("после Simulate на Home показывает улучшение места стрелкой вверх", async () => {

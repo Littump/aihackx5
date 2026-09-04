@@ -6,23 +6,25 @@ import type { HomeResponse } from "../api";
 
 type SavingsCardProps = {
   savings: HomeResponse["savings"];
-  flash: boolean;
+  justSimulated: boolean;
 };
 
-export function SavingsCard({ savings, flash }: SavingsCardProps) {
+export function SavingsCard({ savings, justSimulated }: SavingsCardProps) {
   const [open, setOpen] = useState(false);
   const isPositiveDelta = savings.delta >= 0;
   const maxCategoryAmount = Math.max(1, ...savings.top_categories.map((item) => item.amount));
 
   return (
-    <Card
-      className={`flex flex-col gap-2 transition-colors duration-700 ${
-        flash ? "bg-accent-50" : ""
-      }`}
-    >
+    <Card className="flex flex-col gap-2">
       <h3 className="text-caption text-ink-500">Экономия за месяц</h3>
       <p className="m-0 flex flex-wrap items-baseline gap-2">
-        <span className="text-hero font-bold leading-none">{formatMoney(savings.amount)}</span>
+        <span
+          className={`text-hero font-bold leading-none ${
+            justSimulated ? "animate-glow rounded-tile bg-accent-50 px-2 py-1 text-accent-700" : ""
+          }`}
+        >
+          {formatMoney(savings.amount)}
+        </span>
         <span
           className={`text-body font-semibold ${isPositiveDelta ? "text-brand-700" : "text-accent-700"}`}
         >

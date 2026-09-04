@@ -1,7 +1,7 @@
-import { screen, waitFor } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { HomeScreen } from "../HomeScreen";
 import { API } from "@/test/handlers";
 import { buildReceiptProcessingResult, getHome } from "@/test/fixtures";
@@ -92,33 +92,48 @@ describe("HomeScreen", () => {
     expect(tooWide).toHaveLength(0);
   });
 
-  it("показывает статус загрузки, пока home ещё не пришёл", () => {
-    renderWithProviders(<HomeScreen />);
-    expect(screen.getByText("Домовой просыпается…")).toBeInTheDocument();
+  it("показывает скелетон, пока home ещё не пришёл", () => {
+    const { container } = renderWithProviders(<HomeScreen />);
+    expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0);
   });
 
-  it("показывает ошибку, если home не загрузился", async () => {
+  it("показывает ошибку с персонажем и повторяет запрос по клику «Повторить»", async () => {
+    let calls = 0;
     server.use(
-      http.get(`${API}/users/:user_id/home`, () =>
-        HttpResponse.json(
-          { error: { code: "internal_error", message: "БД недоступна" } },
-          { status: 500 },
-        ),
-      ),
+      http.get(`${API}/users/:user_id/home`, () => {
+        calls += 1;
+        if (calls === 1) {
+          return HttpResponse.json(
+            { error: { code: "internal_error", message: "БД недоступна" } },
+            { status: 500 },
+          );
+        }
+        return HttpResponse.json(getHome(1));
+      }),
     );
 
+    const user = userEvent.setup();
     renderWithProviders(<HomeScreen />);
 
-    expect(await screen.findByText(/Не получилось загрузить главный экран/)).toBeInTheDocument();
-    expect(screen.getByText(/БД недоступна/)).toBeInTheDocument();
+    expect(await screen.findByText("Не получилось загрузить")).toBeInTheDocument();
+    expect(screen.queryByText(/БД недоступна/)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Повторить" }));
+
+    expect(await screen.findByText("Домовой")).toBeInTheDocument();
+    expect(calls).toBe(2);
   });
 
-  it("показывает заглушку, если hero_challenge отсутствует", async () => {
+  it("показывает заглушку с персонажем и ссылкой на соседей, если hero_challenge отсутствует", async () => {
     renderWithProviders(<HomeScreen />, ["/?user=3"]);
 
     expect(await screen.findByText(/Уровень 2 · Сонный/)).toBeInTheDocument();
     expect(screen.getByText("Домовой думает над целью недели…")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Почему это мне?" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Позвать соседа" })).toHaveAttribute(
+      "href",
+      "/referral?user=3",
+    );
   });
 
   it("клик «Из чего сложилось» раскрывает скидки, баллы и топ-категории", async () => {
@@ -160,15 +175,66 @@ describe("HomeScreen", () => {
     expect(screen.queryByText(/simulate/i)).not.toBeInTheDocument();
   });
 
-  it("после симуляции карточки персонажа и экономии подсвечиваются", async () => {
+  it("после симуляции подсвечиваются конкретные числа (XP, экономия, прогресс цели), а не карточки целиком", async () => {
     const user = userEvent.setup();
     const { container } = renderWithProviders(<HomeScreen />);
     await screen.findByText("2 из 3");
 
-    expect(container.querySelector(".bg-accent-50")).not.toBeInTheDocument();
+    expect(container.querySelector(".animate-glow")).not.toBeInTheDocument();
+
+    const cardsBefore = Array.from(container.querySelectorAll(".rounded-card"));
+    expect(cardsBefore.some((card) => card.className.includes("bg-accent"))).toBe(false);
 
     await user.click(screen.getByRole("button", { name: /симулировать покупку/i }));
 
-    await waitFor(() => expect(container.querySelectorAll(".bg-accent-50")).toHaveLength(2));
+    await waitFor(() => {
+      const glowing = container.querySelectorAll(".animate-glow");
+      expect(glowing).toHaveLength(3);
+      glowing.forEach((el) => expect(el.tagName).toBe("SPAN"));
+    });
+
+    const cardsAfter = Array.from(container.querySelectorAll(".rounded-card"));
+    expect(cardsAfter.some((card) => card.className.includes("bg-accent"))).toBe(false);
+  });
+
+  it("подсветка снимается по таймеру не короче длительности animate-glow (1.6s × 2 = 3.2s)", async () => {
+    const user = userEvent.setup();
+    const { container } = renderWithProviders(<HomeScreen />);
+    await screen.findByText("2 из 3");
+
+    const setTimeoutSpy = vi.spyOn(window, "setTimeout");
+
+    await user.click(screen.getByRole("button", { name: /симулировать покупку/i }));
+
+    await waitFor(() => {
+      expect(container.querySelectorAll(".animate-glow")).toHaveLength(3);
+    });
+
+    const highlightTimer = setTimeoutSpy.mock.calls.find(
+      ([, delay]) => typeof delay === "number" && delay >= 3200 && delay <= 4000,
+    );
+    expect(highlightTimer).toBeDefined();
+    const [callback] = highlightTimer!;
+
+    act(() => {
+      (callback as () => void)();
+    });
+
+    expect(container.querySelectorAll(".animate-glow")).toHaveLength(0);
+
+    setTimeoutSpy.mockRestore();
+  });
+
+  it("ошибка симуляции не показывает сырой error.message пользователю", async () => {
+    server.use(http.post(`${API}/users/:user_id/receipts/simulate`, () => HttpResponse.error()));
+
+    const user = userEvent.setup();
+    renderWithProviders(<HomeScreen />);
+    await screen.findByText("2 из 3");
+
+    await user.click(screen.getByRole("button", { name: /симулировать покупку/i }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).not.toMatch(/failed to fetch/i);
   });
 });
