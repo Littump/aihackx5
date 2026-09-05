@@ -4,7 +4,7 @@ UV := uv run --project $(BE)
 CONTRACT := dev/contracts/openapi.yaml
 COMPOSE := $(shell docker compose version >/dev/null 2>&1 && echo docker compose || echo docker-compose)
 
-.PHONY: setup up down test-db-reset migrate synth dev-be dev-fe test-be test-fe lint format check contract-types contract-check contract-lint demo
+.PHONY: setup up down test-db-reset migrate synth dev-be dev-fe test-be test-fe lint format check contract-types contract-check contract-lint demo langfuse-up langfuse-down langfuse-logs
 
 setup:
 	cd $(BE) && uv sync
@@ -59,6 +59,18 @@ contract-types:
 
 contract-check:
 	$(UV) python $(BE)/scripts/contract_check.py $(CONTRACT)
+
+LANGFUSE_COMPOSE := deploy/langfuse/docker-compose.yml
+
+langfuse-up:
+	$(COMPOSE) -f $(LANGFUSE_COMPOSE) up -d --wait
+	@echo "Langfuse UI: http://localhost:3000  (admin@domovoy.local / domovoy-admin)"
+
+langfuse-down:
+	$(COMPOSE) -f $(LANGFUSE_COMPOSE) down
+
+langfuse-logs:
+	$(COMPOSE) -f $(LANGFUSE_COMPOSE) logs -f --tail=100 langfuse-web langfuse-worker
 
 demo: up migrate synth
 	@echo "TODO INF-005: eval + simulation + запуск"

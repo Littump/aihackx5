@@ -77,7 +77,7 @@ make contract-check # сравнить openapi.yaml с тем, что отдаё
 
 ### Модели для eval (vLLM на GPU-кластере)
 - Кластер `root@inference-node.local`, HGX H100. Два OpenAI-совместимых сервера vLLM подняты бок о бок на GPU 3-6 (TP4, FP8, offline, ctx 32k):
-  - Cheap/fast: **Qwen3-VL 27B FP8** — порт `8016`, модель `qwen38-27b-fp8` (для structured JSON слать `chat_template_kwargs.enable_thinking=false`; tool-calling включён).
+  - Cheap/fast: **Qwen3-VL 27B FP8** — порт `8016`, модель `qwen38-27b-fp8` (для structured JSON слать `chat_template_kwargs.enable_thinking=false`; tool-calling включён). Сервер стартует с `--structured-outputs-config '{"backend":"xgrammar","disable_any_whitespace":true}'` — иначе xgrammar разрешает любой whitespace и Qwen под strict guided JSON зацикливается на пробелах перед enum, сжигая весь лимит токенов (флаг читается только при запуске, per-request не работает; рецепт `/opt/relaunch-qwen.sh` на кластере).
   - Larger: **DeepSeek-V4-Flash** (160B MoE, MLA, kv fp8) — порт `8017`, модель `deepseek-v4-flash`.
 - Локально `sshpass` нет → запускать через `nix-shell -p sshpass`. Пароль — в `<pass-file>`.
 - Поднять туннель (локальный `18016` → кластерный `8016`, при необходимости `18017` → `8017`) и проверить, что vLLM отвечает:
@@ -88,7 +88,20 @@ curl -s http://localhost:18016/v1/models   # Qwen
 curl -s http://localhost:18017/v1/models   # DeepSeek-V4-Flash
 ```
 
-- После прогона обязательно гасить туннель: найти PID через `pgrep -af '1801[67]:localhost'` и `kill <PID>`.
+- Туннель через SSH может оборваться посреди долгого прогона (оба порта идут через один ssh) — тогда все вызовы после обрыва падают в `fallback_null` и eval получается битым. Держать самовосстанавливающийся туннель в цикле, отдельно от PTY:
+
+```bash
+cat > /tmp/tunnel_loop.sh <<'SH'
+#!/usr/bin/env bash
+while true; do
+  nix-shell -p sshpass --run 'sshpass -f <pass-file> ssh -o StrictHostKeyChecking=no -o ExitOnForwardFailure=yes -o ServerAliveInterval=5 -o ServerAliveCountMax=3 -o TCPKeepAlive=yes -o ConnectTimeout=15 -N -L 18016:localhost:8016 -L 18017:localhost:8017 root@inference-node.local'
+  sleep 3
+done
+SH
+setsid bash /tmp/tunnel_loop.sh >/tmp/tunnel_loop.log 2>&1 </dev/null & disown
+```
+
+- После прогона обязательно гасить туннель: убить цикл и ssh — `pkill -f tunnel_loop.sh`, затем `pgrep -af '1801[67]:localhost'` и `kill <PID>`.
 
 ### Перезапуск eval
 Из `dev/backend`. Планировщик (награды) и actor (симуляция покупателя) — строго разные модели.
@@ -99,14 +112,17 @@ actor — сильный DeepSeek (`--actor-base-url`/`--actor-model` или `ML
 ```bash
 cd dev/backend
 uv run python -m app.ml.cli run-eval \
-  --seed 7 --profiles 50 --horizon 12 --cut 6 \
+  --seed 7 --profiles 50 --horizon 12 --cut 6 --concurrency 3 \
   --planner-base-url http://localhost:18016/v1 \
   --actor-base-url http://localhost:18017/v1 \
   --out-md ../../docs/ml-rework/eval-report.md \
-  --out-json build/eval_report.json
+  --out-json build/eval_report.json \
+  --trace-out build/eval_traces.jsonl
 ```
 
 - `--profiles` — размер выборки (AI-012 требует 50); `--seed`, `--horizon`, `--cut` детерминируют историю и точку T, поэтому прогон воспроизводим.
+- `--concurrency` (дефолт `config.EVAL_MAX_CONCURRENCY=3`) — сколько профилей считать параллельно. Выше 3 перегружает vLLM (особенно 160B DeepSeek): растёт латентность, вызовы упираются в таймаут и уходят в `fallback_null`. Живой прогон 50 профилей при `--concurrency 3` занимает ~55-60 мин.
+- Таймаут одного LLM-вызова — `config.LLM_TIMEOUT_S=180`: DeepSeek на 700 токенов измеренно отвечает ~67 с, при 60 с даже здоровые вызовы таймаутились. Актёр ретраит вызов `config.ACTOR_RETRY_MAX=2` раза (планировщик — 3), после чего честно пишет `fallback_null` (не подменяет решение молча).
 - `gen-catalog` / `gen-profiles` — отдельно выгрузить синтетические данные (флаг `--out`).
 
 ### Null-инвариант (без сети)
@@ -118,6 +134,44 @@ uv run python -m app.ml.cli run-eval --seed 7 --profiles 50 --null --no-llm \
 ```
 
 Ожидаемо: incremental visits = 0, `net_effect` ≤ 0, uplift `0.0 pp`, строка «Null test PASS». `--no-llm` использует rule-fallback вместо planner и null-ответ вместо actor.
+
+### Локальный Langfuse (self-hosted) и авто-заливка
+Поднять локальный стек Langfuse (web+worker+postgres+clickhouse+redis+minio) одной командой; org/project/ключи создаются автоматически через `LANGFUSE_INIT_*`, minio вынесен с занятого порта 9090 на 9190/9191:
+
+```bash
+make langfuse-up      # UI: http://localhost:3000, вход admin@domovoy.local / domovoy-admin
+make langfuse-logs    # хвост логов web+worker
+make langfuse-down    # погасить стек (данные сохраняются в volume)
+```
+
+Фиксированные локальные ключи проекта: public `pk-lf-domovoy-local`, secret `sk-lf-domovoy-local`, host `http://localhost:3000` (дефолты в `app/ml/config.py`; переопределяются `LANGFUSE_HOST`/`LANGFUSE_PUBLIC_KEY`/`LANGFUSE_SECRET_KEY`).
+
+`run-eval` c `--trace-out` заливает трейсы в Langfuse автоматически по окончании прогона — отдельный `export-traces` не нужен. Заливка best-effort: если Langfuse недоступен, прогон не падает, а печатает `langfuse push skipped: ...`. Выключить — `--no-langfuse`.
+
+```bash
+uv run python -m app.ml.cli run-eval --seed 7 --profiles 50 --horizon 12 --cut 6 \
+  --trace-out build/eval_traces.jsonl            # трейсы уедут в Langfuse сами
+```
+
+Существующий JSONL можно залить вручную (ключи берутся из дефолтов/env):
+
+```bash
+uv run python -m app.ml.cli export-traces --in build/eval_traces.jsonl --to langfuse
+```
+
+### Трейсы прогона и инспекция в Langfuse
+Актёр (синтетический покупатель) намеренно «пиковый» и малолояльный: играет роль от первого лица, по умолчанию продолжает покупать как обычно (`buy_as_usual`/`ignore`) и включается (`use_offer`) только если оффер проходит его личную планку. Выход строгий: `thinking` → `promo_decision` → `extra_visits` → `completed_challenge` → `rationale` (см. `docs/ml-rework/actor-and-tracing.md`).
+
+```bash
+uv run python -m app.ml.cli run-eval --seed 7 --profiles 50 --horizon 12 --cut 6 \
+  --trace-out build/eval_traces.jsonl   # + обычные --out-md/--out-json
+uv run python -m app.ml.cli export-traces --in build/eval_traces.jsonl --to json --out build/langfuse_generations.json
+LANGFUSE_HOST=http://localhost:3000 LANGFUSE_PUBLIC_KEY=pk LANGFUSE_SECRET_KEY=sk \
+  uv run python -m app.ml.cli export-traces --in build/eval_traces.jsonl --to langfuse
+```
+
+- `--trace-out` пишет JSONL: строка 1 — шапка прогона, далее по профилю (снапшот, `planner_calls`, ветки с решением актёра, сырым ответом LLM и распарсенным JSON — для проверки, что LLM не читерит). `build/` в `.gitignore`.
+- `export-traces --to langfuse` заливает по одному trace на профиль и по generation на LLM-вызов; по умолчанию `run-eval --trace-out` делает это сам. Локальный стек — `make langfuse-up` (`deploy/langfuse/`).
 
 ### Переиспользуемые отчёты
 - `--out-md` — человекочитаемый отчёт (таблица веток: `net_effect`, incr.margin, reward cost, incr.visits, доля ≥8 покупок за 4 недели, completion, relevance hit, доля llm-планов, uplift). Это артефакт для PM — коммить в `docs/ml-rework/eval-report.md`.

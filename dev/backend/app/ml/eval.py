@@ -2,7 +2,7 @@ import asyncio
 from collections.abc import Iterable
 
 from app.ml import catalog as catalog_module
-from app.ml import config, history, insight, planner, profiles, user_sim
+from app.ml import config, history, insight, planner, profiles, tracing, user_sim
 from app.ml.llm_client import ChatClient
 from app.ml.schemas import (
     Branch,
@@ -18,9 +18,15 @@ from app.ml.schemas import (
     UserProfile,
     ValidatedPlan,
 )
+from app.ml.tracing import (
+    ActorTurn,
+    BranchTrace,
+    LlmCall,
+    ProfileTrace,
+    TraceRecorder,
+)
 
 _CONTROL_CASHBACK_RATE = 0.10
-_MAX_CONCURRENCY = 8
 
 
 class EvalClients:
@@ -39,6 +45,7 @@ class EvalSettings:
         planner_model: str,
         actor_model: str,
         null_test: bool,
+        max_concurrency: int = config.EVAL_MAX_CONCURRENCY,
     ) -> None:
         self.seed = seed
         self.profile_count = profile_count
@@ -47,17 +54,22 @@ class EvalSettings:
         self.planner_model = planner_model
         self.actor_model = actor_model
         self.null_test = null_test
+        self.max_concurrency = max_concurrency
 
 
-async def run_eval(clients: EvalClients | None, settings: EvalSettings) -> EvalReport:
+async def run_eval(
+    clients: EvalClients | None,
+    settings: EvalSettings,
+    recorder: TraceRecorder | None = None,
+) -> EvalReport:
     catalog = catalog_module.build_catalog(settings.seed)
     eligible = catalog_module.eligible_catalog(catalog)
     people = profiles.build_profiles(settings.seed, settings.profile_count)
-    semaphore = asyncio.Semaphore(_MAX_CONCURRENCY)
+    semaphore = asyncio.Semaphore(settings.max_concurrency)
 
     async def _guarded(profile: UserProfile) -> ProfileEvalResult:
         async with semaphore:
-            return await _evaluate_profile(clients, profile, eligible, settings)
+            return await _evaluate_profile(clients, profile, eligible, settings, recorder)
 
     results = await asyncio.gather(*[_guarded(profile) for profile in people])
     aggregates = _aggregate(results)
@@ -83,6 +95,7 @@ async def _evaluate_profile(
     profile: UserProfile,
     eligible: list[SkuCatalogItem],
     settings: EvalSettings,
+    recorder: TraceRecorder | None = None,
 ) -> ProfileEvalResult:
     full = history.simulate_history(profile, settings.seed, settings.horizon_weeks)
     past = history.slice_history(full, settings.cut_week)
@@ -93,14 +106,14 @@ async def _evaluate_profile(
     planner_client = clients.planner if clients is not None else None
     actor_client = clients.actor if clients is not None else None
 
-    llm_plan = await planner.plan_challenge(planner_client, planner_input)
+    planner_calls: list[LlmCall] = []
+    llm_plan = await planner.plan_challenge(planner_client, planner_input, planner_calls)
     rules_plan = _rules_only_plan(planner_input)
 
-    branches: dict[str, BranchOutcome] = {}
-    branches["control_x5"] = await _control_branch(
+    control_outcome, control_trace = await _control_branch(
         actor_client, profile, planner_input, baseline_tail, tail_weeks, settings
     )
-    branches["treatment_llm"] = await _treatment_branch(
+    llm_outcome, llm_trace = await _treatment_branch(
         actor_client,
         profile,
         planner_input,
@@ -110,7 +123,7 @@ async def _evaluate_profile(
         tail_weeks,
         settings,
     )
-    branches["treatment_rules"] = await _treatment_branch(
+    rules_outcome, rules_trace = await _treatment_branch(
         actor_client,
         profile,
         planner_input,
@@ -120,6 +133,20 @@ async def _evaluate_profile(
         tail_weeks,
         settings,
     )
+    branches: dict[str, BranchOutcome] = {
+        "control_x5": control_outcome,
+        "treatment_llm": llm_outcome,
+        "treatment_rules": rules_outcome,
+    }
+    if recorder is not None:
+        recorder.add_profile(
+            ProfileTrace(
+                snapshot=tracing.profile_snapshot(profile, planner_input.features.churn_risk),
+                plan_source=llm_plan.plan_source,
+                planner_calls=planner_calls,
+                branches=[control_trace, llm_trace, rules_trace],
+            )
+        )
     return ProfileEvalResult(
         profile_id=profile.profile_id,
         segment=profile.segment,
@@ -140,8 +167,8 @@ async def _control_branch(
     baseline_tail: list[ShopVisit],
     tail_weeks: int,
     settings: EvalSettings,
-) -> BranchOutcome:
-    response = await user_sim.offer_response(
+) -> tuple[BranchOutcome, BranchTrace]:
+    turn = await user_sim.offer_response(
         actor_client,
         profile,
         planner_input,
@@ -149,11 +176,13 @@ async def _control_branch(
         tail_weeks,
         len(baseline_tail),
         settings.null_test,
+        "actor_control_x5",
     )
+    response = turn.response
     incremental_visits = response.extra_visits if response.engaged else 0
     incremental_revenue = incremental_visits * profile.avg_basket
     reward_cost = round(_CONTROL_CASHBACK_RATE * incremental_revenue, 2)
-    return _build_outcome(
+    outcome = _build_outcome(
         branch="control_x5",
         plan_source="rules",
         profile=profile,
@@ -166,6 +195,8 @@ async def _control_branch(
         completed=response.completed_challenge and response.engaged,
         relevance_hit=False,
     )
+    trace = _branch_trace(outcome, turn, user_sim.CONTROL_OFFER_SUMMARY)
+    return outcome, trace
 
 
 async def _treatment_branch(
@@ -177,21 +208,24 @@ async def _treatment_branch(
     baseline_tail: list[ShopVisit],
     tail_weeks: int,
     settings: EvalSettings,
-) -> BranchOutcome:
+) -> tuple[BranchOutcome, BranchTrace]:
     offer = validated.offers[0]
-    response = await user_sim.offer_response(
+    offer_summary = user_sim.offer_summary_for(offer)
+    turn = await user_sim.offer_response(
         actor_client,
         profile,
         planner_input,
-        user_sim.offer_summary_for(offer),
+        offer_summary,
         tail_weeks,
         len(baseline_tail),
         settings.null_test,
+        f"actor_{branch}",
     )
+    response = turn.response
     incremental_visits = response.extra_visits if response.engaged else 0
     completed = response.completed_challenge and response.engaged
     reward_cost = offer.reward.reward_cost_rub if completed else 0.0
-    return _build_outcome(
+    outcome = _build_outcome(
         branch=branch,
         plan_source=validated.plan_source,
         profile=profile,
@@ -204,6 +238,29 @@ async def _treatment_branch(
         completed=completed,
         relevance_hit=_is_relevant(offer, planner_input),
     )
+    trace = _branch_trace(outcome, turn, offer_summary)
+    return outcome, trace
+
+
+def _branch_trace(outcome: BranchOutcome, turn: ActorTurn, offer_summary: str) -> BranchTrace:
+    source = _decision_source(turn)
+    return BranchTrace(
+        branch=outcome.branch,
+        offer_summary=offer_summary,
+        plan_source=outcome.plan_source,
+        relevance_hit=outcome.relevance_hit,
+        decision=tracing.actor_decision(turn.response, source),
+        incremental_visits=outcome.incremental_visits,
+        reward_cost_rub=outcome.reward_cost_rub,
+        net_effect_rub=outcome.net_effect_rub,
+        llm_call=turn.call,
+    )
+
+
+def _decision_source(turn: ActorTurn) -> str:
+    if turn.call is None:
+        return "null"
+    return "actor_llm" if turn.call.parse_ok else "fallback_null"
 
 
 def _build_outcome(

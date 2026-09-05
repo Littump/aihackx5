@@ -167,7 +167,7 @@ Economics (рубли/баллы) или Reward Ladder (XP/купон). Алло
   типичная промо-глубина, макрокатегория. X5 Club уже держит товарную аналитику на уровне SKU
   («сколько кг бананов купил»), поэтому product-level персонализация — это то, что платформа реально умеет,
   и наш каталог её эмулирует.
-- На хакатоне — 200–500 SKU, по 15–40 на каждую из 12 макрокатегорий; синтетические, но правдоподобные цены.
+- **Сделано:** каталог не синтетический — `scripts/scrape_x5_catalog.py` (chromium nodriver, обход WAF Servicepipe) скрейпит реальные товары `perekrestok.ru` по 12 макрокатегориям: реальные названия, регулярная и промо-цена. Результат — 360 SKU (по 30 на категорию) в `dev/backend/app/ml/data/perekrestok_catalog.json`; `app/ml/catalog.py` его загружает и валидирует, алкоголь помечается `is_challenge_eligible=false`. Перегенерация: `cd dev/backend && uv run --with nodriver python scripts/scrape_x5_catalog.py`.
 
 ### Схема (новая таблица `sku_catalog`, владелец — новая feature `catalog`)
 

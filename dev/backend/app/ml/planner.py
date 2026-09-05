@@ -3,15 +3,20 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from app.ml import config, llm_client, rules, tool_schemas, validator
+from app.ml import config, llm_client, rules, tool_schemas, tracing, validator
 from app.ml.llm_client import ChatClient
 from app.ml.schemas import ChallengePlan, PlannerInput, ValidatedPlan
+from app.ml.tracing import LlmCall
 
 _SCHEMA_NAME = "challenge_plan"
 _MAX_TOKENS = 700
 
 
-async def plan_challenge(client: ChatClient | None, planner_input: PlannerInput) -> ValidatedPlan:
+async def plan_challenge(
+    client: ChatClient | None,
+    planner_input: PlannerInput,
+    calls: list[LlmCall] | None = None,
+) -> ValidatedPlan:
     if client is None:
         return _fallback(planner_input)
     system_prompt = llm_client.load_prompt("planner_system.md")
@@ -20,10 +25,23 @@ async def plan_challenge(client: ChatClient | None, planner_input: PlannerInput)
     feedback = ""
     for attempt in range(config.PLANNER_REPAIR_MAX + 1):
         user_prompt = base_user_prompt + feedback
-        arguments = await client.emit_json(
+        chat_result = await client.emit_json(
             system_prompt, user_prompt, _SCHEMA_NAME, schema, max_tokens=_MAX_TOKENS
         )
-        plan = _parse_plan(arguments)
+        if calls is not None:
+            calls.append(
+                tracing.build_llm_call(
+                    role="planner",
+                    label=f"planner_attempt_{attempt}",
+                    model=client.model,
+                    base_url=client.base_url,
+                    attempt=attempt,
+                    system_prompt=system_prompt,
+                    user_prompt=user_prompt,
+                    result=chat_result,
+                )
+            )
+        plan = _parse_plan(chat_result.parsed)
         if plan is None:
             feedback = "\n\nPrevious answer was not valid JSON for the schema. Try again."
             continue

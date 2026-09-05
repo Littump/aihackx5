@@ -6,8 +6,10 @@
 
 | Документ | О чём |
 |---|---|
+| [ml-rework-explained.md](ml-rework-explained.md) | **Start here.** Plain-language walkthrough of the whole ML side (in English): the big picture first, then a deep dive per component; every term is explained on first use. |
 | [ml-solution-architecture.md](ml-solution-architecture.md) | Целевая ML-архитектура: Insight Builder → LLM Challenge Planner (structured output, tool-use; `reward_kind` promo/ladder/none + многошаговый план `steps[]` (cap 2)) → Validator → статические Economics/Reward Ladder; фиксированный каталог SKU; синтетическая eval **продолжением истории** (обрезка в точке T, LLM-as-user дописывает хвост, деньги считает код — без LLM-судьи). С обоснованием и ссылками на research. |
 | [product-and-architecture-modifications.md](product-and-architecture-modifications.md) | Карта влияния на уже принятую архитектуру/продукт: сдвиг роли LLM, новые модули и таблицы, константы, контракт, backlog, порядок внедрения, вопросы продукт-овнеру. |
+| [actor-and-tracing.md](actor-and-tracing.md) | Синтетический покупатель: «пиковые» профили и снятие лояльности актёра, строгий выход (thinking+rationale+verdict), трейсы прогонов и экспорт в Langfuse, заметка про длину симуляции. |
 | [metrics-explained.md](metrics-explained.md) | Метрики eval простыми словами: что такое бизнес-метрики (net_effect, incr.visits, uplift) и системные (completion, relevance hit, llm plans), и что из этого мы оптимизируем. |
 
 ## Суть в одном абзаце

@@ -1,0 +1,3607 @@
+{
+  "source": "perekrestok.ru",
+  "scraped_at": "2026-09-05T11:43:11.085986+03:00",
+  "count": 360,
+  "items": [
+    {
+      "sku_id": "PX-4452284",
+      "name": "Вино Dandan категория Do красное сухое, 750мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 799.99,
+      "typical_promo_depth": 0.125,
+      "is_challenge_eligible": false,
+      "popularity_rank": 1
+    },
+    {
+      "sku_id": "PX-4465808",
+      "name": "Пиво Балтика Brew Техно Ipa светлое нефильтрованное 5.5% 440мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 139.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": false,
+      "popularity_rank": 2
+    },
+    {
+      "sku_id": "PX-4453852",
+      "name": "Водка Чистые Росы с перцем 40%, 700мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 2199.0,
+      "typical_promo_depth": 0.136,
+      "is_challenge_eligible": false,
+      "popularity_rank": 3
+    },
+    {
+      "sku_id": "PX-4439224",
+      "name": "Виски Ричард Ченслер роял резерв 43%, 700мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 2499.0,
+      "typical_promo_depth": 0.2,
+      "is_challenge_eligible": false,
+      "popularity_rank": 4
+    },
+    {
+      "sku_id": "PX-4456069",
+      "name": "Вино Aristov Артэ красное полусладкое, 750мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 799.99,
+      "typical_promo_depth": 0.188,
+      "is_challenge_eligible": false,
+      "popularity_rank": 5
+    },
+    {
+      "sku_id": "PX-4454255",
+      "name": "Пиво Oettinger Pils фильтрованное 4.7%, 500мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 189.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": false,
+      "popularity_rank": 6
+    },
+    {
+      "sku_id": "PX-4437763",
+      "name": "Водка Полугар, 500мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 1499.0,
+      "typical_promo_depth": 0.333,
+      "is_challenge_eligible": false,
+      "popularity_rank": 7
+    },
+    {
+      "sku_id": "PX-4425766",
+      "name": "Виски William Lawson's Super Spiced 35%, 250мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 549.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": false,
+      "popularity_rank": 8
+    },
+    {
+      "sku_id": "PX-4441462",
+      "name": "Вино Pinot Chino Coffee Pinotage красное полусухое, 750мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 999.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": false,
+      "popularity_rank": 9
+    },
+    {
+      "sku_id": "PX-4454257",
+      "name": "Пиво Oettinger Weissbier пшеничное нефильтрованное 4.9%, 500мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 189.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": false,
+      "popularity_rank": 10
+    },
+    {
+      "sku_id": "PX-4426568",
+      "name": "Водка Кауффман Мягкая, 700мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 1999.0,
+      "typical_promo_depth": 0.125,
+      "is_challenge_eligible": false,
+      "popularity_rank": 11
+    },
+    {
+      "sku_id": "PX-4414127",
+      "name": "Коктейль алкогольный Harat's Irish Coffee с виски 35%, 700мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 1049.0,
+      "typical_promo_depth": 0.123,
+      "is_challenge_eligible": false,
+      "popularity_rank": 12
+    },
+    {
+      "sku_id": "PX-4441463",
+      "name": "Вино Олас дель Сур Пино Нуар красное сухое, 750мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 999.99,
+      "typical_promo_depth": 0.12,
+      "is_challenge_eligible": false,
+      "popularity_rank": 13
+    },
+    {
+      "sku_id": "PX-4448480",
+      "name": "Пиво Синджелич лагер фильтрованное 4.9%, 500мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 199.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": false,
+      "popularity_rank": 14
+    },
+    {
+      "sku_id": "PX-4411871",
+      "name": "Водка Siberian Express 40%, 500мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 1249.0,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": false,
+      "popularity_rank": 15
+    },
+    {
+      "sku_id": "PX-4414134",
+      "name": "Виски Royal Ranthambore купажированный, 375мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 999.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": false,
+      "popularity_rank": 16
+    },
+    {
+      "sku_id": "PX-4432862",
+      "name": "Вино Пино Нуар Qualitatswein красное полусухое, 750мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 1199.0,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": false,
+      "popularity_rank": 17
+    },
+    {
+      "sku_id": "PX-4447077",
+      "name": "Пиво Нишко лагер фильтрованное 4.7%, 500мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 159.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": false,
+      "popularity_rank": 18
+    },
+    {
+      "sku_id": "PX-4406407",
+      "name": "Водка Siberian Express 40%, 1л",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 2699.0,
+      "typical_promo_depth": 0.111,
+      "is_challenge_eligible": false,
+      "popularity_rank": 19
+    },
+    {
+      "sku_id": "PX-4413453",
+      "name": "Виски Peaky Blinder шотландский купажированный 40%, 700мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 1599.0,
+      "typical_promo_depth": 0.125,
+      "is_challenge_eligible": false,
+      "popularity_rank": 20
+    },
+    {
+      "sku_id": "PX-4423950",
+      "name": "Вино Lemi Киндзмараули красное полусладкое, 750мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 759.99,
+      "typical_promo_depth": 0.118,
+      "is_challenge_eligible": false,
+      "popularity_rank": 21
+    },
+    {
+      "sku_id": "PX-4440441",
+      "name": "Пиво 4Brewers Гласность светлое нефильтрованное 6%, 450мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 359.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": false,
+      "popularity_rank": 22
+    },
+    {
+      "sku_id": "PX-4404660",
+      "name": "Водка Schmidt Грейпфрут особая 40%, 500мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 1299.0,
+      "typical_promo_depth": 0.115,
+      "is_challenge_eligible": false,
+      "popularity_rank": 23
+    },
+    {
+      "sku_id": "PX-4413452",
+      "name": "Виски The Pogues Streams of Whiskey купажированный 40%, 700мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 1999.0,
+      "typical_promo_depth": 0.125,
+      "is_challenge_eligible": false,
+      "popularity_rank": 24
+    },
+    {
+      "sku_id": "PX-4441345",
+      "name": "Вино Senora Rosa Syrah сортовое красное полусухое, 750мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 859.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": false,
+      "popularity_rank": 25
+    },
+    {
+      "sku_id": "PX-4440442",
+      "name": "Пиво 4Brewers Ути-Пути саур эль лимонный пломбир нефильтрованное 6%, 450мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 359.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": false,
+      "popularity_rank": 26
+    },
+    {
+      "sku_id": "PX-4403132",
+      "name": "Водка Солодовня 40%, 500мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 569.99,
+      "typical_promo_depth": 0.158,
+      "is_challenge_eligible": false,
+      "popularity_rank": 27
+    },
+    {
+      "sku_id": "PX-4413146",
+      "name": "Виски Volga Valley Whisky купажированный, 700мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 1799.0,
+      "typical_promo_depth": 0.389,
+      "is_challenge_eligible": false,
+      "popularity_rank": 28
+    },
+    {
+      "sku_id": "PX-4426039",
+      "name": "Вино Montresor Wine Urban Park красное полусухое, 750мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 1899.0,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": false,
+      "popularity_rank": 29
+    },
+    {
+      "sku_id": "PX-4378512",
+      "name": "Пиво Фейлонг светлое пастеризованное 4.3%, 430мл",
+      "category": "alcohol",
+      "brand": null,
+      "regular_price": 104.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": false,
+      "popularity_rank": 30
+    },
+    {
+      "sku_id": "PX-4050647",
+      "name": "Хлеб Хлебный Дом тостовый пшеничный, 350г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 79.99,
+      "typical_promo_depth": 0.15,
+      "is_challenge_eligible": true,
+      "popularity_rank": 1
+    },
+    {
+      "sku_id": "PX-4118655",
+      "name": "Булочка Каравай Ассоль, 2х50г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 53.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 2
+    },
+    {
+      "sku_id": "PX-3201611",
+      "name": "Десерт Полет слоёный с изюмом, 220г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 114.99,
+      "typical_promo_depth": 0.087,
+      "is_challenge_eligible": true,
+      "popularity_rank": 3
+    },
+    {
+      "sku_id": "PX-3366353",
+      "name": "Ролл пшеничный Каравай, 200г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 85.99,
+      "typical_promo_depth": 0.151,
+      "is_challenge_eligible": true,
+      "popularity_rank": 4
+    },
+    {
+      "sku_id": "PX-2061861",
+      "name": "Хлеб тостовый Harry's American Sandwich пшеничный, 470г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 130.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 5
+    },
+    {
+      "sku_id": "PX-3604687",
+      "name": "Корж Дарница молочный, 75г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 30.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 6
+    },
+    {
+      "sku_id": "PX-4295800",
+      "name": "Пирог Тирольские Вишня с начинкой, 250г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 394.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 7
+    },
+    {
+      "sku_id": "PX-4243398",
+      "name": "Лаваш Арнаут мини, 200г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 107.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 8
+    },
+    {
+      "sku_id": "PX-3961492",
+      "name": "Хлеб Хлебный Дом Геркулес с кукурузой нарезка, 255г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 89.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 9
+    },
+    {
+      "sku_id": "PX-3638217",
+      "name": "Булочка Арнаут Босоногое детство, 200г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 89.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 10
+    },
+    {
+      "sku_id": "PX-3501045",
+      "name": "Пирог Baker House Kuсhen Немецкий шоколадный, 350г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 359.99,
+      "typical_promo_depth": 0.447,
+      "is_challenge_eligible": true,
+      "popularity_rank": 11
+    },
+    {
+      "sku_id": "PX-4404449",
+      "name": "Лаваш круглый Хлебный Дом пшеничный, 120г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 79.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 12
+    },
+    {
+      "sku_id": "PX-4370804",
+      "name": "Булочки пшеничные Коломенский с кунжутом, 180г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 74.99,
+      "typical_promo_depth": 0.16,
+      "is_challenge_eligible": true,
+      "popularity_rank": 13
+    },
+    {
+      "sku_id": "PX-2004208",
+      "name": "Бублики Каравай Украинские, 2х100г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 76.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 14
+    },
+    {
+      "sku_id": "PX-4413447",
+      "name": "Кремобон Сдобная Особа Кленовый Пекан, 380г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 395.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 15
+    },
+    {
+      "sku_id": "PX-4404448",
+      "name": "Лаваш круглый Хлебный Дом сырный, 120г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 74.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 16
+    },
+    {
+      "sku_id": "PX-4344631",
+      "name": "Булочка Bimbo Английский маффин 4шт, 240г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 158.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 17
+    },
+    {
+      "sku_id": "PX-3482783",
+      "name": "Кольцо Дарница песочное, 80г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 54.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 18
+    },
+    {
+      "sku_id": "PX-3446864",
+      "name": "Сдоба Дарница Венская с творожной начинкой, 180г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 129.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 19
+    },
+    {
+      "sku_id": "PX-4336449",
+      "name": "Лаваши-малыши Арнуат из пшеничной муки, 140г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 77.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 20
+    },
+    {
+      "sku_id": "PX-4137972",
+      "name": "Булочки Bimbo из пшеничной муки с кунжутом, 240г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 164.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 21
+    },
+    {
+      "sku_id": "PX-4095507",
+      "name": "Булочка Дарница с абрикосовой начинкой, 75г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 29.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 22
+    },
+    {
+      "sku_id": "PX-3636637",
+      "name": "Сдоба Дарница Венская с лимоном, 200г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 129.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 23
+    },
+    {
+      "sku_id": "PX-4268751",
+      "name": "Лаваш Арнаут Тандырный, 200г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 99.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 24
+    },
+    {
+      "sku_id": "PX-36573",
+      "name": "Хлеб Хлебный Дом тостовый нарезка, 500г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 149.99,
+      "typical_promo_depth": 0.2,
+      "is_challenge_eligible": true,
+      "popularity_rank": 25
+    },
+    {
+      "sku_id": "PX-3257518",
+      "name": "Полоска Каравай песочная со сгущёнкой, 70г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 91.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 26
+    },
+    {
+      "sku_id": "PX-4401154",
+      "name": "Рулет Русская Нива Вишня, 140г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 109.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 27
+    },
+    {
+      "sku_id": "PX-3114089",
+      "name": "Лаваш Каравай армянский, 250г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 114.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 28
+    },
+    {
+      "sku_id": "PX-3299249",
+      "name": "Хлеб Каравай Английский диетический нарезка, 200г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 72.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 29
+    },
+    {
+      "sku_id": "PX-4418217",
+      "name": "Булочка Каравай с корицей, 85г",
+      "category": "bakery",
+      "brand": null,
+      "regular_price": 63.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 30
+    },
+    {
+      "sku_id": "PX-4375598",
+      "name": "Гель-уход для душа Solzao Sugar Head с маслом бразильского ореха, 400мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 469.99,
+      "typical_promo_depth": 0.149,
+      "is_challenge_eligible": true,
+      "popularity_rank": 1
+    },
+    {
+      "sku_id": "PX-3065062",
+      "name": "Шампунь Чистая Линия Крапива для всех типов волос укрепляющий, 400мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 219.99,
+      "typical_promo_depth": 0.236,
+      "is_challenge_eligible": true,
+      "popularity_rank": 2
+    },
+    {
+      "sku_id": "PX-3465559",
+      "name": "Мицеллярная вода Чистая Линия Цветочная 3в1, 100мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 169.99,
+      "typical_promo_depth": 0.259,
+      "is_challenge_eligible": true,
+      "popularity_rank": 3
+    },
+    {
+      "sku_id": "PX-3425200",
+      "name": "Дезодорант-антиперспирант Deonica Невидимый, 200мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 299.99,
+      "typical_promo_depth": 0.37,
+      "is_challenge_eligible": true,
+      "popularity_rank": 4
+    },
+    {
+      "sku_id": "PX-4112904",
+      "name": "Гель для душа Synergetic Сандал и ягоды можжевельника натуральный биоразлагаемый, 380мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 409.99,
+      "typical_promo_depth": 0.385,
+      "is_challenge_eligible": true,
+      "popularity_rank": 5
+    },
+    {
+      "sku_id": "PX-4406843",
+      "name": "Шампунь мужской для волос Head&Shoulders Основной Уход от перхоти 2в1, 360мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 659.99,
+      "typical_promo_depth": 0.395,
+      "is_challenge_eligible": true,
+      "popularity_rank": 6
+    },
+    {
+      "sku_id": "PX-3418507",
+      "name": "Мицеллярная вода Garnier 3в1 для лица, 400мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 499.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 7
+    },
+    {
+      "sku_id": "PX-3456703",
+      "name": "Дезодорант мужской твёрдый стик Old Spice whitewater, 50мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 449.99,
+      "typical_promo_depth": 0.16,
+      "is_challenge_eligible": true,
+      "popularity_rank": 8
+    },
+    {
+      "sku_id": "PX-4375597",
+      "name": "Гель-уход для душа Solzao Peach Beach с экстрактом персика, 400мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 399.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 9
+    },
+    {
+      "sku_id": "PX-4249400",
+      "name": "Шампунь мужской Шаума Ultra Сила для ежедневного применения с хмелем, 360мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 279.99,
+      "typical_promo_depth": 0.25,
+      "is_challenge_eligible": true,
+      "popularity_rank": 10
+    },
+    {
+      "sku_id": "PX-3654190",
+      "name": "Гель для умывания Чистая Линия Идеальная кожа нежное очищение, 160мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 269.99,
+      "typical_promo_depth": 0.3,
+      "is_challenge_eligible": true,
+      "popularity_rank": 11
+    },
+    {
+      "sku_id": "PX-3421454",
+      "name": "Дезодорант-антиперспирант спрей Nivea Эффект Пудры, 150мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 299.99,
+      "typical_promo_depth": 0.3,
+      "is_challenge_eligible": true,
+      "popularity_rank": 12
+    },
+    {
+      "sku_id": "PX-3241074",
+      "name": "Гель для душа мужской Фа Охлаждение экстрим 2 в 1 арктическая свежесть, 250мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 249.99,
+      "typical_promo_depth": 0.204,
+      "is_challenge_eligible": true,
+      "popularity_rank": 13
+    },
+    {
+      "sku_id": "PX-4089149",
+      "name": "Шампунь мужской Сьёсс Power для нормальных волос укрепление волос, 450мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 383.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 14
+    },
+    {
+      "sku_id": "PX-3328055",
+      "name": "Средство для снятия макияжа с глаз Nivea Двойной эффект, 125мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 319.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 15
+    },
+    {
+      "sku_id": "PX-3421453",
+      "name": "Антиперспирант Nivea Эффект пудры женский роликовый, 50мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 289.99,
+      "typical_promo_depth": 0.276,
+      "is_challenge_eligible": true,
+      "popularity_rank": 16
+    },
+    {
+      "sku_id": "PX-3496706",
+      "name": "Гель Camay для душа Магическое заклинание, 250мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 271.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 17
+    },
+    {
+      "sku_id": "PX-3422947",
+      "name": "Шампунь Head&Shoulders Основной уход против перхоти 2в1, 600мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 711.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 18
+    },
+    {
+      "sku_id": "PX-4297263",
+      "name": "Вода мицеллярная Дав увлажняющая, 400мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 375.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 19
+    },
+    {
+      "sku_id": "PX-3331436",
+      "name": "Антиперспирант Nivea Men Невидимый для чёрного и белого роликовый, 50мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 345.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 20
+    },
+    {
+      "sku_id": "PX-3454322",
+      "name": "Гель-уход Nivea для душа Увлажнение и забота, 750мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 447.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 21
+    },
+    {
+      "sku_id": "PX-3506089",
+      "name": "Шампунь Elseve Эксперт цвета, 400мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 479.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 22
+    },
+    {
+      "sku_id": "PX-4216704",
+      "name": "Пенка-мусс Чёрный Жемчуг 2в1 для умывания для всех типов кожи, 150мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 343.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 23
+    },
+    {
+      "sku_id": "PX-3419354",
+      "name": "Дезодорант мужской спрей Old Spice Wolfthron, 150мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 449.99,
+      "typical_promo_depth": 0.16,
+      "is_challenge_eligible": true,
+      "popularity_rank": 24
+    },
+    {
+      "sku_id": "PX-4375596",
+      "name": "Гель-уход для душа Solzao Ipanema Girl с маслом миндаля, 400мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 399.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 25
+    },
+    {
+      "sku_id": "PX-3011966",
+      "name": "Шампунь и бальзам-ополаскиватель для волос Клиар Men Активспорт, 400мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 419.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 26
+    },
+    {
+      "sku_id": "PX-3140288",
+      "name": "Молочко для снятия макияжа Чистая Линия Брусника, 100мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 174.99,
+      "typical_promo_depth": 0.28,
+      "is_challenge_eligible": true,
+      "popularity_rank": 27
+    },
+    {
+      "sku_id": "PX-3330267",
+      "name": "Антиперспирант Nivea Men Невидимый для чёрного и белого спрей, 150мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 429.99,
+      "typical_promo_depth": 0.267,
+      "is_challenge_eligible": true,
+      "popularity_rank": 28
+    },
+    {
+      "sku_id": "PX-4043893",
+      "name": "Гель-уход Nivea для душа Свежесть и забота, 250мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 299.99,
+      "typical_promo_depth": 0.267,
+      "is_challenge_eligible": true,
+      "popularity_rank": 29
+    },
+    {
+      "sku_id": "PX-4089151",
+      "name": "Шампунь Сьёсс Color для окрашенных и мелированных волос легкое расчесывание, 450мл",
+      "category": "beauty",
+      "brand": null,
+      "regular_price": 383.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 30
+    },
+    {
+      "sku_id": "PX-4402636",
+      "name": "Молоко Бабушкина Крынка ультрапастеризованное 3.2%, 1л",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 89.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 1
+    },
+    {
+      "sku_id": "PX-4271631",
+      "name": "Сыр Три Сыра тертый 45% Маркет Перекресток, 200г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 247.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 2
+    },
+    {
+      "sku_id": "PX-3697856",
+      "name": "Йогурт Teos Греческий 2%, 250г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 98.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 3
+    },
+    {
+      "sku_id": "PX-4216658",
+      "name": "Творог 9% Молочный знак, 180г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 89.99,
+      "typical_promo_depth": 0.111,
+      "is_challenge_eligible": true,
+      "popularity_rank": 4
+    },
+    {
+      "sku_id": "PX-4121582",
+      "name": "Сметана Простоквашино 10%, 300г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 79.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 5
+    },
+    {
+      "sku_id": "PX-4202027",
+      "name": "Масло Гхи топлёное 99% Зелёная Линия, 140г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 299.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 6
+    },
+    {
+      "sku_id": "PX-4259100",
+      "name": "Молоко Простоквашино питьевое пастеризованное 3.2%, 1.4л",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 179.99,
+      "typical_promo_depth": 0.167,
+      "is_challenge_eligible": true,
+      "popularity_rank": 7
+    },
+    {
+      "sku_id": "PX-3505827",
+      "name": "Сыр Эдам нарезка 45% Маркет Перекрёсток, 125г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 169.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 8
+    },
+    {
+      "sku_id": "PX-3601417",
+      "name": "Йогурт Teos Греческий 2%, 140г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 70.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 9
+    },
+    {
+      "sku_id": "PX-4069819",
+      "name": "Творог мягкий 4.5% Зелёная Линия, 120г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 59.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 10
+    },
+    {
+      "sku_id": "PX-4241378",
+      "name": "Сметана Большая Кружка 10%, 300г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 81.99,
+      "typical_promo_depth": 0.146,
+      "is_challenge_eligible": true,
+      "popularity_rank": 11
+    },
+    {
+      "sku_id": "PX-4260610",
+      "name": "Масло сладкосливочное Крестьянское несолёное 72.5% Зелёная Линия, 180г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 239.99,
+      "typical_promo_depth": 0.292,
+      "is_challenge_eligible": true,
+      "popularity_rank": 12
+    },
+    {
+      "sku_id": "PX-3255206",
+      "name": "Молоко Домик в деревне пастеризованное 2.5%, 930мл",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 129.99,
+      "typical_promo_depth": 0.269,
+      "is_challenge_eligible": true,
+      "popularity_rank": 13
+    },
+    {
+      "sku_id": "PX-4162492",
+      "name": "Сыр Кремчиз мягкий сливочный 70% Зелёная Линия, 140г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 170.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 14
+    },
+    {
+      "sku_id": "PX-4324114",
+      "name": "Йогурт Neo греческий классический без сахара 2%, 230г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 114.99,
+      "typical_promo_depth": 0.261,
+      "is_challenge_eligible": true,
+      "popularity_rank": 15
+    },
+    {
+      "sku_id": "PX-4331301",
+      "name": "Творог обезжиренный 0.5% Молочный Знак, 180г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 79.99,
+      "typical_promo_depth": 0.188,
+      "is_challenge_eligible": true,
+      "popularity_rank": 16
+    },
+    {
+      "sku_id": "PX-4121592",
+      "name": "Сметана Простоквашино 15% БЗМЖ 300г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 129.99,
+      "typical_promo_depth": 0.308,
+      "is_challenge_eligible": true,
+      "popularity_rank": 17
+    },
+    {
+      "sku_id": "PX-3413519",
+      "name": "Масло сладкосливочное Брест-Литовск несолёное высшего сорта 82.5%, 180г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 239.99,
+      "typical_promo_depth": 0.292,
+      "is_challenge_eligible": true,
+      "popularity_rank": 18
+    },
+    {
+      "sku_id": "PX-2085981",
+      "name": "Молоко Простоквашино отборное пастеризованное 3.4-4.5%, 0.93л",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 129.99,
+      "typical_promo_depth": 0.192,
+      "is_challenge_eligible": true,
+      "popularity_rank": 19
+    },
+    {
+      "sku_id": "PX-3958445",
+      "name": "Сыр полутвёрдый Халлуми из коровьего молока 50% Market Collection, 200г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 373.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 20
+    },
+    {
+      "sku_id": "PX-3277287",
+      "name": "Йогурт Даниссимо Фантазия с хрустящими шоколадными шариками 6.9%, 105г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 69.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 21
+    },
+    {
+      "sku_id": "PX-3604600",
+      "name": "Творог Село Зелёное обезжиренный 0.5%, 200г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 103.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 22
+    },
+    {
+      "sku_id": "PX-4262697",
+      "name": "Сметана Брест-Литовск 15%, 300г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 89.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 23
+    },
+    {
+      "sku_id": "PX-4113532",
+      "name": "Масло сладкосливочное Экомилк Традиционное несолёное высшего сорта 82.5%, 180г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 184.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 24
+    },
+    {
+      "sku_id": "PX-3432833",
+      "name": "Молоко Простоквашино питьевое пастеризованное 1.5%, 930мл",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 104.99,
+      "typical_promo_depth": 0.19,
+      "is_challenge_eligible": true,
+      "popularity_rank": 25
+    },
+    {
+      "sku_id": "PX-15105",
+      "name": "Сыр Galbani Моцарелла 45% БЗМЖ 125г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 217.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 26
+    },
+    {
+      "sku_id": "PX-4326198",
+      "name": "Йогурт Простоквашино Греческий 2%, 235г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 94.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 27
+    },
+    {
+      "sku_id": "PX-4437540",
+      "name": "Творог Сарафаново безлактозный обезжиренный 130г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 44.99,
+      "typical_promo_depth": 0.156,
+      "is_challenge_eligible": true,
+      "popularity_rank": 28
+    },
+    {
+      "sku_id": "PX-3665624",
+      "name": "Сметана Домик в деревне 15% БЗМЖ 300г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 149.99,
+      "typical_promo_depth": 0.4,
+      "is_challenge_eligible": true,
+      "popularity_rank": 29
+    },
+    {
+      "sku_id": "PX-4310021",
+      "name": "Масло сливочное Вкуснотеево Традиционное 82.5%, 340г",
+      "category": "dairy",
+      "brand": null,
+      "regular_price": 489.99,
+      "typical_promo_depth": 0.224,
+      "is_challenge_eligible": true,
+      "popularity_rank": 30
+    },
+    {
+      "sku_id": "PX-3020",
+      "name": "Вода Evian минеральная столовая негазированная, 1.5л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 286.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 1
+    },
+    {
+      "sku_id": "PX-3649437",
+      "name": "Сок томатный с мякотью с солью и сахаром Пр!ст, 950мл",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 87.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 2
+    },
+    {
+      "sku_id": "PX-4274867",
+      "name": "Напиток газированный Добрый Cola без сахара, 1.5л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 189.99,
+      "typical_promo_depth": 0.226,
+      "is_challenge_eligible": true,
+      "popularity_rank": 3
+    },
+    {
+      "sku_id": "PX-4206324",
+      "name": "Энергетик Adrenaline Rush без сахара безалкогольный газированный, 449мл",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 139.99,
+      "typical_promo_depth": 0.143,
+      "is_challenge_eligible": true,
+      "popularity_rank": 4
+    },
+    {
+      "sku_id": "PX-3629622",
+      "name": "Вода Псыж минеральная питьевая лечебно-столовая газированная, 1л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 89.99,
+      "typical_promo_depth": 0.167,
+      "is_challenge_eligible": true,
+      "popularity_rank": 5
+    },
+    {
+      "sku_id": "PX-4100579",
+      "name": "Сок апельсиновый с мякотью Market Collection, 250мл",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 208.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 6
+    },
+    {
+      "sku_id": "PX-4311540",
+      "name": "Напиток газированный Добрый Cola без сахара, 250мл",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 69.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 7
+    },
+    {
+      "sku_id": "PX-2103012",
+      "name": "Энергетический напиток Red Bull без сахара, 250мл",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 155.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 8
+    },
+    {
+      "sku_id": "PX-20388",
+      "name": "Вода питьевая Святой Источник газированная, 1.5л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 73.99,
+      "typical_promo_depth": 0.054,
+      "is_challenge_eligible": true,
+      "popularity_rank": 9
+    },
+    {
+      "sku_id": "PX-26869",
+      "name": "Сок Сады Придонья яблочный прямого отжима без сахара, 1л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 99.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 10
+    },
+    {
+      "sku_id": "PX-1863",
+      "name": "Напиток газированный Coca-Cola газированный, 330мл",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 154.99,
+      "typical_promo_depth": 0.129,
+      "is_challenge_eligible": true,
+      "popularity_rank": 11
+    },
+    {
+      "sku_id": "PX-4434336",
+      "name": "Напиток газированный By Баста Зеро Шугар Классическийтонизирующий без сахара, 450мл",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 99.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 12
+    },
+    {
+      "sku_id": "PX-74767",
+      "name": "Вода Архыз Вита минеральная газированная, 1.5л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 65.99,
+      "typical_promo_depth": 0.091,
+      "is_challenge_eligible": true,
+      "popularity_rank": 13
+    },
+    {
+      "sku_id": "PX-3629993",
+      "name": "Сок Global Village яблочный, 0.2л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 39.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 14
+    },
+    {
+      "sku_id": "PX-5969",
+      "name": "Напиток газированный Coca-Cola, 1л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 174.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 15
+    },
+    {
+      "sku_id": "PX-4455920",
+      "name": "Напиток энергетический Quantum Motion Лайм-Мята, 330мл",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 109.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 16
+    },
+    {
+      "sku_id": "PX-81003",
+      "name": "Вода Рычал су минеральная лечебно-столовая газированная, 1л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 159.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 17
+    },
+    {
+      "sku_id": "PX-58049",
+      "name": "Сок Добрый Яблоко 1л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 164.99,
+      "typical_promo_depth": 0.303,
+      "is_challenge_eligible": true,
+      "popularity_rank": 18
+    },
+    {
+      "sku_id": "PX-4311536",
+      "name": "Напиток газированный Добрый Cola, 250мл",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 69.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 19
+    },
+    {
+      "sku_id": "PX-4455922",
+      "name": "Напиток безалкогольный тонизирующий газированный Quantum motion ананас-марула, 330мл",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 109.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 20
+    },
+    {
+      "sku_id": "PX-20676",
+      "name": "Вода минеральная Нарзан лечебно-столовая природной газации, 1л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 79.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 21
+    },
+    {
+      "sku_id": "PX-80142",
+      "name": "Сок Сады Придонья зелёное яблоко для детского питания, 1л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 99.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 22
+    },
+    {
+      "sku_id": "PX-4266829",
+      "name": "Напиток безалкогольный Добрый Кола без сахара сильногазированный, 1л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 139.99,
+      "typical_promo_depth": 0.25,
+      "is_challenge_eligible": true,
+      "popularity_rank": 23
+    },
+    {
+      "sku_id": "PX-4456129",
+      "name": "Энергетический напиток Burn оригинальный без сахара, 449мл",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 129.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 24
+    },
+    {
+      "sku_id": "PX-4391568",
+      "name": "Минеральная вода Эдельвейс, 1л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 69.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 25
+    },
+    {
+      "sku_id": "PX-3190706",
+      "name": "Сок J7 Яблочный, 970мл",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 199.99,
+      "typical_promo_depth": 0.15,
+      "is_challenge_eligible": true,
+      "popularity_rank": 26
+    },
+    {
+      "sku_id": "PX-4279557",
+      "name": "Напиток газированный Evervess Кола, 1л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 119.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 27
+    },
+    {
+      "sku_id": "PX-4306104",
+      "name": "Напиток Aziano Energy Fly безалкогольный тонизирующий газированный напиток, 350мл",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 103.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 28
+    },
+    {
+      "sku_id": "PX-4138195",
+      "name": "Вода Stelmas Mg минеральная природная питьевая лечебно-столовая газированная, 1л",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 139.99,
+      "typical_promo_depth": 0.179,
+      "is_challenge_eligible": true,
+      "popularity_rank": 29
+    },
+    {
+      "sku_id": "PX-4259039",
+      "name": "Сок Добрый яблоко, 300мл",
+      "category": "drinks",
+      "brand": null,
+      "regular_price": 79.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 30
+    },
+    {
+      "sku_id": "PX-4327381",
+      "name": "Виноград Шайн Мускат нефритовый Китай",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 459.0,
+      "typical_promo_depth": 0.305,
+      "is_challenge_eligible": true,
+      "popularity_rank": 1
+    },
+    {
+      "sku_id": "PX-3368258",
+      "name": "Огурцы корнишоны, 300г",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 167.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 2
+    },
+    {
+      "sku_id": "PX-4312455",
+      "name": "Смесь салатная Выгодно Айсберг и Романо свежая резаная мытая, 200г",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 139.99,
+      "typical_promo_depth": 0.25,
+      "is_challenge_eligible": true,
+      "popularity_rank": 3
+    },
+    {
+      "sku_id": "PX-55655",
+      "name": "Апельсины Навелин",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 177.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 4
+    },
+    {
+      "sku_id": "PX-52112",
+      "name": "Морковь мытая",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 75.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 5
+    },
+    {
+      "sku_id": "PX-4296309",
+      "name": "Смесь Белая Дача Танго из свежих листовых овощей мытая, 50г",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 189.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 6
+    },
+    {
+      "sku_id": "PX-21151",
+      "name": "Малина свежая, 125г",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 293.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 7
+    },
+    {
+      "sku_id": "PX-3296890",
+      "name": "Помело розовое",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 199.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 8
+    },
+    {
+      "sku_id": "PX-4414",
+      "name": "Баклажаны",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 269.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 9
+    },
+    {
+      "sku_id": "PX-77107",
+      "name": "Салат Айсберг Маркет Fresh, 1шт",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 171.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 10
+    },
+    {
+      "sku_id": "PX-3641616",
+      "name": "Малина Маркет Fresh, 250г",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 599.99,
+      "typical_promo_depth": 0.125,
+      "is_challenge_eligible": true,
+      "popularity_rank": 11
+    },
+    {
+      "sku_id": "PX-2145881",
+      "name": "Слива сезонная",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 189.99,
+      "typical_promo_depth": 0.284,
+      "is_challenge_eligible": true,
+      "popularity_rank": 12
+    },
+    {
+      "sku_id": "PX-3646068",
+      "name": "Картофель красный мытый",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 79.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 13
+    },
+    {
+      "sku_id": "PX-31895",
+      "name": "Салат листовой в горшке, 1шт",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 79.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 14
+    },
+    {
+      "sku_id": "PX-4302383",
+      "name": "Малина свежая Маркет Fresh, 400г",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 944.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 15
+    },
+    {
+      "sku_id": "PX-4184919",
+      "name": "Слива Анжелино",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 229.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 16
+    },
+    {
+      "sku_id": "PX-81796",
+      "name": "Картофель Сладкий батат",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 309.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 17
+    },
+    {
+      "sku_id": "PX-4295430",
+      "name": "Салат Рукола Маркет Fresh, 65г",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 135.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 18
+    },
+    {
+      "sku_id": "PX-11034",
+      "name": "Клубника Маркет Fresh, 250г",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 319.99,
+      "typical_promo_depth": 0.188,
+      "is_challenge_eligible": true,
+      "popularity_rank": 19
+    },
+    {
+      "sku_id": "PX-4006866",
+      "name": "Слива Президент",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 349.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 20
+    },
+    {
+      "sku_id": "PX-2080290",
+      "name": "Перец Рамиро сладкий, 200г",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 230.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 21
+    },
+    {
+      "sku_id": "PX-3395353",
+      "name": "Салат Фриллис листовой хрустящий, 100г",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 142.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 22
+    },
+    {
+      "sku_id": "PX-5582",
+      "name": "Клубника",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 829.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 23
+    },
+    {
+      "sku_id": "PX-3759",
+      "name": "Персики",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 269.99,
+      "typical_promo_depth": 0.148,
+      "is_challenge_eligible": true,
+      "popularity_rank": 24
+    },
+    {
+      "sku_id": "PX-4088824",
+      "name": "Тыква Оранжевое солнце",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 137.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 25
+    },
+    {
+      "sku_id": "PX-67334",
+      "name": "Салат Романо, 1шт",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 171.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 26
+    },
+    {
+      "sku_id": "PX-4419386",
+      "name": "Клубника свежая Карелия Маркет Fresh, 450г",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 529.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 27
+    },
+    {
+      "sku_id": "PX-79108",
+      "name": "Нектарины",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 229.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 28
+    },
+    {
+      "sku_id": "PX-4327843",
+      "name": "Томаты Бакинские, 350г",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 189.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 29
+    },
+    {
+      "sku_id": "PX-3369403",
+      "name": "Салат Трио Микс в горшке, 1шт",
+      "category": "fruits_veg",
+      "brand": null,
+      "regular_price": 109.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 30
+    },
+    {
+      "sku_id": "PX-4117174",
+      "name": "Спагетти из твёрдых сортов пшеницы Market Collection, 450г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 199.99,
+      "typical_promo_depth": 0.15,
+      "is_challenge_eligible": true,
+      "popularity_rank": 1
+    },
+    {
+      "sku_id": "PX-3477255",
+      "name": "Гречка ядрица пропаренная Маркет Перекрёсток, 900г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 114.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 2
+    },
+    {
+      "sku_id": "PX-3642040",
+      "name": "Масло подсолнечное рафинированное дезодорированное 1 сорт Пр!ст, 900мл",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 107.3,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 3
+    },
+    {
+      "sku_id": "PX-4404913",
+      "name": "Кофе Piazza Del Caffe Эспрессо Форте зерновой, 900г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 1549.0,
+      "typical_promo_depth": 0.161,
+      "is_challenge_eligible": true,
+      "popularity_rank": 4
+    },
+    {
+      "sku_id": "PX-4114143",
+      "name": "Напиток чайный гречишный Зелёная Линия, 100г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 230.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 5
+    },
+    {
+      "sku_id": "PX-3193489",
+      "name": "Майонез Слобода Провансаль 67%, 800мл",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 214.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 6
+    },
+    {
+      "sku_id": "PX-4117157",
+      "name": "Фузилли из твёрдых сортов пшеницы Market Collection, 450г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 202.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 7
+    },
+    {
+      "sku_id": "PX-4151856",
+      "name": "Кускус Зелёная Линия, 350г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 154.99,
+      "typical_promo_depth": 0.174,
+      "is_challenge_eligible": true,
+      "popularity_rank": 8
+    },
+    {
+      "sku_id": "PX-4225638",
+      "name": "Масло льняное нерафинированное Зелёная Линия, 250мл",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 159.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 9
+    },
+    {
+      "sku_id": "PX-3965706",
+      "name": "Кофе Bushido Sensei в зёрнах 227г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 635.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 10
+    },
+    {
+      "sku_id": "PX-4206082",
+      "name": "Чай С Чабрецом черный Market Collection, 20x2г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 301.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 11
+    },
+    {
+      "sku_id": "PX-3467275",
+      "name": "Майонез Скит Провансаль 67%, 400мл",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 149.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 12
+    },
+    {
+      "sku_id": "PX-2110596",
+      "name": "Макароны Makfa паутинка, 450г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 89.99,
+      "typical_promo_depth": 0.222,
+      "is_challenge_eligible": true,
+      "popularity_rank": 13
+    },
+    {
+      "sku_id": "PX-4151854",
+      "name": "Киноа белая Зелёная Линия, 350г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 249.99,
+      "typical_promo_depth": 0.16,
+      "is_challenge_eligible": true,
+      "popularity_rank": 14
+    },
+    {
+      "sku_id": "PX-3660319",
+      "name": "Масло оливковое Olive-Pomace Oil рафинированное + нерафинированное Маркет Перекрёсток, 500мл",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 679.99,
+      "typical_promo_depth": 0.256,
+      "is_challenge_eligible": true,
+      "popularity_rank": 15
+    },
+    {
+      "sku_id": "PX-3395342",
+      "name": "Кофе Egoiste Noir в зёрнах, 250г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 699.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 16
+    },
+    {
+      "sku_id": "PX-4206081",
+      "name": "Чай Эрл Грей с ароматом бергамота черный Market Collection, 20x2г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 359.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 17
+    },
+    {
+      "sku_id": "PX-3674577",
+      "name": "Майонез Слобода Провансаль 67%, 400мл",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 150.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 18
+    },
+    {
+      "sku_id": "PX-4376177",
+      "name": "Лапша Перекрёсток По-Домашнему №3 яичная, 170г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 69.99,
+      "typical_promo_depth": 0.143,
+      "is_challenge_eligible": true,
+      "popularity_rank": 19
+    },
+    {
+      "sku_id": "PX-4151852",
+      "name": "Булгур из пшеницы Зелёная Линия, 400г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 124.99,
+      "typical_promo_depth": 0.2,
+      "is_challenge_eligible": true,
+      "popularity_rank": 20
+    },
+    {
+      "sku_id": "PX-3501259",
+      "name": "Масло оливковое Extra Virgin нерафинированное Маркет Перекрёсток, 500мл",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 659.99,
+      "typical_promo_depth": 0.126,
+      "is_challenge_eligible": true,
+      "popularity_rank": 21
+    },
+    {
+      "sku_id": "PX-4369535",
+      "name": "Кофе Bean Art Cremoso жареный в зёрнах, 1кг",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 2599.0,
+      "typical_promo_depth": 0.346,
+      "is_challenge_eligible": true,
+      "popularity_rank": 22
+    },
+    {
+      "sku_id": "PX-4206083",
+      "name": "Чай Английский классический черный Market Collection, 20x2г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 194.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 23
+    },
+    {
+      "sku_id": "PX-2047206",
+      "name": "Майонез Махеевъ Провансаль с лимонным соком дой-пак 67%, 400мл",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 149.99,
+      "typical_promo_depth": 0.193,
+      "is_challenge_eligible": true,
+      "popularity_rank": 24
+    },
+    {
+      "sku_id": "PX-4376174",
+      "name": "Лапша Перекрёсток По-Домашнему №6 яичная, 170г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 69.99,
+      "typical_promo_depth": 0.143,
+      "is_challenge_eligible": true,
+      "popularity_rank": 25
+    },
+    {
+      "sku_id": "PX-4151853",
+      "name": "Гречка зелёная ядрица 1 сорт Зелёная Линия, 400г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 197.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 26
+    },
+    {
+      "sku_id": "PX-3501258",
+      "name": "Масло оливковое Extra Virgin нерафинированное Маркет Перекрёсток, 250мл",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 499.99,
+      "typical_promo_depth": 0.14,
+      "is_challenge_eligible": true,
+      "popularity_rank": 27
+    },
+    {
+      "sku_id": "PX-4261896",
+      "name": "Кофе Poetti Daily Classic Crema натуральный жареный в зернах, 250г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 589.99,
+      "typical_promo_depth": 0.051,
+      "is_challenge_eligible": true,
+      "popularity_rank": 28
+    },
+    {
+      "sku_id": "PX-4206086",
+      "name": "Чай Имбирный Апельсин зеленый Market Collection, 20x2г",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 301.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 29
+    },
+    {
+      "sku_id": "PX-4259098",
+      "name": "Майонез Провансаль 67% Маркет, 400мл",
+      "category": "grocery",
+      "brand": null,
+      "regular_price": 109.99,
+      "typical_promo_depth": 0.136,
+      "is_challenge_eligible": true,
+      "popularity_rank": 30
+    },
+    {
+      "sku_id": "PX-3682367",
+      "name": "Средство для мытья посуды Synergetic алоэ биоразлагаемое, 500мл",
+      "category": "household",
+      "brand": null,
+      "regular_price": 209.99,
+      "typical_promo_depth": 0.4,
+      "is_challenge_eligible": true,
+      "popularity_rank": 1
+    },
+    {
+      "sku_id": "PX-2082578",
+      "name": "Порошок стиральный Ушастый нянь для детского белья, 400г",
+      "category": "household",
+      "brand": null,
+      "regular_price": 118.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 2
+    },
+    {
+      "sku_id": "PX-4166483",
+      "name": "Салфетки антисептические спиртовые Home Story, 100шт",
+      "category": "household",
+      "brand": null,
+      "regular_price": 318.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 3
+    },
+    {
+      "sku_id": "PX-3679432",
+      "name": "Салфетки протирочные Home Story, 100шт",
+      "category": "household",
+      "brand": null,
+      "regular_price": 289.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 4
+    },
+    {
+      "sku_id": "PX-3501031",
+      "name": "Средство для мытья посуды Fairy Нежные руки Чайное дерево и мята, 450мл",
+      "category": "household",
+      "brand": null,
+      "regular_price": 209.99,
+      "typical_promo_depth": 0.329,
+      "is_challenge_eligible": true,
+      "popularity_rank": 5
+    },
+    {
+      "sku_id": "PX-2087270",
+      "name": "Порошок стиральный Tide Альпийская свежесть автомат, 3кг",
+      "category": "household",
+      "brand": null,
+      "regular_price": 539.99,
+      "typical_promo_depth": 0.185,
+      "is_challenge_eligible": true,
+      "popularity_rank": 6
+    },
+    {
+      "sku_id": "PX-3679801",
+      "name": "Туалетная бумага Papia Elite белая 4 слоя, 8шт",
+      "category": "household",
+      "brand": null,
+      "regular_price": 399.99,
+      "typical_promo_depth": 0.318,
+      "is_challenge_eligible": true,
+      "popularity_rank": 7
+    },
+    {
+      "sku_id": "PX-4353676",
+      "name": "Губки для мытья посуды Маркет Home, 5шт",
+      "category": "household",
+      "brand": null,
+      "regular_price": 119.99,
+      "typical_promo_depth": 0.125,
+      "is_challenge_eligible": true,
+      "popularity_rank": 8
+    },
+    {
+      "sku_id": "PX-3500750",
+      "name": "Средство для мытья посуды Fairy Сочный лимон, 450мл",
+      "category": "household",
+      "brand": null,
+      "regular_price": 189.99,
+      "typical_promo_depth": 0.258,
+      "is_challenge_eligible": true,
+      "popularity_rank": 9
+    },
+    {
+      "sku_id": "PX-30711",
+      "name": "Порошок стиральный Tide Сolor для цветного белья автомат, 450г",
+      "category": "household",
+      "brand": null,
+      "regular_price": 109.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 10
+    },
+    {
+      "sku_id": "PX-4448066",
+      "name": "Туалетная бумага Zemma Deluxe Деликатная Забота 3 слоя, 8шт",
+      "category": "household",
+      "brand": null,
+      "regular_price": 335.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 11
+    },
+    {
+      "sku_id": "PX-4279220",
+      "name": "Губки макси для мытья посуды в ассортименте Маркет Home, 5шт",
+      "category": "household",
+      "brand": null,
+      "regular_price": 96.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 12
+    },
+    {
+      "sku_id": "PX-3673538",
+      "name": "Средство для мытья посуды Fairy Pure&clean, 450мл",
+      "category": "household",
+      "brand": null,
+      "regular_price": 219.99,
+      "typical_promo_depth": 0.332,
+      "is_challenge_eligible": true,
+      "popularity_rank": 13
+    },
+    {
+      "sku_id": "PX-2087255",
+      "name": "Порошок стиральный Ariel Color для цветного белья автомат, 3кг",
+      "category": "household",
+      "brand": null,
+      "regular_price": 645.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 14
+    },
+    {
+      "sku_id": "PX-3450503",
+      "name": "Туалетная бумага Papia Elite Дольче вита ароматизированная 4 слоя, 4шт",
+      "category": "household",
+      "brand": null,
+      "regular_price": 189.99,
+      "typical_promo_depth": 0.226,
+      "is_challenge_eligible": true,
+      "popularity_rank": 15
+    },
+    {
+      "sku_id": "PX-4428964",
+      "name": "Салфетки Маркет универсальные в рулоне 23х17см, 150шт",
+      "category": "household",
+      "brand": null,
+      "regular_price": 259.99,
+      "typical_promo_depth": 0.177,
+      "is_challenge_eligible": true,
+      "popularity_rank": 16
+    },
+    {
+      "sku_id": "PX-3418090",
+      "name": "Средство для мытья посуды BioMio Экологичное без запаха, 450мл",
+      "category": "household",
+      "brand": null,
+      "regular_price": 239.99,
+      "typical_promo_depth": 0.292,
+      "is_challenge_eligible": true,
+      "popularity_rank": 17
+    },
+    {
+      "sku_id": "PX-2087269",
+      "name": "Порошок стиральный Tide Сolor для цветного белья автомат, 3кг",
+      "category": "household",
+      "brand": null,
+      "regular_price": 539.99,
+      "typical_promo_depth": 0.185,
+      "is_challenge_eligible": true,
+      "popularity_rank": 18
+    },
+    {
+      "sku_id": "PX-4320331",
+      "name": "Бумага туалетная с цветной перфорацией с ароматом абрикоса 4 рулона 2 слоя Маркет",
+      "category": "household",
+      "brand": null,
+      "regular_price": 79.99,
+      "typical_promo_depth": 0.125,
+      "is_challenge_eligible": true,
+      "popularity_rank": 19
+    },
+    {
+      "sku_id": "PX-4369850",
+      "name": "Салфетки целлюлозные 15х15см в ассортименте Маркет, 3шт",
+      "category": "household",
+      "brand": null,
+      "regular_price": 125.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 20
+    },
+    {
+      "sku_id": "PX-4195912",
+      "name": "Гель-бальзам Synergetic Базилик и Свежая Мята для мытья посуды биоразлагаемый, 500мл",
+      "category": "household",
+      "brand": null,
+      "regular_price": 239.99,
+      "typical_promo_depth": 0.475,
+      "is_challenge_eligible": true,
+      "popularity_rank": 21
+    },
+    {
+      "sku_id": "PX-3023899",
+      "name": "Порошок стиральный Персил Color Свежесть от Вернель, 3кг",
+      "category": "household",
+      "brand": null,
+      "regular_price": 529.99,
+      "typical_promo_depth": 0.151,
+      "is_challenge_eligible": true,
+      "popularity_rank": 22
+    },
+    {
+      "sku_id": "PX-4449646",
+      "name": "Туалетная бумага Zemma Only1 без аромата 4 слоя, 8шт",
+      "category": "household",
+      "brand": null,
+      "regular_price": 659.99,
+      "typical_promo_depth": 0.332,
+      "is_challenge_eligible": true,
+      "popularity_rank": 23
+    },
+    {
+      "sku_id": "PX-4304767",
+      "name": "Перчатки латексные размер М с ароматом алоэ Маркет, 1пара",
+      "category": "household",
+      "brand": null,
+      "regular_price": 164.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 24
+    },
+    {
+      "sku_id": "PX-4195918",
+      "name": "Гель-бальзам Synergetic Розмарин и Листья Смородины для мытья посуды биоразлагаемый, 500мл",
+      "category": "household",
+      "brand": null,
+      "regular_price": 239.99,
+      "typical_promo_depth": 0.475,
+      "is_challenge_eligible": true,
+      "popularity_rank": 25
+    },
+    {
+      "sku_id": "PX-4363294",
+      "name": "Порошок BioMio Bio-Universal для стирки цветного  концентрат без запаха, 1кг",
+      "category": "household",
+      "brand": null,
+      "regular_price": 679.99,
+      "typical_promo_depth": 0.213,
+      "is_challenge_eligible": true,
+      "popularity_rank": 26
+    },
+    {
+      "sku_id": "PX-3450510",
+      "name": "Туалетная бумага Papia Балийский цветок 3 слоя, 8шт",
+      "category": "household",
+      "brand": null,
+      "regular_price": 319.99,
+      "typical_promo_depth": 0.263,
+      "is_challenge_eligible": true,
+      "popularity_rank": 27
+    },
+    {
+      "sku_id": "PX-4353675",
+      "name": "Губки для мытья посуды Маркет Home, 3шт",
+      "category": "household",
+      "brand": null,
+      "regular_price": 99.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 28
+    },
+    {
+      "sku_id": "PX-3501028",
+      "name": "Средство для мытья посуды Fairy Нежные руки Ромашка и витамин Е, 900мл",
+      "category": "household",
+      "brand": null,
+      "regular_price": 279.99,
+      "typical_promo_depth": 0.214,
+      "is_challenge_eligible": true,
+      "popularity_rank": 29
+    },
+    {
+      "sku_id": "PX-2086083",
+      "name": "Порошок стиральный Ariel Аква пудра для белого автомат, 3кг",
+      "category": "household",
+      "brand": null,
+      "regular_price": 645.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 30
+    },
+    {
+      "sku_id": "PX-4301347",
+      "name": "Колбаса Вязанка Докторская варёная категория А, 370г",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 259.99,
+      "typical_promo_depth": 0.231,
+      "is_challenge_eligible": true,
+      "popularity_rank": 1
+    },
+    {
+      "sku_id": "PX-4169220",
+      "name": "Сосиски варёные Индилайт Грандос из мяса индейки, 440г",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 329.99,
+      "typical_promo_depth": 0.333,
+      "is_challenge_eligible": true,
+      "popularity_rank": 2
+    },
+    {
+      "sku_id": "PX-4312266",
+      "name": "Тушка цыплёнка Петелинка 1 сорта охлаждённая",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 279.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 3
+    },
+    {
+      "sku_id": "PX-4834",
+      "name": "Эскалоп свиной Перекрёсток без кости",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 383.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 4
+    },
+    {
+      "sku_id": "PX-13190",
+      "name": "Форель радужная потрошёная с головой",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 1299.0,
+      "typical_promo_depth": 0.346,
+      "is_challenge_eligible": true,
+      "popularity_rank": 5
+    },
+    {
+      "sku_id": "PX-4364733",
+      "name": "Тунец желтоперый филе-кусок без кожи мороженый Люди Любят, 400г",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 799.99,
+      "typical_promo_depth": 0.25,
+      "is_challenge_eligible": true,
+      "popularity_rank": 6
+    },
+    {
+      "sku_id": "PX-3639615",
+      "name": "Колбаса варёная Клинский Докторская, 190г",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 175.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 7
+    },
+    {
+      "sku_id": "PX-4339153",
+      "name": "Сосиски Вязанка Молокуши Миникушай варёные, 330г",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 269.99,
+      "typical_promo_depth": 0.341,
+      "is_challenge_eligible": true,
+      "popularity_rank": 8
+    },
+    {
+      "sku_id": "PX-4384734",
+      "name": "Тушки перепелов потрошеные охлаждённые Зелёная Линия",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 1022.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 9
+    },
+    {
+      "sku_id": "PX-4403158",
+      "name": "Стейк из свинины Черкизово на кости в пряных травах и специях охлажденный, 250г",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 219.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 10
+    },
+    {
+      "sku_id": "PX-3394126",
+      "name": "Форель стейк",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 1899.0,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 11
+    },
+    {
+      "sku_id": "PX-4351939",
+      "name": "Горбуша Люди Любят филе порционное замороженое, 400г",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 569.99,
+      "typical_promo_depth": 0.123,
+      "is_challenge_eligible": true,
+      "popularity_rank": 12
+    },
+    {
+      "sku_id": "PX-4258884",
+      "name": "Колбаса Вязанка Сливушка варёная, 375г",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 248.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 13
+    },
+    {
+      "sku_id": "PX-4405381",
+      "name": "Сосиски Куриные для правильного питания Зелёная Линия, 240г",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 349.99,
+      "typical_promo_depth": 0.114,
+      "is_challenge_eligible": true,
+      "popularity_rank": 14
+    },
+    {
+      "sku_id": "PX-3673236",
+      "name": "Филе бедра индейки ИндиЛайт охлажденное, 410г",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 339.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 15
+    },
+    {
+      "sku_id": "PX-4301310",
+      "name": "Стейк из шейки в брусничном маринаде",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 589.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 16
+    },
+    {
+      "sku_id": "PX-3028407",
+      "name": "Лосось Мурманск хвостовая часть 0.2-0.4 кг",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 1099.0,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 17
+    },
+    {
+      "sku_id": "PX-4410128",
+      "name": "Форель замороженная стейк",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 1953.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 18
+    },
+    {
+      "sku_id": "PX-4322790",
+      "name": "Колбаса Мортаделла варёная Маркет Collection, 120г",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 259.99,
+      "typical_promo_depth": 0.231,
+      "is_challenge_eligible": true,
+      "popularity_rank": 19
+    },
+    {
+      "sku_id": "PX-4308093",
+      "name": "Сосиски Папа может Сочный Гриль варёные категории В, 410г",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 259.99,
+      "typical_promo_depth": 0.315,
+      "is_challenge_eligible": true,
+      "popularity_rank": 20
+    },
+    {
+      "sku_id": "PX-2173555",
+      "name": "Филе грудки цыплёнка Петелинка охлаждённое",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 583.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 21
+    },
+    {
+      "sku_id": "PX-4833",
+      "name": "Окорок свиной без кости Перекрёсток",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 373.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 22
+    },
+    {
+      "sku_id": "PX-81555",
+      "name": "Дорадо Турция 0.2-0.6 кг",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 1499.0,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 23
+    },
+    {
+      "sku_id": "PX-4340995",
+      "name": "Форель Люди Любят радужная филе-кусок с кожей замороженная, 400г",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 1310.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 24
+    },
+    {
+      "sku_id": "PX-3035251",
+      "name": "Колбаса варёная Ближние Горки Докторская категория А",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 839.99,
+      "typical_promo_depth": 0.25,
+      "is_challenge_eligible": true,
+      "popularity_rank": 25
+    },
+    {
+      "sku_id": "PX-4405382",
+      "name": "Сосиски Лёгкость из мяса индеек варёные Зелёная Линия, 250г",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 362.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 26
+    },
+    {
+      "sku_id": "PX-52888",
+      "name": "Филе куриное Перекрёсток",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 524.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 27
+    },
+    {
+      "sku_id": "PX-3293544",
+      "name": "Лопатка свиная без кости",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 309.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 28
+    },
+    {
+      "sku_id": "PX-81554",
+      "name": "Сибас Турция 0.2-0.6кг",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 1499.0,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 29
+    },
+    {
+      "sku_id": "PX-4336040",
+      "name": "Лосось Люди Любят атлантический сёмга стейк с кожей мороженый, 500г",
+      "category": "meat_fish",
+      "brand": null,
+      "regular_price": 1678.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 30
+    },
+    {
+      "sku_id": "PX-3073434",
+      "name": "Батарейки GP Super ААА BC 24А, 4шт",
+      "category": "other",
+      "brand": null,
+      "regular_price": 399.99,
+      "typical_promo_depth": 0.25,
+      "is_challenge_eligible": true,
+      "popularity_rank": 1
+    },
+    {
+      "sku_id": "PX-4449392",
+      "name": "Карандаши цветные, 12шт",
+      "category": "other",
+      "brand": null,
+      "regular_price": 249.99,
+      "typical_promo_depth": 0.6,
+      "is_challenge_eligible": true,
+      "popularity_rank": 2
+    },
+    {
+      "sku_id": "PX-3466615",
+      "name": "Вилки одноразовые Пр!ст, 12шт",
+      "category": "other",
+      "brand": null,
+      "regular_price": 32.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 3
+    },
+    {
+      "sku_id": "PX-3498526",
+      "name": "Скатерть одноразовая Пр!ст, 140х110см",
+      "category": "other",
+      "brand": null,
+      "regular_price": 43.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 4
+    },
+    {
+      "sku_id": "PX-5185",
+      "name": "Батарейки GP Super АА 15А LR6 1.5В, 4шт",
+      "category": "other",
+      "brand": null,
+      "regular_price": 399.99,
+      "typical_promo_depth": 0.25,
+      "is_challenge_eligible": true,
+      "popularity_rank": 5
+    },
+    {
+      "sku_id": "PX-4449100",
+      "name": "Набор карандашей с ластиками, 8шт",
+      "category": "other",
+      "brand": null,
+      "regular_price": 399.99,
+      "typical_promo_depth": 0.6,
+      "is_challenge_eligible": true,
+      "popularity_rank": 6
+    },
+    {
+      "sku_id": "PX-3466618",
+      "name": "Стаканы одноразовые прозрачные Пр!ст, 12x200мл",
+      "category": "other",
+      "brand": null,
+      "regular_price": 32.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 7
+    },
+    {
+      "sku_id": "PX-4418516",
+      "name": "Свеча City Home Trade Цифра 1 металлик Г11 4.5см в ассортименте, 1шт.",
+      "category": "other",
+      "brand": null,
+      "regular_price": 89.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 8
+    },
+    {
+      "sku_id": "PX-4308752",
+      "name": "Лампа Старт LEDGLS E27 светодиодная 14W 40 X нейтральный свет",
+      "category": "other",
+      "brand": null,
+      "regular_price": 219.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 9
+    },
+    {
+      "sku_id": "PX-4408627",
+      "name": "Карандаш Meshu Moon Cat чернографитный в ассортименте",
+      "category": "other",
+      "brand": null,
+      "regular_price": 39.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 10
+    },
+    {
+      "sku_id": "PX-4291921",
+      "name": "Тарелка белая одноразовая 210 мм Пр!ст, 12шт",
+      "category": "other",
+      "brand": null,
+      "regular_price": 87.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 11
+    },
+    {
+      "sku_id": "PX-4418517",
+      "name": "Свеча City Home Trade 5см в ассортименте, 1шт",
+      "category": "other",
+      "brand": null,
+      "regular_price": 90.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 12
+    },
+    {
+      "sku_id": "PX-4308753",
+      "name": "Лампа Старт LEDCandle E14 светодиодная 8W 27 X теплый свет",
+      "category": "other",
+      "brand": null,
+      "regular_price": 175.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 13
+    },
+    {
+      "sku_id": "PX-4408632",
+      "name": "Карандаш BERLINGO Flexy Pastel чернографитный",
+      "category": "other",
+      "brand": null,
+      "regular_price": 39.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 14
+    },
+    {
+      "sku_id": "PX-4291923",
+      "name": "Тарелка белая одноразовая 165 мм Пр!ст, 12шт",
+      "category": "other",
+      "brand": null,
+      "regular_price": 76.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 15
+    },
+    {
+      "sku_id": "PX-4418556",
+      "name": "Тарелки City Home Trade 18см Г12 одноразовые в ассортименте, 6шт.",
+      "category": "other",
+      "brand": null,
+      "regular_price": 129.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 16
+    },
+    {
+      "sku_id": "PX-4230955",
+      "name": "Элемент питания и батареи GP cr2032, 2шт",
+      "category": "other",
+      "brand": null,
+      "regular_price": 367.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 17
+    },
+    {
+      "sku_id": "PX-4408630",
+      "name": "Карандаш Meshu Robopets чернографитный с ластиком в ассортименте",
+      "category": "other",
+      "brand": null,
+      "regular_price": 39.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 18
+    },
+    {
+      "sku_id": "PX-3466614",
+      "name": "Ложки одноразовые столовые Пр!ст, 12шт",
+      "category": "other",
+      "brand": null,
+      "regular_price": 29.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 19
+    },
+    {
+      "sku_id": "PX-4418518",
+      "name": "Свеча City Home Trade Цифра 4 металлик Г11 4.5см, 1шт.",
+      "category": "other",
+      "brand": null,
+      "regular_price": 89.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 20
+    },
+    {
+      "sku_id": "PX-4308754",
+      "name": "Лампа Старт LEDCandle E14 светодиодная 8W 40 X нейтральный свет",
+      "category": "other",
+      "brand": null,
+      "regular_price": 197.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 21
+    },
+    {
+      "sku_id": "PX-4408628",
+      "name": "Карандаш Meshu Sweet Girl чернографитный в ассортименте",
+      "category": "other",
+      "brand": null,
+      "regular_price": 39.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 22
+    },
+    {
+      "sku_id": "PX-3466619",
+      "name": "Стаканы одноразовые из ламинированной бумаги Пр!ст, 6x250мл",
+      "category": "other",
+      "brand": null,
+      "regular_price": 76.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 23
+    },
+    {
+      "sku_id": "PX-4418559",
+      "name": "Трубочки для напитков City Home Trade одноразовые Г11, 20шт.",
+      "category": "other",
+      "brand": null,
+      "regular_price": 171.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 24
+    },
+    {
+      "sku_id": "PX-4323893",
+      "name": "Батарейка Opticell AA, 4шт",
+      "category": "other",
+      "brand": null,
+      "regular_price": 472.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 25
+    },
+    {
+      "sku_id": "PX-4449093",
+      "name": "Набор маркеров, 4шт",
+      "category": "other",
+      "brand": null,
+      "regular_price": 129.99,
+      "typical_promo_depth": 0.6,
+      "is_challenge_eligible": true,
+      "popularity_rank": 26
+    },
+    {
+      "sku_id": "PX-4291922",
+      "name": "Миска для супа одноразовая белая 600 мл Пр!ст, 12шт",
+      "category": "other",
+      "brand": null,
+      "regular_price": 87.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 27
+    },
+    {
+      "sku_id": "PX-4418534",
+      "name": "Свеча City Home Trade Цифра 0 металлик Г11 4.5см, 1шт.",
+      "category": "other",
+      "brand": null,
+      "regular_price": 90.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 28
+    },
+    {
+      "sku_id": "PX-4308751",
+      "name": "Лампа Старт Ledgls E27 светодиодная 14W 27 X теплый свет",
+      "category": "other",
+      "brand": null,
+      "regular_price": 219.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 29
+    },
+    {
+      "sku_id": "PX-4449089",
+      "name": "Набор маркеров, 8шт",
+      "category": "other",
+      "brand": null,
+      "regular_price": 399.99,
+      "typical_promo_depth": 0.6,
+      "is_challenge_eligible": true,
+      "popularity_rank": 30
+    },
+    {
+      "sku_id": "PX-4292917",
+      "name": "Онигири I Like Eat с курицей Том Ям, 100г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 125.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 1
+    },
+    {
+      "sku_id": "PX-4402241",
+      "name": "Морковь По-Корейски Перекрёсток Select, 200г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 79.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 2
+    },
+    {
+      "sku_id": "PX-37653",
+      "name": "Суп Maggi Звёздочки, 54г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 59.99,
+      "typical_promo_depth": 0.083,
+      "is_challenge_eligible": true,
+      "popularity_rank": 3
+    },
+    {
+      "sku_id": "PX-4461193",
+      "name": "Ролл с креветкой Перекресток Select, 160г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 269.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 4
+    },
+    {
+      "sku_id": "PX-4376941",
+      "name": "Онигири с филе семги Перекрёсток Select, 110г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 199.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 5
+    },
+    {
+      "sku_id": "PX-4441233",
+      "name": "Салат из свеклы с чесноком Перекрёсток Select 170г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 163.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 6
+    },
+    {
+      "sku_id": "PX-4396212",
+      "name": "Бульон Круглые Сутки Костный куриный, 150г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 509.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 7
+    },
+    {
+      "sku_id": "PX-4452357",
+      "name": "Ролл с рваной говядиной Перекрёсток Select, 165г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 289.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 8
+    },
+    {
+      "sku_id": "PX-4220939",
+      "name": "Онигири I Like Eat Калифорния, 100г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 177.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 9
+    },
+    {
+      "sku_id": "PX-4402245",
+      "name": "Спаржа с морковью по-корейски Перекрёсток Select, 200г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 149.99,
+      "typical_promo_depth": 0.2,
+      "is_challenge_eligible": true,
+      "popularity_rank": 10
+    },
+    {
+      "sku_id": "PX-3294699",
+      "name": "Суп Суперсуп мясной, 70г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 43.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 11
+    },
+    {
+      "sku_id": "PX-4459504",
+      "name": "Ролл Цезарь Перекрёсток Select, 170г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 218.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 12
+    },
+    {
+      "sku_id": "PX-4444231",
+      "name": "Чумокпаб Hanok из риса с кимчи и сыром, 100г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 249.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 13
+    },
+    {
+      "sku_id": "PX-4438506",
+      "name": "Винегрет овощной с маслом Перекрёсток Select, 170г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 167.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 14
+    },
+    {
+      "sku_id": "PX-40686",
+      "name": "Суп Maggi Горячая кружка куриный с сухариками, 19г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 49.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 15
+    },
+    {
+      "sku_id": "PX-4461022",
+      "name": "Ролл с индейкой, моцареллой и соусом песто Перекрёсток Select, 170г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 299.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 16
+    },
+    {
+      "sku_id": "PX-4220938",
+      "name": "Онигири I Like Eat с тунцом, 100г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 169.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 17
+    },
+    {
+      "sku_id": "PX-4402242",
+      "name": "Морковь По-Корейски Перекрёсток Select 500г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 199.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 18
+    },
+    {
+      "sku_id": "PX-3294696",
+      "name": "Суп Суперсуп куриный, 70г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 45.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 19
+    },
+    {
+      "sku_id": "PX-4444318",
+      "name": "Сэндвич-ролл с курицей тандури Перекрёсток Select, 170г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 269.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 20
+    },
+    {
+      "sku_id": "PX-4220940",
+      "name": "Онигири I Like Eat с форелью и имбирём, 100г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 139.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 21
+    },
+    {
+      "sku_id": "PX-4461982",
+      "name": "Салат коул слоу капустный Перекрёсток Select, 180г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 154.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 22
+    },
+    {
+      "sku_id": "PX-3015652",
+      "name": "Суп Суперсуп куриный с гренками 40г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 67.49,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 23
+    },
+    {
+      "sku_id": "PX-4435265",
+      "name": "Сэндвич-ролл с ветчиной и сыром Перекрёсток Select, 150г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 202.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 24
+    },
+    {
+      "sku_id": "PX-4444232",
+      "name": "Чумокпаб Hanok из риса с филе тунца и майонезом замороженный, 100г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 199.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 25
+    },
+    {
+      "sku_id": "PX-4462217",
+      "name": "Салат дачный Перекрёсток Select, 160г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 149.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 26
+    },
+    {
+      "sku_id": "PX-3190239",
+      "name": "Суп Кнорр куриный с сухариками, 16г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 44.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 27
+    },
+    {
+      "sku_id": "PX-4352404",
+      "name": "Чиабатта ржаная с индейкой и соусом песто, 180г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 199.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 28
+    },
+    {
+      "sku_id": "PX-4402246",
+      "name": "Спаржа с морковью по-корейски Перекрёсток Select, 500г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 259.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 29
+    },
+    {
+      "sku_id": "PX-4087460",
+      "name": "Суп Русский продукт куриный со звёздочками, 70г",
+      "category": "ready_food",
+      "brand": null,
+      "regular_price": 57.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 30
+    },
+    {
+      "sku_id": "PX-4210940",
+      "name": "Чипсы картофельные Lay's со вкусом сметаны и лука, 140г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 199.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 1
+    },
+    {
+      "sku_id": "PX-4353876",
+      "name": "Шоколад Milka молочный с цельным фундуком, 80г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 199.99,
+      "typical_promo_depth": 0.37,
+      "is_challenge_eligible": true,
+      "popularity_rank": 2
+    },
+    {
+      "sku_id": "PX-2057839",
+      "name": "Конфеты Рот Фронт батончики 250г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 129.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 3
+    },
+    {
+      "sku_id": "PX-4339348",
+      "name": "Печенье Юбилейное Традиционное витаминизированное, 224г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 78.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 4
+    },
+    {
+      "sku_id": "PX-4351841",
+      "name": "Чипсы картофельные с солью Flat Food, 100г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 129.99,
+      "typical_promo_depth": 0.154,
+      "is_challenge_eligible": true,
+      "popularity_rank": 5
+    },
+    {
+      "sku_id": "PX-4210938",
+      "name": "Чипсы картофельные Lay's с солью, 140г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 163.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 6
+    },
+    {
+      "sku_id": "PX-4371953",
+      "name": "Шоколад Алёнка Молочный, 75г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 99.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 7
+    },
+    {
+      "sku_id": "PX-3291332",
+      "name": "Конфеты Рот Фронт Птичье молоко настоящее, 225г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 149.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 8
+    },
+    {
+      "sku_id": "PX-4113179",
+      "name": "Печенье Воздушные колечки заварное Зелёная Линия, 100г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 91.99,
+      "typical_promo_depth": 0.239,
+      "is_challenge_eligible": true,
+      "popularity_rank": 9
+    },
+    {
+      "sku_id": "PX-4351842",
+      "name": "Чипсы картофельные с солью и чёрным перцем Flat Food, 100г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 129.99,
+      "typical_promo_depth": 0.154,
+      "is_challenge_eligible": true,
+      "popularity_rank": 10
+    },
+    {
+      "sku_id": "PX-4210950",
+      "name": "Чипсы картофельные Lay's рифлёные со вкусом лосось в сливочном соусе, 140г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 199.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 11
+    },
+    {
+      "sku_id": "PX-4353891",
+      "name": "Шоколад Milka Молочный 80г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 160.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 12
+    },
+    {
+      "sku_id": "PX-3611870",
+      "name": "Конфеты Красный Октябрь мишка косолапый 200г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 349.99,
+      "typical_promo_depth": 0.343,
+      "is_challenge_eligible": true,
+      "popularity_rank": 13
+    },
+    {
+      "sku_id": "PX-3472180",
+      "name": "Печенье Юбилейное молочное витаминизированное с глазурью, 116г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 69.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 14
+    },
+    {
+      "sku_id": "PX-4179192",
+      "name": "Палочки кукурузные Cheetos Сыр, 50г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 83.99,
+      "typical_promo_depth": 0.131,
+      "is_challenge_eligible": true,
+      "popularity_rank": 15
+    },
+    {
+      "sku_id": "PX-3624025",
+      "name": "Чипсы Naturals картофельные классические с солью, 100г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 154.99,
+      "typical_promo_depth": 0.161,
+      "is_challenge_eligible": true,
+      "popularity_rank": 16
+    },
+    {
+      "sku_id": "PX-4329962",
+      "name": "Шоколад Alpen Gold Молочный 80г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 179.98,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 17
+    },
+    {
+      "sku_id": "PX-3198299",
+      "name": "Конфеты Рот Фронт Батончики с шоколадно-сливочным вкусом, 250г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 309.99,
+      "typical_promo_depth": 0.532,
+      "is_challenge_eligible": true,
+      "popularity_rank": 18
+    },
+    {
+      "sku_id": "PX-4027701",
+      "name": "Печенье Юбилейное молочное витаминизированное с глазурью, 232г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 139.99,
+      "typical_promo_depth": 0.25,
+      "is_challenge_eligible": true,
+      "popularity_rank": 19
+    },
+    {
+      "sku_id": "PX-4312216",
+      "name": "Зерна кукурузы обжаренные солёные Маркет, 100г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 89.99,
+      "typical_promo_depth": 0.167,
+      "is_challenge_eligible": true,
+      "popularity_rank": 20
+    },
+    {
+      "sku_id": "PX-4277058",
+      "name": "Чипсы картофельные Lays со вкусом сметаны и лука, 70г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 109.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 21
+    },
+    {
+      "sku_id": "PX-3468707",
+      "name": "Шоколад молочный Milka с карамельной начинкой, 90г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 189.99,
+      "typical_promo_depth": 0.211,
+      "is_challenge_eligible": true,
+      "popularity_rank": 22
+    },
+    {
+      "sku_id": "PX-2147861",
+      "name": "Конфеты Красный Октябрь Желейные барбарисовый вкус, 250г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 219.99,
+      "typical_promo_depth": 0.364,
+      "is_challenge_eligible": true,
+      "popularity_rank": 23
+    },
+    {
+      "sku_id": "PX-4346896",
+      "name": "Печенье Milka с кусочками молочного шоколада, 126г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 179.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 24
+    },
+    {
+      "sku_id": "PX-3437912",
+      "name": "Шарики кукурузные СырBall со вкусом сыра, 140г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 166.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 25
+    },
+    {
+      "sku_id": "PX-4336436",
+      "name": "Чипсы Lay's Бекон, 70г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 96.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 26
+    },
+    {
+      "sku_id": "PX-4353881",
+      "name": "Шоколад молочный Milka Bubbles пористый, 72г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 189.99,
+      "typical_promo_depth": 0.211,
+      "is_challenge_eligible": true,
+      "popularity_rank": 27
+    },
+    {
+      "sku_id": "PX-97176",
+      "name": "Конфеты КФ Крупской Сказки Перро, 200г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 189.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 28
+    },
+    {
+      "sku_id": "PX-4193898",
+      "name": "Печенье Юбилейное Традиционное витаминизированное, 403г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 129.99,
+      "typical_promo_depth": 0.1,
+      "is_challenge_eligible": true,
+      "popularity_rank": 29
+    },
+    {
+      "sku_id": "PX-4437878",
+      "name": "Снеки куриные Зелёная Линия, 40г",
+      "category": "snacks",
+      "brand": null,
+      "regular_price": 169.99,
+      "typical_promo_depth": 0.176,
+      "is_challenge_eligible": true,
+      "popularity_rank": 30
+    }
+  ]
+}

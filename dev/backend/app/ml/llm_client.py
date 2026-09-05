@@ -4,10 +4,16 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+from pydantic import BaseModel
 
 from app.ml import config
 
 _PROMPTS_DIR = Path(__file__).resolve().parent / "prompts"
+
+
+class ChatResult(BaseModel):
+    parsed: dict[str, Any] | None
+    raw_text: str | None
 
 
 class LLMConfig:
@@ -45,6 +51,14 @@ class ChatClient:
         self._config = llm_config
         self._client = client
 
+    @property
+    def model(self) -> str:
+        return self._config.model
+
+    @property
+    def base_url(self) -> str:
+        return self._config.base_url
+
     async def emit_json(
         self,
         system_prompt: str,
@@ -53,7 +67,7 @@ class ChatClient:
         json_schema: dict[str, Any],
         temperature: float = 0.0,
         max_tokens: int = 300,
-    ) -> dict[str, Any] | None:
+    ) -> ChatResult:
         payload: dict[str, Any] = {
             "model": self._config.model,
             "messages": [
@@ -69,7 +83,8 @@ class ChatClient:
             "chat_template_kwargs": {"enable_thinking": False},
         }
         body = await self._send(payload)
-        return _extract_json_content(body)
+        raw_text = _extract_content(body)
+        return ChatResult(parsed=_parse_json_object(raw_text), raw_text=raw_text)
 
     async def _send(self, payload: dict[str, Any]) -> dict[str, Any] | None:
         try:
@@ -85,17 +100,21 @@ class ChatClient:
         return body
 
 
-def _extract_json_content(body: dict[str, Any] | None) -> dict[str, Any] | None:
+def _extract_content(body: dict[str, Any] | None) -> str | None:
     if body is None:
         return None
     choices = body.get("choices") or []
     if not choices:
         return None
     content = (choices[0].get("message") or {}).get("content")
-    if not isinstance(content, str):
+    return content if isinstance(content, str) else None
+
+
+def _parse_json_object(raw_text: str | None) -> dict[str, Any] | None:
+    if raw_text is None:
         return None
     try:
-        parsed = json.loads(content)
+        parsed = json.loads(raw_text)
     except json.JSONDecodeError:
         return None
     return parsed if isinstance(parsed, dict) else None

@@ -1,7 +1,7 @@
 import random
 
 from app.ml import config
-from app.ml.schemas import Segment, UserProfile
+from app.ml.schemas import DealAttitude, Segment, UserProfile
 
 _SEGMENT_SHARE: tuple[tuple[Segment, float], ...] = (
     ("regular_mid", 0.60),
@@ -33,6 +33,12 @@ _RESPONSIVENESS: dict[Segment, tuple[float, float]] = {
     "heavy": (0.20, 0.50),
     "dormant": (0.30, 0.75),
 }
+_ROUTINE_RIGIDITY: dict[Segment, tuple[float, float]] = {
+    "regular_mid": (0.45, 0.85),
+    "light": (0.35, 0.75),
+    "heavy": (0.55, 0.9),
+    "dormant": (0.2, 0.6),
+}
 _PERSONAS: dict[Segment, tuple[str, ...]] = {
     "regular_mid": (
         "семейный закупщик недели",
@@ -52,6 +58,34 @@ _PERSONAS: dict[Segment, tuple[str, ...]] = {
         "давно не заходил, дрейфует к конкуренту",
     ),
 }
+_ARCHETYPES: dict[Segment, tuple[str, ...]] = {
+    "regular_mid": (
+        "человек привычки: один и тот же маршрут по магазину",
+        "занятой прагматик, считает минуты, а не рубли",
+    ),
+    "light": (
+        "импульсивный минималист, заходит редко и коротко",
+        "экономный студент, ловит только реально выгодное",
+    ),
+    "heavy": (
+        "закупщик-оптимизатор, планирует корзину заранее",
+        "требовательный гурман, лоялен своим брендам",
+    ),
+    "dormant": (
+        "разочарованный уходящий клиент, легко уводится конкурентом",
+        "редкий гость без привязки к магазину",
+    ),
+}
+_ATTITUDE_BLURB: dict[DealAttitude, str] = {
+    "promo_skeptic": "К акциям равнодушен: почти всё пролистывает, верит рутине больше скидок.",
+    "selective": "Реагирует только на попадание в свою реальную потребность и вовремя.",
+    "deal_seeker": "Любит выгоду, но бросает силы только на то, что и так покупает.",
+}
+_ATTITUDE_THRESHOLDS: tuple[tuple[float, DealAttitude], ...] = (
+    (0.35, "promo_skeptic"),
+    (0.62, "selective"),
+    (1.01, "deal_seeker"),
+)
 _FAVORITE_CATEGORIES = 3
 
 
@@ -66,20 +100,30 @@ def _build_profile(rng: random.Random, index: int) -> UserProfile:
     avg_basket = round(rng.uniform(*_AVG_BASKET[segment]), 2)
     promo_sensitivity = round(rng.uniform(*_PROMO_SENSITIVITY[segment]), 3)
     responsiveness = round(rng.uniform(*_RESPONSIVENESS[segment]), 3)
+    routine_rigidity = round(rng.uniform(*_ROUTINE_RIGIDITY[segment]), 3)
     tenure_weeks = rng.randint(2, 40)
     level = _level_for(segment, tenure_weeks, rng)
     persona = rng.choice(_PERSONAS[segment])
+    archetype = rng.choice(_ARCHETYPES[segment])
+    deal_attitude = _deal_attitude(promo_sensitivity)
     weights = _category_weights(rng)
+    favorites = _top_categories(weights)
+    persona_brief = _ATTITUDE_BLURB[deal_attitude]
     return UserProfile(
         profile_id=f"P{index:04d}",
         segment=segment,
         persona_label=persona,
+        archetype=archetype,
+        persona_brief=persona_brief,
+        deal_attitude=deal_attitude,
+        routine_rigidity=routine_rigidity,
         level=level,
         tenure_weeks=tenure_weeks,
         visits_per_week=visits_per_week,
         avg_basket=avg_basket,
         promo_sensitivity=promo_sensitivity,
         category_weights=weights,
+        favorite_categories=favorites,
         offer_responsiveness=responsiveness,
     )
 
@@ -92,6 +136,13 @@ def _pick_segment(rng: random.Random) -> Segment:
         if roll <= cumulative:
             return segment
     return _SEGMENT_SHARE[-1][0]
+
+
+def _deal_attitude(promo_sensitivity: float) -> DealAttitude:
+    for threshold, attitude in _ATTITUDE_THRESHOLDS:
+        if promo_sensitivity < threshold:
+            return attitude
+    return _ATTITUDE_THRESHOLDS[-1][1]
 
 
 def _level_for(segment: Segment, tenure_weeks: int, rng: random.Random) -> int:
@@ -112,3 +163,8 @@ def _category_weights(rng: random.Random) -> dict[str, float]:
         raw[category] = rng.gammavariate(concentration, 1.0)
     total = sum(raw.values())
     return {category: round(value / total, 4) for category, value in raw.items()}
+
+
+def _top_categories(weights: dict[str, float]) -> list[str]:
+    ranked = sorted(weights.items(), key=lambda item: item[1], reverse=True)
+    return [category for category, _ in ranked[:_FAVORITE_CATEGORIES]]

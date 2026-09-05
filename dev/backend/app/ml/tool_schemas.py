@@ -89,26 +89,53 @@ def offer_response_schema() -> dict[str, Any]:
     return {
         "type": "object",
         "additionalProperties": False,
-        "required": ["engaged", "extra_visits", "completed_challenge", "reason"],
+        "required": [
+            "thinking",
+            "promo_decision",
+            "extra_visits",
+            "completed_challenge",
+            "rationale",
+        ],
         "properties": {
-            "engaged": {
-                "type": "boolean",
-                "description": "did the offer change behaviour at all",
+            "thinking": {
+                "type": "string",
+                "maxLength": 1200,
+                "description": (
+                    "First-person reasoning AS this shopper: weigh the offer against what you "
+                    "actually buy, the effort of extra trips, and whether the reward is worth "
+                    "breaking your routine. Buying as usual is the honest default. "
+                    "Fill this BEFORE deciding."
+                ),
+            },
+            "promo_decision": {
+                "type": "string",
+                "enum": ["use_offer", "buy_as_usual", "ignore"],
+                "description": (
+                    "verdict: use_offer=you change behaviour to chase this challenge; "
+                    "buy_as_usual=you keep shopping exactly as before, offer changes nothing; "
+                    "ignore=irrelevant, you do not even consider it"
+                ),
             },
             "extra_visits": {
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 6,
-                "description": "additional store visits over the tail caused only by the offer",
+                "description": (
+                    "extra store visits over the whole tail caused ONLY by the offer; 0 unless "
+                    "promo_decision=use_offer; a real person rarely adds more than 1-2"
+                ),
             },
             "completed_challenge": {
                 "type": "boolean",
-                "description": "did the user complete the challenge target",
+                "description": (
+                    "true only if your normal cadence plus the extra visits actually reaches the "
+                    "challenge target before the deadline"
+                ),
             },
-            "reason": {
+            "rationale": {
                 "type": "string",
-                "maxLength": 200,
-                "description": "short behavioural reason, no money figures",
+                "maxLength": 400,
+                "description": "one-sentence justification of the verdict in the shopper's voice",
             },
         },
     }

@@ -9,6 +9,8 @@ RewardKind = Literal["promo", "ladder", "none"]
 RewardLevel = Literal["none", "low", "medium", "high"]
 PlanSource = Literal["llm", "rules"]
 Branch = Literal["control_x5", "treatment_llm", "treatment_rules"]
+PromoDecision = Literal["use_offer", "buy_as_usual", "ignore"]
+DealAttitude = Literal["promo_skeptic", "selective", "deal_seeker"]
 
 
 class SkuCatalogItem(BaseModel):
@@ -20,6 +22,13 @@ class SkuCatalogItem(BaseModel):
     typical_promo_depth: float
     is_challenge_eligible: bool
     popularity_rank: int
+
+
+class ScrapedCatalog(BaseModel):
+    source: str
+    scraped_at: str
+    count: int
+    items: list[SkuCatalogItem]
 
 
 class ShopVisit(BaseModel):
@@ -37,12 +46,17 @@ class UserProfile(BaseModel):
     profile_id: str
     segment: Segment
     persona_label: str
+    archetype: str
+    persona_brief: str
+    deal_attitude: DealAttitude
+    routine_rigidity: float
     level: int
     tenure_weeks: int
     visits_per_week: float
     avg_basket: float
     promo_sensitivity: float
     category_weights: dict[str, float]
+    favorite_categories: list[str]
     offer_responsiveness: float
 
 
@@ -134,10 +148,15 @@ class ValidatedPlan(BaseModel):
 
 
 class OfferResponse(BaseModel):
-    engaged: bool
+    thinking: str = Field(max_length=1200)
+    promo_decision: PromoDecision
     extra_visits: int = Field(ge=0, le=6)
     completed_challenge: bool
-    reason: str = Field(max_length=300)
+    rationale: str = Field(max_length=400)
+
+    @property
+    def engaged(self) -> bool:
+        return self.promo_decision == "use_offer"
 
 
 class BranchOutcome(BaseModel):
