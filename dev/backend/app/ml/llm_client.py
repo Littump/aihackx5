@@ -7,6 +7,7 @@ import httpx
 from pydantic import BaseModel
 
 from app.ml import config
+from app.ml.capacity import CapacityLimiter
 
 _PROMPTS_DIR = Path(__file__).resolve().parent / "prompts"
 
@@ -42,14 +43,28 @@ def actor_config(base_url: str | None = None, model: str | None = None) -> LLMCo
     )
 
 
+def persona_config(base_url: str | None = None, model: str | None = None) -> LLMConfig:
+    return LLMConfig(
+        base_url=base_url or os.environ.get("ML_PERSONA_BASE_URL", config.PERSONA_BASE_URL_DEFAULT),
+        model=model or os.environ.get("ML_PERSONA_MODEL", config.PERSONA_MODEL_DEFAULT),
+        timeout_s=config.PERSONA_TIMEOUT_S,
+    )
+
+
 def load_prompt(name: str) -> str:
     return (_PROMPTS_DIR / name).read_text(encoding="utf-8")
 
 
 class ChatClient:
-    def __init__(self, llm_config: LLMConfig, client: httpx.AsyncClient) -> None:
+    def __init__(
+        self,
+        llm_config: LLMConfig,
+        client: httpx.AsyncClient,
+        limiter: CapacityLimiter | None = None,
+    ) -> None:
         self._config = llm_config
         self._client = client
+        self._limiter = limiter
 
     @property
     def model(self) -> str:
@@ -67,26 +82,57 @@ class ChatClient:
         json_schema: dict[str, Any],
         temperature: float = 0.0,
         max_tokens: int = 300,
+        top_p: float | None = None,
+        enable_thinking: bool = False,
+    ) -> ChatResult:
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ]
+        return await self.emit_json_messages(
+            messages,
+            schema_name,
+            json_schema,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            top_p=top_p,
+            enable_thinking=enable_thinking,
+        )
+
+    async def emit_json_messages(
+        self,
+        messages: list[dict[str, str]],
+        schema_name: str,
+        json_schema: dict[str, Any],
+        temperature: float = 0.0,
+        max_tokens: int = 300,
+        top_p: float | None = None,
+        enable_thinking: bool = False,
     ) -> ChatResult:
         payload: dict[str, Any] = {
             "model": self._config.model,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
+            "messages": messages,
             "response_format": {
                 "type": "json_schema",
                 "json_schema": {"name": schema_name, "strict": True, "schema": json_schema},
             },
             "temperature": temperature,
             "max_tokens": max_tokens,
-            "chat_template_kwargs": {"enable_thinking": False},
+            "chat_template_kwargs": {"enable_thinking": enable_thinking},
         }
+        if top_p is not None:
+            payload["top_p"] = top_p
         body = await self._send(payload)
         raw_text = _extract_content(body)
         return ChatResult(parsed=_parse_json_object(raw_text), raw_text=raw_text)
 
     async def _send(self, payload: dict[str, Any]) -> dict[str, Any] | None:
+        if self._limiter is None:
+            return await self._post(payload)
+        async with self._limiter.slot():
+            return await self._post(payload)
+
+    async def _post(self, payload: dict[str, Any]) -> dict[str, Any] | None:
         try:
             response = await self._client.post(
                 f"{self._config.base_url}/chat/completions",

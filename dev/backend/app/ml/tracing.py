@@ -3,7 +3,8 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from app.ml.llm_client import ChatResult
-from app.ml.schemas import Branch, OfferResponse, PromoDecision, UserProfile
+from app.ml.persona import Persona
+from app.ml.schemas import Branch, OfferResponse, PromoDecision, ShoppingHabit, UserProfile
 
 LlmRole = str
 
@@ -36,6 +37,16 @@ class ActorTurn(BaseModel):
     call: LlmCall | None
 
 
+class WeekTrace(BaseModel):
+    week_index: int
+    challenge_active: bool
+    baseline_visits: int
+    extra_visits: int
+    cumulative_visits: int
+    decision: ActorDecision | None
+    llm_call: LlmCall | None
+
+
 class BranchTrace(BaseModel):
     branch: Branch
     offer_summary: str
@@ -46,12 +57,14 @@ class BranchTrace(BaseModel):
     reward_cost_rub: float
     net_effect_rub: float
     llm_call: LlmCall | None
+    weeks: list[WeekTrace] = Field(default_factory=list)
 
 
 class ProfileSnapshot(BaseModel):
     profile_id: str
     segment: str
     persona_label: str
+    persona_brief: str
     archetype: str
     deal_attitude: str
     routine_rigidity: float
@@ -60,6 +73,8 @@ class ProfileSnapshot(BaseModel):
     promo_sensitivity: float
     favorite_categories: list[str]
     churn_risk: str
+    observed_habits: list[ShoppingHabit] = Field(default_factory=list)
+    shopper_persona: dict[str, Any] | None = None
 
 
 class ProfileTrace(BaseModel):
@@ -78,6 +93,8 @@ class EvalRunHeader(BaseModel):
     actor_model: str
     null_test: bool
     no_llm: bool
+    iteration: str = "adhoc"
+    profile_ids: list[str] = Field(default_factory=list)
 
 
 class TraceRecorder:
@@ -126,18 +143,24 @@ def actor_decision(response: OfferResponse, source: str) -> ActorDecision:
         promo_decision=response.promo_decision,
         engaged=response.engaged,
         extra_visits=response.extra_visits,
-        completed_challenge=response.completed_challenge,
+        completed_challenge=response.completed_challenge and response.engaged,
         thinking=response.thinking,
         rationale=response.rationale,
         source=source,
     )
 
 
-def profile_snapshot(profile: UserProfile, churn_risk: str) -> ProfileSnapshot:
+def profile_snapshot(
+    profile: UserProfile,
+    churn_risk: str,
+    persona: Persona | None = None,
+    observed_habits: list[ShoppingHabit] | None = None,
+) -> ProfileSnapshot:
     return ProfileSnapshot(
         profile_id=profile.profile_id,
         segment=profile.segment,
         persona_label=profile.persona_label,
+        persona_brief=profile.persona_brief,
         archetype=profile.archetype,
         deal_attitude=profile.deal_attitude,
         routine_rigidity=profile.routine_rigidity,
@@ -146,4 +169,6 @@ def profile_snapshot(profile: UserProfile, churn_risk: str) -> ProfileSnapshot:
         promo_sensitivity=profile.promo_sensitivity,
         favorite_categories=profile.favorite_categories,
         churn_risk=churn_risk,
+        observed_habits=list(observed_habits) if observed_habits is not None else [],
+        shopper_persona=persona.model_dump() if persona is not None else None,
     )

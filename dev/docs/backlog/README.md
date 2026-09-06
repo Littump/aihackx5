@@ -86,6 +86,13 @@
 | BE-T02 | E16 | Объяснимая экономия: `receipts_count`, `items_count` и `top_products` в savings | R | BE-009 | done | 2026-09-04 |
 | FE-T01 | E16 | Экран «Баллы и опыт» на `/rewards` и вход с карточки Домового | R | BE-T01, FE-D04 | done | 2026-09-04 |
 | FE-T02 | E16 | Подсказки «?» (`InfoHint`) и расшифровка экономии по категориям | R | BE-T02, FE-D04 | done | 2026-09-04 |
+| DOC-003 | E17 | Канонизировать типы челленджей в доках (5 типов, убрать streak/neighbors) | A | — | todo | |
+| BE-034 | E17 | `game_rules`: `CHALLENGE_LIBRARY` (5 типов, без streak) + пороги/target для basket/replenishment/collection, зеркало domain-rules | R | BE-003, DOC-003 | todo | |
+| BE-035 | E17 | Миграция 005: расширить `challenges.type` CHECK до 5 канонических типов + `sku_refs` | R | BE-002, BE-034 | todo | |
+| BE-036 | E17 | Прогресс/выполнение по чеку для basket/replenishment/collection, откат при возврате | R | BE-035, BE-012 | todo | |
+| BE-037 | E17 | `candidate`/`economics` для новых типов: кандидаты, priority, max reward в пределах cap | R | BE-034, BE-010 | todo | |
+| AI-013 | E17 | `app/ml` к канону (убрать streak) + тип-специфичная completion-семантика в eval, перегенерация отчёта | T | BE-034, AI-012 | todo | |
+| BE-038 | E17 | Интеграция планировщика в production challenges: `planner`/`plan_validator`, rule-based как fallback | R | BE-036, BE-037, AI-013 | todo | |
 
 ## Эпики
 
@@ -108,3 +115,4 @@
 | E14 ML Planner | [E14-ml-planner.md](E14-ml-planner.md) | LLM-планировщик, каталог SKU, reward ladder, синтет-eval |
 | E15 Redesign | [E15-redesign.md](E15-redesign.md) | Перерисовка фронта по дизайн-макету |
 | E16 Transparency | [E16-transparency.md](E16-transparency.md) | За что баллы и опыт, из чего экономия |
+| E17 Challenge types | [E17-challenge-types.md](E17-challenge-types.md) | Единый словарь типов челленджей, интеграция планировщика |

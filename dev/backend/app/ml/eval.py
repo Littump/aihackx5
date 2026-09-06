@@ -1,8 +1,10 @@
 import asyncio
 from collections.abc import Iterable
+from typing import Literal
 
+from app.ml import app_view, config, history, insight, planner, profiles, tracing, user_sim
 from app.ml import catalog as catalog_module
-from app.ml import config, history, insight, planner, profiles, tracing, user_sim
+from app.ml import persona as persona_module
 from app.ml.llm_client import ChatClient
 from app.ml.schemas import (
     Branch,
@@ -12,18 +14,22 @@ from app.ml.schemas import (
     EvalReport,
     PlannerInput,
     PlanSource,
+    PreviousPlan,
     ProfileEvalResult,
+    PurchaseHistory,
+    ShoppingHabit,
     ShopVisit,
     SkuCatalogItem,
     UserProfile,
     ValidatedPlan,
 )
 from app.ml.tracing import (
-    ActorTurn,
+    ActorDecision,
     BranchTrace,
     LlmCall,
     ProfileTrace,
     TraceRecorder,
+    WeekTrace,
 )
 
 _CONTROL_CASHBACK_RATE = 0.10
@@ -46,6 +52,8 @@ class EvalSettings:
         actor_model: str,
         null_test: bool,
         max_concurrency: int = config.EVAL_MAX_CONCURRENCY,
+        iteration: str = "adhoc",
+        profile_ids: list[str] | None = None,
     ) -> None:
         self.seed = seed
         self.profile_count = profile_count
@@ -55,33 +63,48 @@ class EvalSettings:
         self.actor_model = actor_model
         self.null_test = null_test
         self.max_concurrency = max_concurrency
+        self.iteration = iteration
+        self.profile_ids = profile_ids
+
+
+def _select_profiles(settings: "EvalSettings") -> list[UserProfile]:
+    people = profiles.build_profiles(settings.seed, settings.profile_count)
+    if not settings.profile_ids:
+        return people
+    by_id = {profile.profile_id: profile for profile in people}
+    missing = [pid for pid in settings.profile_ids if pid not in by_id]
+    if missing:
+        raise ValueError(f"profile_ids not in generated set: {', '.join(missing)}")
+    return [by_id[pid] for pid in settings.profile_ids]
 
 
 async def run_eval(
     clients: EvalClients | None,
     settings: EvalSettings,
     recorder: TraceRecorder | None = None,
+    personas: dict[str, persona_module.Persona] | None = None,
 ) -> EvalReport:
     catalog = catalog_module.build_catalog(settings.seed)
     eligible = catalog_module.eligible_catalog(catalog)
-    people = profiles.build_profiles(settings.seed, settings.profile_count)
+    people = _select_profiles(settings)
     semaphore = asyncio.Semaphore(settings.max_concurrency)
 
     async def _guarded(profile: UserProfile) -> ProfileEvalResult:
         async with semaphore:
-            return await _evaluate_profile(clients, profile, eligible, settings, recorder)
+            return await _evaluate_profile(clients, profile, eligible, settings, recorder, personas)
 
     results = await asyncio.gather(*[_guarded(profile) for profile in people])
     aggregates = _aggregate(results)
     uplift = _business_metric_uplift(aggregates)
     return EvalReport(
         seed=settings.seed,
-        profiles=settings.profile_count,
+        profiles=len(people),
         horizon_weeks=settings.horizon_weeks,
         cut_week=settings.cut_week,
         planner_model=settings.planner_model,
         actor_model=settings.actor_model,
         null_test=settings.null_test,
+        high_margin_mandate=config.HIGH_MARGIN_MANDATE_ENABLED,
         business_metric_purchases=config.BUSINESS_METRIC_PURCHASES,
         business_metric_window_weeks=config.BUSINESS_METRIC_WINDOW_WEEKS,
         aggregates=aggregates,
@@ -96,42 +119,54 @@ async def _evaluate_profile(
     eligible: list[SkuCatalogItem],
     settings: EvalSettings,
     recorder: TraceRecorder | None = None,
+    personas: dict[str, persona_module.Persona] | None = None,
 ) -> ProfileEvalResult:
+    shopper_persona = (personas or {}).get(profile.profile_id) or (
+        persona_module.build_fallback_persona(profile)
+    )
     full = history.simulate_history(profile, settings.seed, settings.horizon_weeks)
-    past = history.slice_history(full, settings.cut_week)
-    baseline_tail = history.tail_visits(full, settings.cut_week)
-    planner_input = insight.build_insight(profile, past, eligible, [])
+    t_input = insight.build_insight(
+        profile, history.slice_history(full, settings.cut_week), eligible, []
+    )
+    observed_habits = insight.shopping_habits(
+        t_input.category_timeseries, profile.favorite_categories
+    )
     tail_weeks = settings.horizon_weeks - settings.cut_week
 
     planner_client = clients.planner if clients is not None else None
     actor_client = clients.actor if clients is not None else None
-
     planner_calls: list[LlmCall] = []
-    llm_plan = await planner.plan_challenge(planner_client, planner_input, planner_calls)
-    rules_plan = _rules_only_plan(planner_input)
 
     control_outcome, control_trace = await _control_branch(
-        actor_client, profile, planner_input, baseline_tail, tail_weeks, settings
+        actor_client, profile, full, tail_weeks, settings, shopper_persona, observed_habits
     )
     llm_outcome, llm_trace = await _treatment_branch(
         actor_client,
+        planner_client,
         profile,
-        planner_input,
-        llm_plan,
-        "treatment_llm",
-        baseline_tail,
+        full,
+        eligible,
         tail_weeks,
         settings,
+        "treatment_llm",
+        True,
+        shopper_persona,
+        observed_habits,
+        planner_calls,
     )
     rules_outcome, rules_trace = await _treatment_branch(
         actor_client,
+        planner_client,
         profile,
-        planner_input,
-        rules_plan,
-        "treatment_rules",
-        baseline_tail,
+        full,
+        eligible,
         tail_weeks,
         settings,
+        "treatment_rules",
+        False,
+        shopper_persona,
+        observed_habits,
+        None,
     )
     branches: dict[str, BranchOutcome] = {
         "control_x5": control_outcome,
@@ -141,8 +176,13 @@ async def _evaluate_profile(
     if recorder is not None:
         recorder.add_profile(
             ProfileTrace(
-                snapshot=tracing.profile_snapshot(profile, planner_input.features.churn_risk),
-                plan_source=llm_plan.plan_source,
+                snapshot=tracing.profile_snapshot(
+                    profile,
+                    t_input.features.churn_risk,
+                    shopper_persona,
+                    observed_habits,
+                ),
+                plan_source=llm_outcome.plan_source,
                 planner_calls=planner_calls,
                 branches=[control_trace, llm_trace, rules_trace],
             )
@@ -151,7 +191,7 @@ async def _evaluate_profile(
         profile_id=profile.profile_id,
         segment=profile.segment,
         persona_label=profile.persona_label,
-        churn_risk=planner_input.features.churn_risk,
+        churn_risk=t_input.features.churn_risk,
         branches=branches,
     )
 
@@ -163,124 +203,243 @@ def _rules_only_plan(planner_input: PlannerInput) -> ValidatedPlan:
 async def _control_branch(
     actor_client: ChatClient | None,
     profile: UserProfile,
-    planner_input: PlannerInput,
-    baseline_tail: list[ShopVisit],
+    full: PurchaseHistory,
     tail_weeks: int,
     settings: EvalSettings,
+    shopper_persona: persona_module.Persona,
+    observed_habits: list[ShoppingHabit],
 ) -> tuple[BranchOutcome, BranchTrace]:
-    turn = await user_sim.offer_response(
+    baseline_tail = history.tail_visits(full, settings.cut_week)
+    weekly_baseline = _weekly_baseline(baseline_tail, settings.cut_week, tail_weeks)
+    chat = user_sim.WeeklyChat(
         actor_client,
         profile,
-        planner_input,
-        user_sim.CONTROL_OFFER_SUMMARY,
-        tail_weeks,
-        len(baseline_tail),
+        shopper_persona,
+        observed_habits,
         settings.null_test,
         "actor_control_x5",
     )
-    response = turn.response
-    incremental_visits = response.extra_visits if response.engaged else 0
-    incremental_revenue = incremental_visits * profile.avg_basket
-    reward_cost = round(_CONTROL_CASHBACK_RATE * incremental_revenue, 2)
+    incremental = 0
+    incremental_in_window = 0
+    completed_any = False
+    cumulative = 0
+    weeks: list[WeekTrace] = []
+    first_decision: ActorDecision | None = None
+    first_call: LlmCall | None = None
+    for offset in range(tail_weeks):
+        week_index = settings.cut_week + offset
+        base = weekly_baseline[offset]
+        turn = await chat.respond(offset + 1, user_sim.CONTROL_OFFER_SUMMARY, True, True)
+        extra = turn.response.extra_visits if turn.response.engaged else 0
+        completed = turn.response.completed_challenge and turn.response.engaged
+        incremental += extra
+        if offset < config.BUSINESS_METRIC_WINDOW_WEEKS:
+            incremental_in_window += extra
+        completed_any = completed_any or completed
+        cumulative += base + extra
+        source = "null" if turn.call is None else "actor_control_x5"
+        decision = tracing.actor_decision(turn.response, source)
+        weeks.append(
+            WeekTrace(
+                week_index=week_index,
+                challenge_active=True,
+                baseline_visits=base,
+                extra_visits=extra,
+                cumulative_visits=cumulative,
+                decision=decision,
+                llm_call=turn.call,
+            )
+        )
+        if first_decision is None:
+            first_decision = decision
+            first_call = turn.call
+    assert first_decision is not None
+    reward_cost = round(_CONTROL_CASHBACK_RATE * incremental * profile.avg_basket, 2)
     outcome = _build_outcome(
         branch="control_x5",
         plan_source="rules",
         profile=profile,
-        planner_input=planner_input,
         baseline_tail=baseline_tail,
         settings=settings,
-        incremental_visits=incremental_visits,
+        incremental_visits=incremental,
+        incremental_in_window=incremental_in_window,
         reward_cost=reward_cost,
         infra_cost=0.0,
-        completed=response.completed_challenge and response.engaged,
+        completed=completed_any,
         relevance_hit=False,
+        high_margin_hit=False,
     )
-    trace = _branch_trace(outcome, turn, user_sim.CONTROL_OFFER_SUMMARY)
+    trace = BranchTrace(
+        branch="control_x5",
+        offer_summary=user_sim.CONTROL_OFFER_SUMMARY,
+        plan_source="rules",
+        relevance_hit=False,
+        decision=first_decision,
+        incremental_visits=incremental,
+        reward_cost_rub=outcome.reward_cost_rub,
+        net_effect_rub=outcome.net_effect_rub,
+        llm_call=first_call,
+        weeks=weeks,
+    )
     return outcome, trace
 
 
 async def _treatment_branch(
     actor_client: ChatClient | None,
+    planner_client: ChatClient | None,
     profile: UserProfile,
-    planner_input: PlannerInput,
-    validated: ValidatedPlan,
-    branch: Branch,
-    baseline_tail: list[ShopVisit],
+    full: PurchaseHistory,
+    eligible: list[SkuCatalogItem],
     tail_weeks: int,
     settings: EvalSettings,
+    branch: Branch,
+    use_llm: bool,
+    shopper_persona: persona_module.Persona,
+    observed_habits: list[ShoppingHabit],
+    planner_calls: list[LlmCall] | None,
 ) -> tuple[BranchOutcome, BranchTrace]:
-    offer = validated.offers[0]
-    offer_summary = user_sim.offer_summary_for(offer)
-    turn = await user_sim.offer_response(
+    baseline_tail = history.tail_visits(full, settings.cut_week)
+    weekly_baseline = _weekly_baseline(baseline_tail, settings.cut_week, tail_weeks)
+    chat = user_sim.WeeklyChat(
         actor_client,
         profile,
-        planner_input,
-        offer_summary,
-        tail_weeks,
-        len(baseline_tail),
+        shopper_persona,
+        observed_habits,
         settings.null_test,
         f"actor_{branch}",
     )
-    response = turn.response
-    incremental_visits = response.extra_visits if response.engaged else 0
-    completed = response.completed_challenge and response.engaged
-    reward_cost = offer.reward.reward_cost_rub if completed else 0.0
+    previous_plans: list[PreviousPlan] = []
+    incremental = 0
+    incremental_in_window = 0
+    reward_cost = 0.0
+    completed_any = False
+    any_llm = False
+    any_relevant = False
+    any_high_margin = False
+    cumulative = 0
+    weeks: list[WeekTrace] = []
+    first_decision: ActorDecision | None = None
+    first_call: LlmCall | None = None
+    first_offer_summary = ""
+    for offset in range(tail_weeks):
+        week_index = settings.cut_week + offset
+        past = history.slice_history(full, week_index)
+        planner_input = insight.build_insight(profile, past, eligible, previous_plans)
+        if use_llm:
+            plan = await planner.plan_challenge(planner_client, planner_input, planner_calls)
+        else:
+            plan = _rules_only_plan(planner_input)
+        offer = plan.offers[0]
+        offer_view = app_view.render_app_view(plan, profile.level)
+        if offset == 0:
+            first_offer_summary = offer_view
+        relevant = _is_relevant(offer, planner_input)
+        high_margin = any(config.is_high_margin(candidate.category) for candidate in plan.offers)
+        base = weekly_baseline[offset]
+        turn = await chat.respond(offset + 1, offer_view, False, True)
+        engaged = turn.response.engaged
+        extra = turn.response.extra_visits if engaged else 0
+        completed = turn.response.completed_challenge and engaged
+        incremental += extra
+        if offset < config.BUSINESS_METRIC_WINDOW_WEEKS:
+            incremental_in_window += extra
+        if completed:
+            reward_cost += offer.reward.reward_cost_rub
+        completed_any = completed_any or completed
+        any_llm = any_llm or plan.plan_source == "llm"
+        any_relevant = any_relevant or relevant
+        any_high_margin = any_high_margin or high_margin
+        cumulative += base + extra
+        source = "null" if turn.call is None else f"actor_{branch}"
+        decision = tracing.actor_decision(turn.response, source)
+        weeks.append(
+            WeekTrace(
+                week_index=week_index,
+                challenge_active=True,
+                baseline_visits=base,
+                extra_visits=extra,
+                cumulative_visits=cumulative,
+                decision=decision,
+                llm_call=turn.call,
+            )
+        )
+        if first_decision is None:
+            first_decision = decision
+            first_call = turn.call
+        previous_plans.append(_as_previous_plan(offset + 1, offer, engaged, completed))
+    assert first_decision is not None
+    plan_source: PlanSource = "llm" if any_llm else "rules"
     outcome = _build_outcome(
         branch=branch,
-        plan_source=validated.plan_source,
+        plan_source=plan_source,
         profile=profile,
-        planner_input=planner_input,
         baseline_tail=baseline_tail,
         settings=settings,
-        incremental_visits=incremental_visits,
+        incremental_visits=incremental,
+        incremental_in_window=incremental_in_window,
         reward_cost=reward_cost,
         infra_cost=config.INFRA_COST_PER_USER_MONTH_RUB,
-        completed=completed,
-        relevance_hit=_is_relevant(offer, planner_input),
+        completed=completed_any,
+        relevance_hit=any_relevant,
+        high_margin_hit=any_high_margin,
     )
-    trace = _branch_trace(outcome, turn, offer_summary)
+    trace = BranchTrace(
+        branch=branch,
+        offer_summary=first_offer_summary,
+        plan_source=plan_source,
+        relevance_hit=any_relevant,
+        decision=first_decision,
+        incremental_visits=incremental,
+        reward_cost_rub=outcome.reward_cost_rub,
+        net_effect_rub=outcome.net_effect_rub,
+        llm_call=first_call,
+        weeks=weeks,
+    )
     return outcome, trace
 
 
-def _branch_trace(outcome: BranchOutcome, turn: ActorTurn, offer_summary: str) -> BranchTrace:
-    source = _decision_source(turn)
-    return BranchTrace(
-        branch=outcome.branch,
-        offer_summary=offer_summary,
-        plan_source=outcome.plan_source,
-        relevance_hit=outcome.relevance_hit,
-        decision=tracing.actor_decision(turn.response, source),
-        incremental_visits=outcome.incremental_visits,
-        reward_cost_rub=outcome.reward_cost_rub,
-        net_effect_rub=outcome.net_effect_rub,
-        llm_call=turn.call,
+def _as_previous_plan(
+    week: int, offer: ChallengeOffer, used: bool, completed: bool
+) -> PreviousPlan:
+    status: Literal["completed", "expired"] = "completed" if completed else "expired"
+    return PreviousPlan(
+        week=week,
+        challenge_type=offer.challenge_type,
+        xp_level=offer.reward.xp_level,
+        points_level=offer.reward.points_level,
+        status=status,
+        used=used,
     )
 
 
-def _decision_source(turn: ActorTurn) -> str:
-    if turn.call is None:
-        return "null"
-    return "actor_llm" if turn.call.parse_ok else "fallback_null"
+def _weekly_baseline(baseline_tail: list[ShopVisit], cut_week: int, tail_weeks: int) -> list[int]:
+    counts = [0] * tail_weeks
+    for visit in baseline_tail:
+        week = visit.day_index // 7 - cut_week
+        if 0 <= week < tail_weeks:
+            counts[week] += 1
+    return counts
 
 
 def _build_outcome(
     branch: Branch,
     plan_source: PlanSource,
     profile: UserProfile,
-    planner_input: PlannerInput,
     baseline_tail: list[ShopVisit],
     settings: EvalSettings,
     incremental_visits: int,
+    incremental_in_window: int,
     reward_cost: float,
     infra_cost: float,
     completed: bool,
     relevance_hit: bool,
+    high_margin_hit: bool,
 ) -> BranchOutcome:
     incremental_revenue = round(incremental_visits * profile.avg_basket, 2)
     incremental_margin = round(incremental_revenue * config.CONTRIBUTION_MARGIN, 2)
     net_effect = round(incremental_margin - reward_cost - infra_cost, 2)
     baseline_window = _visits_in_window(baseline_tail, settings.cut_week)
-    purchases_in_window = baseline_window + incremental_visits
+    purchases_in_window = baseline_window + incremental_in_window
     reached = purchases_in_window >= config.BUSINESS_METRIC_PURCHASES
     return BranchOutcome(
         branch=branch,
@@ -297,6 +456,7 @@ def _build_outcome(
         reached_business_metric=reached,
         completed_challenge=completed,
         relevance_hit=relevance_hit,
+        high_margin_hit=high_margin_hit,
     )
 
 
@@ -336,6 +496,7 @@ def _aggregate(results: list[ProfileEvalResult]) -> dict[str, BranchAggregate]:
             completion_rate=round(sum(o.completed_challenge for o in outcomes) / total, 4),
             relevance_hit_rate=round(sum(o.relevance_hit for o in outcomes) / total, 4),
             plan_source_llm_share=round(sum(o.plan_source == "llm" for o in outcomes) / total, 4),
+            high_margin_share=round(sum(o.high_margin_hit for o in outcomes) / total, 4),
         )
     return aggregates
 

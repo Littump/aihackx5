@@ -9,7 +9,7 @@ from app.ml.schemas import ChallengePlan, PlannerInput, ValidatedPlan
 from app.ml.tracing import LlmCall
 
 _SCHEMA_NAME = "challenge_plan"
-_MAX_TOKENS = 700
+_MAX_TOKENS = 1500
 
 
 async def plan_challenge(
@@ -72,6 +72,8 @@ def _render_user_prompt(planner_input: PlannerInput) -> str:
     return template.format(
         insight_json=insight_json,
         library=", ".join(planner_input.challenge_library),
+        high_margin_categories=", ".join(planner_input.high_margin_categories),
+        high_margin_mandate="ON" if planner_input.high_margin_mandate else "OFF",
     )
 
 
@@ -79,17 +81,30 @@ def _compact_insight(planner_input: PlannerInput) -> dict[str, Any]:
     return {
         "user": planner_input.user.model_dump(),
         "features": planner_input.features.model_dump(),
+        "favorite_categories": planner_input.favorite_categories,
         "category_timeseries": [
             series.model_dump() for series in planner_input.category_timeseries
         ],
         "previous_plans": [plan.model_dump() for plan in planner_input.previous_plans],
-        "catalog": [
-            {
-                "sku_id": item.sku_id,
-                "name": item.name,
-                "category": item.category,
-                "regular_price": item.regular_price,
-            }
-            for item in planner_input.catalog
-        ],
+        "high_margin_categories": planner_input.high_margin_categories,
+        "high_margin_mandate": planner_input.high_margin_mandate,
+        "category_menu": _category_menu(planner_input),
     }
+
+
+def _category_menu(planner_input: PlannerInput) -> list[dict[str, Any]]:
+    high_margin = set(planner_input.high_margin_categories)
+    grouped: dict[str, list[Any]] = {}
+    for item in planner_input.catalog:
+        grouped.setdefault(item.category, []).append(item)
+    menu: list[dict[str, Any]] = []
+    for category, items in grouped.items():
+        menu.append(
+            {
+                "category": category,
+                "is_high_margin": category in high_margin,
+                "example_products": [item.name for item in items[:2]],
+                "price_from": round(min(item.regular_price for item in items)),
+            }
+        )
+    return menu

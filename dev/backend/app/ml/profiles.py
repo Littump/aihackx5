@@ -4,11 +4,21 @@ from app.ml import config
 from app.ml.schemas import DealAttitude, Segment, UserProfile
 
 _SEGMENT_SHARE: tuple[tuple[Segment, float], ...] = (
-    ("regular_mid", 0.60),
-    ("light", 0.20),
-    ("heavy", 0.12),
-    ("dormant", 0.08),
+    ("regular_mid", 0.58),
+    ("light", 0.24),
+    ("heavy", 0.13),
+    ("dormant", 0.05),
 )
+_ATTITUDE_SHARE: tuple[tuple[DealAttitude, float], ...] = (
+    ("deal_seeker", 0.30),
+    ("selective", 0.48),
+    ("promo_skeptic", 0.22),
+)
+_ATTITUDE_PROMO_BAND: dict[DealAttitude, tuple[float, float]] = {
+    "promo_skeptic": (0.10, 0.33),
+    "selective": (0.37, 0.60),
+    "deal_seeker": (0.64, 0.92),
+}
 _VISITS_PER_WEEK: dict[Segment, tuple[float, float]] = {
     "regular_mid": (0.9, 1.8),
     "light": (0.3, 0.8),
@@ -20,12 +30,6 @@ _AVG_BASKET: dict[Segment, tuple[float, float]] = {
     "light": (300.0, 560.0),
     "heavy": (700.0, 1400.0),
     "dormant": (350.0, 620.0),
-}
-_PROMO_SENSITIVITY: dict[Segment, tuple[float, float]] = {
-    "regular_mid": (0.15, 0.55),
-    "light": (0.20, 0.60),
-    "heavy": (0.10, 0.40),
-    "dormant": (0.30, 0.80),
 }
 _RESPONSIVENESS: dict[Segment, tuple[float, float]] = {
     "regular_mid": (0.25, 0.65),
@@ -77,15 +81,14 @@ _ARCHETYPES: dict[Segment, tuple[str, ...]] = {
     ),
 }
 _ATTITUDE_BLURB: dict[DealAttitude, str] = {
-    "promo_skeptic": "К акциям равнодушен: почти всё пролистывает, верит рутине больше скидок.",
-    "selective": "Реагирует только на попадание в свою реальную потребность и вовремя.",
-    "deal_seeker": "Любит выгоду, но бросает силы только на то, что и так покупает.",
+    "promo_skeptic": (
+        "Занят и ценит время: берёт привычное на автомате, но точечную выгоду не упустит."
+    ),
+    "selective": "Считает деньги с умом: включается, когда выгода попадает в его корзину.",
+    "deal_seeker": (
+        "Осознанно ловит выгоду: держит приложение под рукой, копит баллы и кэшбэк на нужное."
+    ),
 }
-_ATTITUDE_THRESHOLDS: tuple[tuple[float, DealAttitude], ...] = (
-    (0.35, "promo_skeptic"),
-    (0.62, "selective"),
-    (1.01, "deal_seeker"),
-)
 _FAVORITE_CATEGORIES = 3
 
 
@@ -98,14 +101,14 @@ def _build_profile(rng: random.Random, index: int) -> UserProfile:
     segment = _pick_segment(rng)
     visits_per_week = round(rng.uniform(*_VISITS_PER_WEEK[segment]), 3)
     avg_basket = round(rng.uniform(*_AVG_BASKET[segment]), 2)
-    promo_sensitivity = round(rng.uniform(*_PROMO_SENSITIVITY[segment]), 3)
+    deal_attitude = _pick_attitude(rng)
+    promo_sensitivity = round(rng.uniform(*_ATTITUDE_PROMO_BAND[deal_attitude]), 3)
     responsiveness = round(rng.uniform(*_RESPONSIVENESS[segment]), 3)
     routine_rigidity = round(rng.uniform(*_ROUTINE_RIGIDITY[segment]), 3)
     tenure_weeks = rng.randint(2, 40)
     level = _level_for(segment, tenure_weeks, rng)
     persona = rng.choice(_PERSONAS[segment])
     archetype = rng.choice(_ARCHETYPES[segment])
-    deal_attitude = _deal_attitude(promo_sensitivity)
     weights = _category_weights(rng)
     favorites = _top_categories(weights)
     persona_brief = _ATTITUDE_BLURB[deal_attitude]
@@ -138,11 +141,14 @@ def _pick_segment(rng: random.Random) -> Segment:
     return _SEGMENT_SHARE[-1][0]
 
 
-def _deal_attitude(promo_sensitivity: float) -> DealAttitude:
-    for threshold, attitude in _ATTITUDE_THRESHOLDS:
-        if promo_sensitivity < threshold:
+def _pick_attitude(rng: random.Random) -> DealAttitude:
+    roll = rng.random()
+    cumulative = 0.0
+    for attitude, share in _ATTITUDE_SHARE:
+        cumulative += share
+        if roll <= cumulative:
             return attitude
-    return _ATTITUDE_THRESHOLDS[-1][1]
+    return _ATTITUDE_SHARE[-1][0]
 
 
 def _level_for(segment: Segment, tenure_weeks: int, rng: random.Random) -> int:

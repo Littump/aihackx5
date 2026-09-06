@@ -40,3 +40,10 @@ outputs/
 dev/backend/.synthetic/
 .mypy_cache/
 coverage/
+
+# Codex local skills (содержат доступ к инференс-узлу — не в git)
+.codex/
+
+# ML planner tuning iteration journals (internal, may contain node addresses)
+docs/ml-rework/planner-tuning/
+mermaid-filter.err

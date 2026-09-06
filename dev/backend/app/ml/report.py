@@ -12,6 +12,7 @@ def render_markdown(report: EvalReport) -> str:
     lines.append(f"- seed: {report.seed}, profiles: {report.profiles}")
     lines.append(f"- horizon: {report.horizon_weeks} weeks, cut point T: week {report.cut_week}")
     lines.append(f"- null_test: {report.null_test}")
+    lines.append(f"- high_margin_mandate: {report.high_margin_mandate}")
     lines.append(
         f"- business metric: share with >= {report.business_metric_purchases} purchases "
         f"in {report.business_metric_window_weeks} weeks"
@@ -19,16 +20,16 @@ def render_markdown(report: EvalReport) -> str:
     lines.append("")
     lines.append(
         "| branch | net_effect ₽ | incr.margin ₽ | reward cost ₽ | incr.visits | "
-        "biz-metric share | completion | relevance hit | llm plans |"
+        "biz-metric share | completion | relevance hit | high-margin | llm plans |"
     )
-    lines.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|")
+    lines.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
     for name in _BRANCH_ORDER:
         row = report.aggregates[name]
         lines.append(
             f"| {name} | {row.avg_net_effect_rub} | {row.avg_incremental_margin_rub} | "
             f"{row.avg_reward_cost_rub} | {row.avg_incremental_visits} | "
             f"{row.business_metric_share} | {row.completion_rate} | "
-            f"{row.relevance_hit_rate} | {row.plan_source_llm_share} |"
+            f"{row.relevance_hit_rate} | {row.high_margin_share} | {row.plan_source_llm_share} |"
         )
     lines.append("")
     lines.append(

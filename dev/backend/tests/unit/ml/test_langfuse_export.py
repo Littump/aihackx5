@@ -11,6 +11,7 @@ from app.ml.tracing import (
     LlmCall,
     ProfileSnapshot,
     ProfileTrace,
+    WeekTrace,
 )
 
 
@@ -32,6 +33,7 @@ def _profile() -> ProfileTrace:
         profile_id="P0001",
         segment="regular_mid",
         persona_label="родитель",
+        persona_brief="Родитель двоих детей, закупается на неделю, ценит стабильность",
         archetype="человек привычки",
         deal_attitude="promo_skeptic",
         routine_rigidity=0.7,
@@ -62,6 +64,26 @@ def _profile() -> ProfileTrace:
         parsed={"promo_decision": "use_offer"},
         parse_ok=True,
     )
+    weeks = [
+        WeekTrace(
+            week_index=6,
+            challenge_active=True,
+            baseline_visits=1,
+            extra_visits=1,
+            cumulative_visits=2,
+            decision=decision,
+            llm_call=call,
+        ),
+        WeekTrace(
+            week_index=7,
+            challenge_active=False,
+            baseline_visits=2,
+            extra_visits=0,
+            cumulative_visits=4,
+            decision=None,
+            llm_call=None,
+        ),
+    ]
     branch = BranchTrace(
         branch="treatment_llm",
         offer_summary="dairy replenishment",
@@ -72,6 +94,7 @@ def _profile() -> ProfileTrace:
         reward_cost_rub=7.0,
         net_effect_rub=60.0,
         llm_call=call,
+        weeks=weeks,
     )
     return ProfileTrace(snapshot=snapshot, plan_source="llm", planner_calls=[], branches=[branch])
 
@@ -101,3 +124,34 @@ def test_push_without_sdk_raises_helpful_error() -> None:
     loaded = langfuse_export.LoadedTraces(header=_header(), profiles=[_profile()])
     with pytest.raises(RuntimeError, match="langfuse SDK is not installed"):
         langfuse_export.push_to_langfuse(loaded, "pk", "sk", "http://localhost:3000")
+
+
+def test_profile_story_is_judge_ready() -> None:
+    story = langfuse_export.profile_story(_profile())
+    shopper = story["input"]["shopper"]
+    strategy = story["input"]["planner_strategy"]
+    decisions = story["output"]["branch_decisions"]
+    assert shopper["who_they_are"].startswith("Родитель")
+    assert shopper["deal_attitude"] == "promo_skeptic"
+    assert strategy["offer_shown_to_user"] == "dairy replenishment"
+    assert decisions[0]["shopper_verdict"] == "use_offer"
+    assert decisions[0]["shopper_rationale"] == "on-target and cheap effort"
+    assert decisions[0]["shopper_thinking"] == "dairy is overdue, worth one trip"
+    assert story["output"]["how_to_judge"]
+
+
+def test_weekly_progression_present_in_story() -> None:
+    story = langfuse_export.profile_story(_profile())
+    progression = story["output"]["branch_decisions"][0]["weekly_progression"]
+    assert [week["week_index"] for week in progression] == [6, 7]
+    assert [week["cumulative_visits"] for week in progression] == [2, 4]
+    assert progression[0]["challenge_active"] is True
+    assert progression[1]["promo_decision"] is None
+
+
+def test_branch_metric_scores_are_chartable() -> None:
+    scores = langfuse_export.branch_metric_scores(_profile().branches[0])
+    assert scores["treatment_llm_incremental_visits"] == 1.0
+    assert scores["treatment_llm_net_effect_rub"] == 60.0
+    assert scores["treatment_llm_cum_visits_T6"] == 2.0
+    assert scores["treatment_llm_cum_visits_T7"] == 4.0

@@ -2,15 +2,38 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from app.ml import config
+
 Segment = Literal["regular_mid", "light", "heavy", "dormant"]
 ChurnRisk = Literal["none", "elevated", "high"]
-ChallengeType = Literal["frequency", "category", "basket", "streak", "replenishment", "collection"]
-RewardKind = Literal["promo", "ladder", "none"]
-RewardLevel = Literal["none", "low", "medium", "high"]
+ChallengeType = Literal["frequency", "category", "basket", "replenishment", "collection"]
+Lifecycle = Literal["rising", "steady", "cooling", "dormant"]
+Posture = Literal["promo_immune", "value_selective", "deal_driven"]
+CadenceClass = Literal["staple", "lapsed", "regular", "occasional"]
+GoalTarget = Literal["visit_frequency", "basket_value"]
+GoalProxy = Literal["lapsed_category_rebuy", "add_category", "high_margin_category", "none"]
+GoalDirection = Literal["increase", "recover", "sustain"]
+XpLevel = Literal["low", "medium", "high"]
+PointsLevel = Literal["none", "low", "medium", "high"]
+InsightKind = Literal[
+    "lapsed_category",
+    "momentum_ride",
+    "visit_headroom",
+    "churn_drift",
+    "dormant_gap",
+    "basket_depth",
+    "high_margin_push",
+    "streak_continuity",
+    "reward_posture",
+    "staple_avoid",
+]
+ChallengeRole = Literal["hero", "side"]
 PlanSource = Literal["llm", "rules"]
 Branch = Literal["control_x5", "treatment_llm", "treatment_rules"]
 PromoDecision = Literal["use_offer", "buy_as_usual", "ignore"]
 DealAttitude = Literal["promo_skeptic", "selective", "deal_seeker"]
+JudgeVerdictLabel = Literal["good", "mixed", "bad"]
+JudgeCooperationFlag = Literal["too_cooperative", "consistent", "too_resistant"]
 
 
 class SkuCatalogItem(BaseModel):
@@ -66,13 +89,23 @@ class CategoryTimeseries(BaseModel):
     days_overdue: float
     share: float
     visits: int
+    contribution_margin: float
+    is_high_margin: bool
+
+
+class ShoppingHabit(BaseModel):
+    category: str
+    cadence_class: CadenceClass
+    share: float
+    days_overdue: float
+    cadence_days: float
 
 
 class PreviousPlan(BaseModel):
     week: int
     challenge_type: ChallengeType
-    reward_kind: RewardKind
-    reward_level: RewardLevel
+    xp_level: XpLevel
+    points_level: PointsLevel
     status: Literal["completed", "expired", "active"]
     used: bool
 
@@ -91,49 +124,98 @@ class PlannerFeatures(BaseModel):
     cadence_days: float
     churn_risk: ChurnRisk
     baseline_visits: int
+    visit_momentum: float
+    overdue_ratio: float
+    cadence_regularity: float
+    visit_headroom_ratio: float
+    basket_index: float
+    category_breadth: int
+    top_category_overdue_ratio: float
 
 
 class PlannerInput(BaseModel):
     user: PlannerUser
     features: PlannerFeatures
+    favorite_categories: list[str]
     category_timeseries: list[CategoryTimeseries]
     catalog: list[SkuCatalogItem]
     previous_plans: list[PreviousPlan]
     challenge_library: list[str]
+    high_margin_categories: list[str]
+    high_margin_mandate: bool
 
 
-class ChallengeStep(BaseModel):
+class BuyerClassification(BaseModel):
+    keywords: list[str] = Field(min_length=2, max_length=5)
+    label: str = Field(max_length=140)
+    description: str = Field(max_length=280)
+    evidence: list[str] = Field(default_factory=list)
+    posture: Posture
+    is_ambiguous: bool = False
+
+
+class PlannerGoal(BaseModel):
+    target: GoalTarget
+    proxy: GoalProxy
+    direction: GoalDirection
+    rationale: str = Field(max_length=300)
+
+
+class NamedInsight(BaseModel):
+    name: str = Field(max_length=60)
+    kind: InsightKind
+    behaviour: str = Field(max_length=220)
+    dod: str = Field(max_length=200)
+    strategy_hint: str = Field(max_length=200)
+    evidence_metric: str = Field(max_length=90)
+
+
+class ChallengeReward(BaseModel):
+    xp_level: XpLevel
+    points_level: PointsLevel
+
+
+class PlannedChallenge(BaseModel):
+    role: ChallengeRole
+    insight_ref: str = Field(max_length=60)
     challenge_type: ChallengeType
-    target: int
     category: str | None
-    sku_refs: list[str] = Field(default_factory=list, max_length=3)
-    reward_kind: RewardKind
-    reward_level: RewardLevel
-    deadline_days: int
+    target: int = Field(ge=1)
+    reward: ChallengeReward
+    rationale: str = Field(max_length=240)
+
+
+class GeneralStrategy(BaseModel):
+    insight_refs: list[str] = Field(default_factory=list)
+    rationale: str = Field(max_length=400)
+    next_week_hint: str = Field(default="", max_length=240)
 
 
 class ChallengePlan(BaseModel):
-    steps: list[ChallengeStep] = Field(min_length=1, max_length=2)
-    insight_used: list[str] = Field(default_factory=list)
-    rationale: str = Field(max_length=400)
+    thinking: str = Field(default="", max_length=1500)
+    classification: BuyerClassification
+    goal: PlannerGoal
+    insights: list[NamedInsight] = Field(min_length=1, max_length=config.MAX_INSIGHTS)
+    challenges: list[PlannedChallenge] = Field(min_length=1, max_length=config.MAX_CHALLENGES)
+    general_strategy: GeneralStrategy
 
 
 class RewardComputation(BaseModel):
-    reward_kind: RewardKind
-    reward_level: RewardLevel
+    xp_level: XpLevel
+    points_level: PointsLevel
+    xp_amount: int
     max_reward_rub: float
     reward_points: int
-    ladder_bonus_xp: int
     reward_cost_rub: float
 
 
 class ChallengeOffer(BaseModel):
-    plan_step: int
+    role: ChallengeRole
+    insight_ref: str
     challenge_type: ChallengeType
     category: str | None
     baseline: int
     target: int
-    sku_refs: list[str]
     deadline_days: int
     reward: RewardComputation
     rationale: str
@@ -141,10 +223,13 @@ class ChallengeOffer(BaseModel):
 
 class ValidatedPlan(BaseModel):
     offers: list[ChallengeOffer]
+    classification: BuyerClassification
+    goal: PlannerGoal
+    insights: list[NamedInsight]
+    general_strategy: GeneralStrategy
     plan_source: PlanSource
     is_valid: bool
     repair_count: int
-    insight_used: list[str]
 
 
 class OfferResponse(BaseModel):
@@ -174,6 +259,7 @@ class BranchOutcome(BaseModel):
     reached_business_metric: bool
     completed_challenge: bool
     relevance_hit: bool
+    high_margin_hit: bool
 
 
 class ProfileEvalResult(BaseModel):
@@ -195,6 +281,7 @@ class BranchAggregate(BaseModel):
     completion_rate: float
     relevance_hit_rate: float
     plan_source_llm_share: float
+    high_margin_share: float
 
 
 class EvalReport(BaseModel):
@@ -205,8 +292,67 @@ class EvalReport(BaseModel):
     planner_model: str
     actor_model: str
     null_test: bool
+    high_margin_mandate: bool
     business_metric_purchases: int
     business_metric_window_weeks: int
     aggregates: dict[str, BranchAggregate]
     business_metric_uplift_pp: float
     results: list[ProfileEvalResult]
+
+
+JudgeInsightSeverity = Literal["good", "concern", "critical"]
+
+
+class JudgeInsight(BaseModel):
+    aspect: str = Field(max_length=48)
+    observation: str = Field(max_length=240)
+    severity: JudgeInsightSeverity
+
+
+class JudgeVerdict(BaseModel):
+    planner_insights: list[JudgeInsight] = Field(min_length=1, max_length=6)
+    persona_insights: list[JudgeInsight] = Field(min_length=1, max_length=6)
+    strategy_fit: int = Field(ge=1, le=5)
+    mechanic_choice: int = Field(ge=1, le=5)
+    reward_fit: int = Field(ge=1, le=5)
+    rationale_honesty: int = Field(ge=1, le=5)
+    persona_consistency: int = Field(ge=1, le=5)
+    actor_cooperation: JudgeCooperationFlag
+    verdict: JudgeVerdictLabel
+    summary: str = Field(max_length=400)
+
+
+class ProfileJudgement(BaseModel):
+    profile_id: str
+    segment: str
+    verdict: JudgeVerdict
+
+
+JudgeSeverity = Literal["high", "medium", "low"]
+JudgeProposalDimension = Literal[
+    "strategy_fit",
+    "mechanic_choice",
+    "reward_fit",
+    "rationale_honesty",
+    "persona_consistency",
+    "actor_cooperation",
+]
+
+
+class ProposalEvidence(BaseModel):
+    profile_id: str
+    observation: str = Field(max_length=280)
+
+
+class JudgeProposal(BaseModel):
+    title: str = Field(max_length=120)
+    dimension: JudgeProposalDimension
+    severity: JudgeSeverity
+    problem: str = Field(max_length=600)
+    proposal: str = Field(max_length=600)
+    evidence: list[ProposalEvidence] = Field(min_length=2, max_length=6)
+
+
+class JudgeProposals(BaseModel):
+    analysis: str = Field(max_length=1600)
+    proposals: list[JudgeProposal] = Field(max_length=8)

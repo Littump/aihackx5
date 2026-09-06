@@ -41,6 +41,21 @@ TARGET_MIN_DELTA = 1
 TARGET_CEILING_DELTA = 2
 
 CONTRIBUTION_MARGIN = 0.15
+CATEGORY_CONTRIBUTION_MARGIN: dict[str, float] = {
+    "dairy": 0.14,
+    "bakery": 0.16,
+    "fruits_veg": 0.20,
+    "meat_fish": 0.13,
+    "grocery": 0.12,
+    "snacks": 0.30,
+    "drinks": 0.28,
+    "alcohol": 0.25,
+    "household": 0.32,
+    "beauty": 0.40,
+    "ready_food": 0.35,
+    "other": 0.18,
+}
+HIGH_MARGIN_MIN_MARGIN = 0.28
 REWARD_SHARE_MAX = 0.40
 REWARD_POINTS_MIN = 30
 REWARD_POINTS_MAX_WEEKLY = 150

@@ -2,7 +2,7 @@ from decimal import ROUND_FLOOR, Decimal
 
 from app import game_rules
 from app.ml import config
-from app.ml.schemas import RewardComputation, RewardKind, RewardLevel
+from app.ml.schemas import PointsLevel, RewardComputation, XpLevel
 
 _LADDER_MULTIPLIER_MAX = 1.5
 _LADDER_MULTIPLIER_MIN = 0.5
@@ -19,8 +19,8 @@ def max_reward_rub(baseline: int, target: int, avg_basket: float) -> Decimal:
     return incremental_margin * Decimal(str(config.REWARD_SHARE_MAX))
 
 
-def reward_points_for_level(max_reward_rub_value: Decimal, reward_level: RewardLevel) -> int:
-    share = Decimal(str(config.PROMO_LEVEL_SHARE[reward_level]))
+def reward_points_for_level(max_reward_rub_value: Decimal, points_level: PointsLevel) -> int:
+    share = Decimal(str(config.POINTS_LEVEL_SHARE[points_level]))
     scaled = max_reward_rub_value * share
     step = Decimal(config.REWARD_POINTS_ROUNDING_STEP)
     floored = (scaled / step).to_integral_value(rounding=ROUND_FLOOR)
@@ -34,8 +34,8 @@ def grade_multiplier(level: int, tenure_weeks: int) -> float:
     return max(_LADDER_MULTIPLIER_MIN, min(_LADDER_MULTIPLIER_MAX, raw))
 
 
-def ladder_bonus_xp(reward_level: RewardLevel, level: int, tenure_weeks: int) -> int:
-    base = config.LADDER_STAGE_BASE_XP[reward_level]
+def xp_amount(xp_level: XpLevel, level: int, tenure_weeks: int) -> int:
+    base = config.XP_CHALLENGE * config.XP_LEVEL_MULTIPLIER[xp_level]
     return round(base * grade_multiplier(level, tenure_weeks))
 
 
@@ -43,37 +43,25 @@ def compute_reward(
     baseline: int,
     target: int,
     avg_basket: float,
-    reward_kind: RewardKind,
-    reward_level: RewardLevel,
+    xp_level: XpLevel,
+    points_level: PointsLevel,
     level: int,
     tenure_weeks: int,
 ) -> RewardComputation:
     budget = max_reward_rub(baseline, target, avg_basket)
-    if reward_kind == "promo":
-        points = reward_points_for_level(budget, reward_level)
-        cost = round(points * game_rules.POINT_COST_RUB, 2)
-        return RewardComputation(
-            reward_kind=reward_kind,
-            reward_level=reward_level,
-            max_reward_rub=float(round(budget, 2)),
-            reward_points=points,
-            ladder_bonus_xp=0,
-            reward_cost_rub=cost,
-        )
-    if reward_kind == "ladder":
-        return RewardComputation(
-            reward_kind=reward_kind,
-            reward_level=reward_level,
-            max_reward_rub=float(round(budget, 2)),
-            reward_points=0,
-            ladder_bonus_xp=ladder_bonus_xp(reward_level, level, tenure_weeks),
-            reward_cost_rub=0.0,
-        )
+    raw_points = reward_points_for_level(budget, points_level) if points_level != "none" else 0
+    if raw_points < config.REWARD_POINTS_MIN:
+        points = 0
+        effective_points_level: PointsLevel = "none"
+    else:
+        points = raw_points
+        effective_points_level = points_level
+    cost = round(points * game_rules.POINT_COST_RUB, 2)
     return RewardComputation(
-        reward_kind="none",
-        reward_level="none",
+        xp_level=xp_level,
+        points_level=effective_points_level,
+        xp_amount=xp_amount(xp_level, level, tenure_weeks),
         max_reward_rub=float(round(budget, 2)),
-        reward_points=0,
-        ladder_bonus_xp=0,
-        reward_cost_rub=0.0,
+        reward_points=points,
+        reward_cost_rub=cost,
     )

@@ -27,10 +27,16 @@ def test_deal_attitude_tracks_promo_sensitivity_buckets() -> None:
             assert person.deal_attitude == "deal_seeker"
 
 
-def test_population_is_not_uniformly_cooperative() -> None:
-    people = profiles_module.build_profiles(7, 200)
-    skeptics = sum(person.deal_attitude == "promo_skeptic" for person in people)
-    assert skeptics >= 20
+def test_population_is_a_balanced_smart_money_spread() -> None:
+    people = profiles_module.build_profiles(7, 400)
+    total = len(people)
+    deal_seekers = sum(person.deal_attitude == "deal_seeker" for person in people) / total
+    selective = sum(person.deal_attitude == "selective" for person in people) / total
+    skeptics = sum(person.deal_attitude == "promo_skeptic" for person in people) / total
+    assert deal_seekers >= 0.20
+    assert selective >= 0.35
+    assert 0.12 <= skeptics <= 0.32
+    assert deal_seekers > 0.0 and selective > 0.0 and skeptics > 0.0
 
 
 def test_profiles_remain_deterministic() -> None:
